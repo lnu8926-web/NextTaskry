@@ -18,7 +18,8 @@ import {
 import { showToast } from "@/lib/utils/toast";
 import { getUser, getUserById } from "@/lib/api/users";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ComboBox, type Item } from "./ComboBox";
 import ProjectDateCard from "./ProjectDateCard";
 import { RoleSelect } from "./RoleSelect";
@@ -53,84 +54,83 @@ export default function ProjectForm() {
     description: "",
   });
   const [user, setUser] = useState<Item | null>(null);
-  const [userList, setUserList] = useState<Item[]>([]);
-  const [projectMember, setProjectMember] = useState<any[]>([]);
+  const queryClient = useQueryClient();
 
+  interface ProjectMemberItem {
+    projectId: string;
+    userId: string;
+    userName: string;
+    email: string;
+    role: string;
+  }
+  const [projectMember, setProjectMember] = useState<ProjectMemberItem[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 유저 조회
-        const userResult = await getUser();
-        if (userResult.data) {
-          setUserList(
-            userResult.data.map(({ user_id, user_name, email }) => ({
-              id: user_id,
-              label: `${user_name} (${email})`,
-              value: user_name,
-              email,
-            }))
-          );
-        }
+  // 유저 목록 조회
+  const { data: userList = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const result = await getUser();
+      return (result.data || []).map(({ user_id, user_name, email }) => ({
+        id: user_id,
+        label: `${user_name} (${email})`,
+        value: user_name,
+        email,
+      })) as Item[];
+    },
+    staleTime: 1000 * 60 * 10,
+  });
 
-        if (!projectId) {
-          return;
-        }
+  // 프로젝트 정보 + 멤버 조회 (수정 모드)
+  useQuery({
+    queryKey: ["project-form", projectId],
+    queryFn: async () => {
+      if (!projectId) return null;
 
-        // 프로젝트 정보 및 멤버 조회
-        const [projectResult, memberResult] = await Promise.all([
-          getProjectById(projectId),
-          getProjectMember(projectId),
-        ]);
+      const [projectResult, memberResult] = await Promise.all([
+        getProjectById(projectId),
+        getProjectMember(projectId),
+      ]);
 
-        
-        // 프로젝트 데이터 설정
-        const project = projectResult.data?.[0];
-        if (project) {
-          setProjectData({
-            ...project,
-            projectName: project.project_name,
-            startedAt: project.started_at,
-            endedAt: project.ended_at,
-            createdAt: project.created_at,
-            updatedAt: project.updated_at,
-            techStack: project.tech_stack,
-          });
-        }
-
-        // 프로젝트 멤버 데이터 설정
-        if (memberResult.data) {
-          const memberPromises = memberResult.data.map(async (member) => {
-            const { data } = await getUserById("eq", member.user_id);
-            const userInfo = data?.[0];
-
-            if (!userInfo) {
-              return null;
-            }
-
-            return {
-              projectId: projectId,
-              userId: userInfo.user_id,
-              userName: userInfo.user_name,
-              email: userInfo.email,
-              role: member.role,
-            };
-          });
-
-          const validMembers = (await Promise.all(memberPromises)).filter(
-            Boolean
-          );
-          setProjectMember(validMembers);
-        }
-      } catch (err) {
-        console.error(err);
+      const project = projectResult.data?.[0];
+      if (project) {
+        setProjectData({
+          ...project,
+          projectName: project.project_name,
+          startedAt: project.started_at,
+          endedAt: project.ended_at,
+          createdAt: project.created_at,
+          updatedAt: project.updated_at,
+          techStack: project.tech_stack,
+        });
       }
-    };
-    fetchData();
-  }, [projectId]);
+
+      if (memberResult.data) {
+        const memberPromises = memberResult.data.map(async (member) => {
+          const { data } = await getUserById("eq", member.user_id);
+          const userInfo = data?.[0];
+          if (!userInfo) return null;
+          return {
+            projectId,
+            userId: userInfo.user_id,
+            userName: userInfo.user_name,
+            email: userInfo.email,
+            role: member.role,
+          };
+        });
+        const validMembers = (await Promise.all(memberPromises)).filter(
+          (m): m is ProjectMemberItem => m !== null
+        );
+        setProjectMember(validMembers);
+      }
+
+      return null;
+    },
+    enabled: !!projectId,
+    staleTime: 1000 * 60 * 5,
+  });
 
   // 일반 Input과 Textarea를 위한 handleChange
-  const handleChange = (event: any) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setProjectData((prevProjectData) => ({
       ...prevProjectData,
@@ -208,10 +208,8 @@ export default function ProjectForm() {
     setProjectMember(filterProjectMember);
   };
 
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-
-    try {
+  const { mutate: submitProject, isPending: isSubmitting } = useMutation({
+    mutationFn: async () => {
       let targetId = projectId;
 
       if (!targetId) {
@@ -224,13 +222,21 @@ export default function ProjectForm() {
       if (targetId) {
         await updateProjectMember(targetId, projectMember);
       }
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       showToast("저장되었습니다.", "success");
       router.push("/");
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       showToast("저장에 실패했습니다.", "error");
-    }
+    },
+  });
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitProject();
   };
 
   return (
@@ -379,9 +385,10 @@ export default function ProjectForm() {
             variant="primary"
             size={16}
             className="hover:cursor-pointer mr-2 text-white"
-            onClick={handleSubmit}
+            onClick={() => submitProject()}
+            disabled={isSubmitting}
           >
-            {projectId ? "수정 완료" : "프로젝트 생성"}
+            {isSubmitting ? "저장 중..." : projectId ? "수정 완료" : "프로젝트 생성"}
           </Button>
         </div>
       </div>
