@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { Resend } from "resend";
-
-export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET() {
   try {
@@ -160,33 +157,29 @@ export async function POST(req: Request) {
 
 
 
-    // 3. 이메일 발송 NEXT_PUBLIC_APP_URL: resend 설정 url
+    // 3. 이메일 발송 (Supabase Auth 초대 이메일)
     const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/login?invite=${invitationId}`;
 
-
-    //reuslt는 resend 에서 메일 발송에 대한 ex :"id": "3788f0cf-fcee-4b10-8dcb-23bcd428569b" 만 전달받는다. 
-    //이메일 발송자체를 추적할거아니면 딱히 필요하지않음.
-    const result=  await resend.emails.send({
-      from: "Taskry <onboarding@resend.dev>",
-      to: email,
-      subject:
-        invitation_type === "project"
-          ? "프로젝트에 초대되었습니다"
-          : "서비스에 초대되었습니다",
-      html: `
-        <h2>초대 안내</h2>
-        <p>아래 버튼을 눌러 로그인하여 초대를 완료하세요.</p>
-        <a href="${inviteUrl}" 
-           style="display:inline-block;padding:12px 20px;background:#4a6cf7;color:white;border-radius:8px;text-decoration:none;">
-          초대 수락하기
-        </a>
-      `,
+    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: inviteUrl,
     });
+
+    if (inviteError) {
+      console.error("이메일 발송 오류:", inviteError);
+      // 이메일 발송 실패 시 초대 레코드 삭제
+      await supabaseAdmin
+        .from("project_invitation_new")
+        .delete()
+        .eq("invitation_id", invitationId);
+      return NextResponse.json(
+        { error: "이메일 발송 실패" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       ok: true,
       invitationId,
-      result
     });
   } catch (err) {
     console.error(err);

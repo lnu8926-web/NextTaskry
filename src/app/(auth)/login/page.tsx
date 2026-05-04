@@ -3,10 +3,10 @@ import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import Container from "@/components/shared/Container";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -54,5 +54,13 @@ export default function LoginPage() {
         </Button>
       </div>
     </Container>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }

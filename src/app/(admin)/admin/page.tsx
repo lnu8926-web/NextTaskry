@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -10,7 +10,7 @@ import AdminProjectsPage from "./projects/page";
 import AdminNoticesPage from "./notice/page";
 import AdminUsersPage from "./users/page";
 
-export default function Page() {
+function AdminContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "users";
@@ -65,5 +65,13 @@ export default function Page() {
       </Tabs>
       {renderContent()}
     </section>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <AdminContent />
+    </Suspense>
   );
 }

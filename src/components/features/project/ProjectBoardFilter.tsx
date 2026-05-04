@@ -1,3 +1,4 @@
+"use client";
 
 import { useProjectBoard } from "@/providers/ProjectBoardProvider";
 import { DateSelect } from "./DateSelect";

@@ -1,4 +1,4 @@
-"Use Client";
+"use client";
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBgColor } from "@/app/sample/color/page";
