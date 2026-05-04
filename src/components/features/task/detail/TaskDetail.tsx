@@ -22,6 +22,7 @@ import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
 
 // 타입 정의
 import { Task } from "@/types/kanban";
+import type { ProjectMemberWithUser } from "@/types/projectMember";
 
 // ============================================
 // 🛠️ 유틸리티 함수들
@@ -134,7 +135,7 @@ export default function TaskDetail({
   const [editingField, setEditingField] = useState<string | null>(null); // 현재 편집 중인 필드
   const [isLoadingMembers, setIsLoadingMembers] = useState(false); // 멤버 로딩 상태
   const [isLoadingAssignee, setIsLoadingAssignee] = useState(false); // assignee 보강 로딩 상태
-  const [members, setMembers] = useState<ProjectMember[] | null>(null); // 프로젝트 멤버 목록
+  const [members, setMembers] = useState<ProjectMemberWithUser[] | undefined>(undefined); // 프로젝트 멤버 목록
   const { openModal, modalProps } = useModal(); // 삭제 확인 모달 관리
 
   // 프로젝트 종료 상태 체크
@@ -179,16 +180,16 @@ export default function TaskDetail({
 
         // 📈 응답 데이터 처리
         if (result.data) {
-          setMembers(result.data); // 성공: 멤버 목록 설정
+          setMembers(result.data as ProjectMemberWithUser[]); // 성공: 멤버 목록 설정
         } else {
           console.warn("프로젝트 멤버 데이터가 없습니다:", result);
-          setMembers([]); // 데이터 없음: 빈 배열
+          setMembers(undefined); // 데이터 없음: 빈 배열
         }
       } catch (error) {
         // 🚑 예외 처리: 네트워크 오류, API 에러 등
         console.error("프로젝트 멤버 조회 에러:", error);
-        // 에러가 발생해도 UI가 깨지지 않도록 빈 배열로 설정
-        setMembers([]);
+        // 에러가 발생해도 UI가 깨지지 않도록 undefined로 설정
+        setMembers(undefined);
       } finally {
         setIsLoadingMembers(false); // 로딩 상태 종료
       }

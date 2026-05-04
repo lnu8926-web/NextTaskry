@@ -208,8 +208,8 @@ const SubtaskList = ({
                 <input
                   type="text"
                   value={editingTitle}
-                  onChange={(e: any) => setEditingTitle(e.target.value)}
-                  onKeyDown={(e: any) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditingTitle(e.target.value)}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === "Enter") handleSaveEdit(subtask.id);
                     if (e.key === "Escape") handleCancelEdit();
                   }}
@@ -273,8 +273,8 @@ const SubtaskList = ({
           <input
             type="text"
             value={newSubtaskTitle}
-            onChange={(e: any) => setNewSubtaskTitle(e.target.value)}
-            onKeyDown={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewSubtaskTitle(e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter") handleAddSubtask();
               if (e.key === "Escape") {
                 setShowAddInput(false);

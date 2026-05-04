@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import type { Task } from "@/types/kanban";
 
 interface UseTaskManagementProps {
   boardId: string;
@@ -8,11 +9,11 @@ interface UseTaskManagementProps {
 }
 
 interface TaskManagementResult {
-  tasks: any[];
+  tasks: Task[];
   isLoading: boolean;
   error: string | null;
-  createTask: (taskData: any) => Promise<void>;
-  updateTask: (taskId: string, updates: any) => Promise<void>;
+  createTask: (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => Promise<void>;
+  updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
   refreshTasks: () => Promise<void>;
 }
@@ -26,7 +27,7 @@ export function useTaskManagement({
   boardId,
   projectId,
 }: UseTaskManagementProps): TaskManagementResult {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +51,7 @@ export function useTaskManagement({
   }, [boardId]);
 
   // Task 생성
-  const createTask = async (taskData: any) => {
+  const createTask = async (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
     try {
       const response = await fetch("/api/tasks", {
         method: "POST",
@@ -75,7 +76,7 @@ export function useTaskManagement({
   };
 
   // Task 수정
-  const updateTask = async (taskId: string, updates: any) => {
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: "PUT",

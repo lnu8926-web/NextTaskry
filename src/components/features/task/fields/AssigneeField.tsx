@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { NoMembersState } from "@/components/shared/EmptyState";
+import { ProjectMemberWithUser } from "@/types";
 
 // ============================================
 // Types & Constants
@@ -17,7 +18,7 @@ interface AssigneeFieldProps {
   // 편집 모드 props (TaskDetail용)
   isEditing?: boolean;
   isLoading?: boolean;
-  members?: any;
+  members?: ProjectMemberWithUser[];
   onEdit?: () => void;
   onBlur?: () => void;
   onCancel?: () => void;
@@ -50,10 +51,10 @@ export function AssigneeField({
   const [searchTerm, setSearchTerm] = useState("");
 
   // 선택된 멤버 처리
-  const selectedMember = members?.find((m: any) => m.user_id === value);
+  const selectedMember = members?.find((m) => m.user_id === value);
 
   // 입력값에 따른 멤버 필터링
-  const filteredMembers = (members || []).filter((member: any) => {
+  const filteredMembers = (members || []).filter((member) => {
     if (!searchTerm) return true; // 검색어가 없으면 전체 표시
 
     const searchLower = searchTerm.toLowerCase();
@@ -75,7 +76,7 @@ export function AssigneeField({
     onBlur?.();
   };
 
-  const handleImageError = (userId?: string) => {
+  const handleImageError = () => {
     // 이미지 로드 실패시 처리 (옵션)
     // console.log("Image load failed for user:", userId);
   };
@@ -160,7 +161,7 @@ export function AssigneeField({
           <input
             type="text"
             value={searchTerm || ""}
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const inputValue = e.target.value;
               setSearchTerm(inputValue);
               setIsOpen(true);
@@ -177,7 +178,7 @@ export function AssigneeField({
               setTimeout(() => setIsOpen(false), 200);
               onBlur?.();
             }}
-            onKeyDown={(e: any) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter" && filteredMembers.length > 0) {
                 handleSelectMember(
                   filteredMembers[0].user_id,
@@ -217,7 +218,7 @@ export function AssigneeField({
             {/* 드롭다운 목록 - 3명부터 스크롤 */}
             {!isLoading && filteredMembers.length > 0 && (
               <div className="border border-gray-200 dark:border-gray-600 rounded-lg max-h-[120px] overflow-y-auto bg-white dark:bg-gray-800 shadow-lg">
-                {filteredMembers.map((member: any) => (
+                {filteredMembers.map((member) => (
                   <div
                     key={member.user_id}
                     onMouseDown={(e) => {
@@ -267,7 +268,7 @@ export function AssigneeField({
                 userName={selectedMember?.users?.user_name || ""}
                 profileImage={selectedMember?.users?.profile_image}
                 size={32}
-                onImageError={() => handleImageError(selectedMember?.user_id)}
+                onImageError={handleImageError}
               />
               <div className="flex-1">
                 <div className="text-sm text-gray-700 dark:text-gray-300">

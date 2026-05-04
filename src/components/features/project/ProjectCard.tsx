@@ -12,11 +12,12 @@ import { DeleteDialog } from "./DeleteDialog";
 import { deleteProject, deleteProjectMember } from "@/lib/api/projects";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
+import type { Project } from "@/types/project";
 
 interface ProjectCardProps {
-  project: any;
-  setProjectList: React.Dispatch<React.SetStateAction<any[]>>;
-  projectMember: any;
+  project: Project;
+  setProjectList: React.Dispatch<React.SetStateAction<Project[]>>;
+  projectMember: Record<string, number> | null;
 }
 
 export default function ProjectCard({
@@ -48,7 +49,7 @@ export default function ProjectCard({
 
     // UI에서 해당 프로젝트 제거
     setProjectList((prevList) =>
-      prevList.filter((project) => project.projectId !== id)
+      prevList.filter((project) => project.project_id !== id)
     );
 
     showToast("삭제되었습니다.", "deleted");
@@ -63,7 +64,7 @@ export default function ProjectCard({
       >
         <div>
           <CardHeader className="flex w-full mb-2">
-            <CardTitle>{project.projectName}</CardTitle>
+            <CardTitle>{project.project_name}</CardTitle>
           </CardHeader>
           <CardDescription className="flex">
             <div className="flex gap-2 text-sm text-dark-description">
@@ -84,18 +85,18 @@ export default function ProjectCard({
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
-          <div onClick={(e: any) => e.stopPropagation()}>
+          <div onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
             <Button
               btnType="icon"
               icon="edit"
               size={16}
               variant="primary"
-              onClick={() => handleEditProject(project.projectId)}
+              onClick={() => handleEditProject(project.project_id)}
             />
           </div>
-          <div onClick={(e: any) => e.stopPropagation()}>
+          <div onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
             <DeleteDialog
-              onClick={() => handleDeleteProject(project.projectId)}
+              onClick={() => handleDeleteProject(project.project_id)}
             />
           </div>
         </CardFooter>

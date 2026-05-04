@@ -11,6 +11,7 @@ import { StatusPrioritySection } from "@/components/features/task/shared/StatusP
 import { DateFields } from "@/components/features/task/shared/DateFields";
 import { SubtaskSection } from "@/components/features/task/shared/SubtaskSection";
 import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
+import type { ProjectMemberWithUser } from "@/types/projectMember";
 
 // ============================================
 // Types & Constants
@@ -45,17 +46,7 @@ type FormData = {
   subtasks: Subtask[];
 };
 
-type ProjectMember = {
-  project_id: string;
-  user_id: string;
-  role: string;
-  users: {
-    id: string;
-    name: string;
-    email: string;
-    avatar_url: string;
-  };
-};
+
 
 const INITIAL_FORM_DATA: FormData = {
   title: "",
@@ -106,7 +97,7 @@ export default function TaskAdd({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
-  const [members, setMembers] = useState<ProjectMember[] | null>(null);
+  const [members, setMembers] = useState<ProjectMemberWithUser[] | undefined>(undefined);
 
   // 프로젝트 종료 상태 체크
   const isProjectEnded = (() => {
@@ -126,7 +117,7 @@ export default function TaskAdd({
           throw new Error("프로젝트 멤버를 불러오는 데 실패했습니다.");
         }
         const result = await response.json();
-        setMembers(result.data || []);
+        setMembers((result.data as ProjectMemberWithUser[]) || undefined);
       } catch (error) {
         console.error(error);
         setErrors((prev) => ({
