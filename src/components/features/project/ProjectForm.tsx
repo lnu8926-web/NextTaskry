@@ -20,6 +20,7 @@ import { getUser, getUserById } from "@/lib/api/users";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants/queryKeys";
 import { ComboBox, type Item } from "./ComboBox";
 import ProjectDateCard from "./ProjectDateCard";
 import { RoleSelect } from "./RoleSelect";
@@ -67,7 +68,7 @@ export default function ProjectForm() {
 
   // 유저 목록 조회
   const { data: userList = [] } = useQuery({
-    queryKey: ["users"],
+    queryKey: queryKeys.users.all,
     queryFn: async () => {
       const result = await getUser();
       return (result.data || []).map(({ user_id, user_name, email }) => ({
@@ -82,7 +83,7 @@ export default function ProjectForm() {
 
   // 프로젝트 정보 + 멤버 조회 (수정 모드)
   useQuery({
-    queryKey: ["project-form", projectId],
+    queryKey: queryKeys.projectForm.detail(projectId),
     queryFn: async () => {
       if (!projectId) return null;
 
@@ -224,7 +225,7 @@ export default function ProjectForm() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
       showToast("저장되었습니다.", "success");
       router.push("/");
     },

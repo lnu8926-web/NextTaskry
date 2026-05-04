@@ -7,6 +7,7 @@ import {
 } from "@/lib/api/projects";
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants/queryKeys";
 import { useSession } from "next-auth/react";
 import { useProjectBoard } from "@/providers/ProjectBoardProvider";
 import Container from "@/components/shared/Container";
@@ -26,7 +27,7 @@ export default function ProjectBoard() {
   const ITEMS_PER_PAGE = 12;
 
   const { data: queryResult, isLoading } = useQuery({
-    queryKey: ["projects", filter.view, currentPage, userId],
+    queryKey: queryKeys.projects.list(filter.view, currentPage, userId),
     queryFn: async () => {
       if (!userId) return null;
 

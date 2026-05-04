@@ -13,6 +13,7 @@ import { deleteProject, deleteProjectMember } from "@/lib/api/projects";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants/queryKeys";
 import type { Project } from "@/types/project";
 
 interface ProjectCardProps {
@@ -48,7 +49,7 @@ export default function ProjectCard({
     await deleteProjectMember(id);
 
     // 캐시 무효화 → 목록 자동 재조회
-    queryClient.invalidateQueries({ queryKey: ["projects"] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
 
     showToast("삭제되었습니다.", "deleted");
   }
