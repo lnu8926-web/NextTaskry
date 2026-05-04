@@ -22,7 +22,12 @@ export const useModal = (): ModalControls => {
   const [warning, setWarning] = useState<string | undefined>(undefined);
 
   const openModal = useCallback(
-    (type: any, title: any, description: any, warning: any) => {
+    (
+      type: "delete" | "success" | "error" | "progress" | "deleteSuccess",
+      title?: string,
+      description?: string,
+      warning?: string
+    ) => {
       setType(type);
       setTitle(title);
       setDescription(description);

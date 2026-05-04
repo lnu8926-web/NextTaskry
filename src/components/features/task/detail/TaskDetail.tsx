@@ -615,6 +615,27 @@ function Header({
   );
 }
 
+// ============================================
+// 내부 컴포넌트 Props 타입
+// ============================================
+interface EditableFieldProps {
+  value: string | null | undefined;
+  isEditing: boolean;
+  isProjectEnded?: boolean;
+  onEdit: () => void;
+  onChange: (value: string) => void;
+  onBlur: () => void;
+  onCancel: () => void;
+}
+
+interface ActionButtonsProps {
+  hasChanges: boolean;
+  isProjectEnded: boolean;
+  onCancel: () => void;
+  onSave: () => void;
+  onDelete: () => void;
+}
+
 /**
  * 📝 TitleField 컴포넌트 - 인라인 편집 가능한 제목 필드
  *
@@ -632,12 +653,12 @@ function TitleField({
   onChange, // 🔄 값 변경 핸들러
   onBlur, // 👁️ 포커스 이탈 핸들러
   onCancel, // ❌ 취소 핸들러
-}: any) {
+}: EditableFieldProps) {
   if (isEditing) {
     return (
       <input
         type="text"
-        value={value}
+        value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
         onKeyDown={(e) => {
@@ -672,7 +693,7 @@ function DescriptionField({
   onChange,
   onBlur,
   onCancel,
-}: any) {
+}: EditableFieldProps) {
   return isEditing ? (
     <textarea
       value={value || ""}
@@ -705,7 +726,7 @@ function MemoField({
   onChange,
   onBlur,
   onCancel,
-}: any) {
+}: EditableFieldProps) {
   if (isEditing) {
     return (
       <textarea
@@ -746,7 +767,7 @@ function ActionButtons({
   onCancel,
   onSave,
   onDelete,
-}: any) {
+}: ActionButtonsProps) {
   return (
     <div className="flex justify-between">
       {/* 삭제 */}

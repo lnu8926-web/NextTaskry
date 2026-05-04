@@ -14,14 +14,15 @@ import ProjectBoardEmpty from "./ProjectBoardEmpty";
 import ProjectCard from "./ProjectCard";
 import CommonPagination from "@/components/ui/CommonPagination";
 import { ProjectCardSkeleton } from "@/components/ui/ProjectCardSkeleton";
+import type { Project } from "@/types/project";
 
 export default function ProjectBoard() {
   const { data: session, status } = useSession();
   const { filter } = useProjectBoard();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [projectList, setProjectList] = useState<any[]>([]);
-  const [projectMember, setProjectMember] = useState<any>({});
+  const [projectList, setProjectList] = useState<Project[]>([]);
+  const [projectMember, setProjectMember] = useState<Record<string, number>>({});
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -69,13 +70,8 @@ export default function ProjectBoard() {
         return;
       }
 
-      // 프로젝트 목록 가공
-      const formattedProjects = data.map((project) => ({
-        ...project,
-        projectId: project.project_id,
-        projectName: project.project_name,
-      }));
-      setProjectList(formattedProjects);
+      // 프로젝트 목록 저장
+      setProjectList(data as Project[]);
 
       const memberMap = data.reduce((acc, project) => {
         const countData = project.project_members;
@@ -119,8 +115,8 @@ export default function ProjectBoard() {
 
     // 원본(projectList)을 건드리지 않고 복사하여 정렬
     return [...projectList].sort((a, b) => {
-      const timeA = new Date((a as any)[targetKey]).getTime();
-      const timeB = new Date((b as any)[targetKey]).getTime();
+      const timeA = new Date(a[targetKey as keyof Project] as string).getTime();
+      const timeB = new Date(b[targetKey as keyof Project] as string).getTime();
 
       return isAsc ? timeA - timeB : timeB - timeA;
     });
