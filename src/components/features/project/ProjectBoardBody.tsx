@@ -5,9 +5,9 @@ import {
   getProjectByIds,
   getProjectMemberByUser,
 } from "@/lib/api/projects";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { showApiError } from "@/lib/utils/toast";
 import { useProjectBoard } from "@/providers/ProjectBoardProvider";
 import Container from "@/components/shared/Container";
 import ProjectBoardEmpty from "./ProjectBoardEmpty";
@@ -20,84 +20,56 @@ export default function ProjectBoard() {
   const { data: session, status } = useSession();
   const { filter } = useProjectBoard();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [projectList, setProjectList] = useState<Project[]>([]);
-  const [projectMember, setProjectMember] = useState<Record<string, number>>({});
+  const userId = session?.user?.user_id;
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  // fetchAllData를 useCallback으로 감싸서 정의합니다.
-  // 이렇게 해야 이 함수가 의존성 배열에 들어가도 무한루프가 돌지 않습니다.
-  const fetchAllData = useCallback(async () => {
-    const userId = session?.user?.user_id;
-    if (status !== "authenticated" || !userId) return;
+  const { data: queryResult, isLoading } = useQuery({
+    queryKey: ["projects", filter.view, currentPage, userId],
+    queryFn: async () => {
+      if (!userId) return null;
 
-    try {
-      setIsLoading(true);
       let projectResult = null;
-      // 프로젝트 목록 조회
+
       if (filter.view === "personal") {
         const { data: memberData } = await getProjectMemberByUser(userId);
 
-        // 참여 중인 프로젝트가 없는 경우 초기화 후 리턴
         if (!memberData || memberData.length === 0) {
-          setIsLoading(false);
-          setTotalPage(0);
-          setProjectList([]);
-          setProjectMember({});
-          return;
+          return { projectList: [] as Project[], projectMember: {} as Record<string, number>, totalPage: 0 };
         }
-        const currentIds = memberData
-          .map((memberData) => memberData.project_id)
-          .join(",");
 
+        const currentIds = memberData.map((m) => m.project_id).join(",");
         projectResult = await getProjectByIds(currentIds, currentPage);
       } else {
         projectResult = await getProject(currentPage);
       }
 
       const { data, totalCount } = projectResult;
+      const totalPage = totalCount ? Math.ceil(totalCount / ITEMS_PER_PAGE) : 1;
 
-      if (totalCount) {
-        const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-        setTotalPage(totalPages);
-      }
-
-      if (!data) {
-        setIsLoading(false);
-        return;
-      }
-
-      // 프로젝트 목록 저장
-      setProjectList(data as Project[]);
-
-      const memberMap = data.reduce((acc, project) => {
-        const countData = project.project_members;
-        const count = countData?.[0]?.count || 0;
-        acc[project.project_id] = count;
-
+      const projectMember = (data || []).reduce<Record<string, number>>((acc, project) => {
+        acc[project.project_id] = project.project_members?.[0]?.count || 0;
         return acc;
       }, {});
 
-      setProjectMember(memberMap);
-    } catch (err) {
-      console.error(err);
-      showApiError("데이터를 불러오는 중 오류가 발생했습니다.");
-    }
-    setIsLoading(false);
-  }, [filter.view, status, currentPage, session?.user?.user_id]);
+      return {
+        projectList: (data || []) as Project[],
+        projectMember,
+        totalPage,
+      };
+    },
+    enabled: status === "authenticated" && !!userId,
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const projectList = queryResult?.projectList ?? [];
+  const projectMember = queryResult?.projectMember ?? {};
+  const totalPage = queryResult?.totalPage ?? 1;
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [filter.view]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchAllData();
-  }, [fetchAllData]);
 
   const sortedProjectList = useMemo(() => {
     if (projectList.length === 0) return [];
@@ -180,7 +152,6 @@ export default function ProjectBoard() {
               <ProjectCard
                 key={index}
                 project={project}
-                setProjectList={setProjectList}
                 projectMember={projectMember}
               />
             );

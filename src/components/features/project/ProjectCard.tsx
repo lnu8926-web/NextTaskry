@@ -12,20 +12,20 @@ import { DeleteDialog } from "./DeleteDialog";
 import { deleteProject, deleteProjectMember } from "@/lib/api/projects";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Project } from "@/types/project";
 
 interface ProjectCardProps {
   project: Project;
-  setProjectList: React.Dispatch<React.SetStateAction<Project[]>>;
   projectMember: Record<string, number> | null;
 }
 
 export default function ProjectCard({
   project,
-  setProjectList,
   projectMember,
 }: ProjectCardProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSelectProject = (projectId: string) => {
     // 세션 스토리지에 선택한 프로젝트 ID 저장
@@ -47,10 +47,8 @@ export default function ProjectCard({
     await deleteProject(id);
     await deleteProjectMember(id);
 
-    // UI에서 해당 프로젝트 제거
-    setProjectList((prevList) =>
-      prevList.filter((project) => project.project_id !== id)
-    );
+    // 캐시 무효화 → 목록 자동 재조회
+    queryClient.invalidateQueries({ queryKey: ["projects"] });
 
     showToast("삭제되었습니다.", "deleted");
   }

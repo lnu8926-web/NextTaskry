@@ -20,7 +20,6 @@ export function ProjectBoardProvider({ children }: { children: ReactNode }) {
     date: "startedAt",
     sort: "asc",
   });
-
   return (
     <ProjectBoardContext.Provider value={{ filter, setFilter }}>
       {children}
