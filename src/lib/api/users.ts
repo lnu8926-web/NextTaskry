@@ -1,4 +1,5 @@
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
+import { handleError } from "@/lib/utils/apiError";
 
 interface ResultProps {
     message: string;
@@ -18,8 +19,7 @@ export async function getUser(): Promise<ResultProps> {
 
     return data;
   } catch (err){
-    console.error(err);
-    throw err;  
+    handleError("getUser", err);
   }
 }
 
@@ -31,7 +31,6 @@ export async function getUserById(type:string, id:number): Promise<ResultProps> 
 
     return data;
   } catch (err){
-    console.log(err);
-    throw err;  
+    handleError("getUserById", err);
   }
 }

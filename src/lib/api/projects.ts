@@ -1,3 +1,5 @@
+import { handleError } from "@/lib/utils/apiError";
+
 interface ResultProps {
   message: string;
   params: object;
@@ -37,8 +39,7 @@ export async function getProject(page: number = 0): Promise<ResultProps> {
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("getProject", err);
   }
 }
 
@@ -50,8 +51,7 @@ export async function getProjectById(id: string): Promise<ResultProps> {
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("getProjectById", err);
   }
 }
 
@@ -63,8 +63,7 @@ export async function getProjectByIds(ids: string, page:number = 0): Promise<Res
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("getProjectByIds", err);
   }
 }
 
@@ -85,8 +84,7 @@ export async function createProject(
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("createProject", err);
   }
 }
 
@@ -107,8 +105,7 @@ export async function updateProject(
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("updateProject", err);
   }
 }
 
@@ -122,8 +119,7 @@ export async function deleteProject(id: string): Promise<ResultProps> {
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("deleteProject", err);
   }
 }
 
@@ -136,8 +132,7 @@ export async function getProjectMember(id?: string): Promise<ResultProps> {
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("getProjectMember", err);
   }
 }
 export async function getProjectMemberByRole(id?: string, role?:string): Promise<ResultProps> {
@@ -148,8 +143,7 @@ export async function getProjectMemberByRole(id?: string, role?:string): Promise
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("getProjectMemberByRole", err);
   }
 }
 export async function getProjectMemberByUser(id?: string): Promise<ResultProps> {
@@ -160,8 +154,7 @@ export async function getProjectMemberByUser(id?: string): Promise<ResultProps> 
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("getProjectMemberByUser", err);
   }
 }
 
@@ -179,8 +172,7 @@ export async function updateProjectMember(id?: string, projectMemberData?: Proje
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("updateProjectMember", err);
   }
 }
 
@@ -194,7 +186,6 @@ export async function deleteProjectMember(id: string): Promise<ResultProps> {
 
     return data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    handleError("deleteProjectMember", err);
   }
 }
