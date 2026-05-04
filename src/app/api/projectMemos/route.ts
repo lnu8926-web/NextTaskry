@@ -1,6 +1,15 @@
 import { supabase } from "@/lib/supabase/supabase";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import type { ProjectMemo } from "@/types/projectMemo";
+
+// ============================================
+// 타입
+// ============================================
+interface ApiError {
+  error: string;
+  status: number;
+}
 
 // ============================================
 // 유틸 함수
@@ -45,7 +54,7 @@ async function getMemoById(memoId: string) {
 /**
  * 작성자 권한 확인
  */
-function checkAuthor(memo: any, userId: string) {
+function checkAuthor(memo: ProjectMemo, userId: string) {
   if (memo.user_id !== userId) {
     throw {
       error: "권한이 없습니다 (작성자만 가능)",
@@ -57,9 +66,15 @@ function checkAuthor(memo: any, userId: string) {
 /**
  * 에러 응답 생성
  */
-function errorResponse(error: any, defaultMessage: string) {
-  if (error.error && error.status) {
-    return Response.json({ error: error.error }, { status: error.status });
+function errorResponse(error: unknown, defaultMessage: string) {
+  if (
+    error &&
+    typeof error === "object" &&
+    "error" in error &&
+    "status" in error
+  ) {
+    const apiError = error as ApiError;
+    return Response.json({ error: apiError.error }, { status: apiError.status });
   }
 
   console.error("API error:", error);

@@ -269,7 +269,7 @@ export default function ProjectPage() {
           console.log("리얼타임 업데이트 수신:", payload.eventType, payload);
 
           if (payload.eventType === "INSERT") {
-            const newTaskRaw = payload.new as any;
+            const newTaskRaw = payload.new as Task;
 
             // 🔄 담당자 정보 추가 조회 (Realtime에는 JOIN 데이터 없음)
             const enrichTask = async () => {
@@ -309,7 +309,7 @@ export default function ProjectPage() {
 
             enrichTask();
           } else if (payload.eventType === "UPDATE") {
-            const updatedTaskRaw = payload.new as any;
+            const updatedTaskRaw = payload.new as Task;
 
             // 🔄 담당자 정보 추가 조회 (UPDATE 시에도 필요)
             const enrichUpdateTask = async () => {

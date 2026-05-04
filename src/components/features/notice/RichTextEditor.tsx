@@ -32,7 +32,7 @@ function ToolbarButton({ format, children, shortcut, onApply }: ToolbarButtonPro
 
 interface RichTextEditorProps {
   value: string;
-  onChange: (e: any) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement> | { target: { value: string } }) => void;
   placeholder?: string;
   rows?: number;
   className?: string;
@@ -126,7 +126,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
 
     // 키보드 단축키 처리
     const handleKeyDown = useCallback(
-      (e: any) => {
+      (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // Ctrl/Cmd + B: 굵게
         if ((e.ctrlKey || e.metaKey) && e.key === "b") {
           e.preventDefault();
@@ -209,7 +209,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
             ref={textareaRef} // 내부 ref 사용
             id={textareaId}
             value={value}
-            onChange={(e: any) => {
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
               onChange(e);
               detectActiveFormats();
             }}

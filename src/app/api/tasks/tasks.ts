@@ -23,7 +23,7 @@ const DB_TASK_FIELDS = [
  */
 type ApiResponse<T> = {
   data: T | null;
-  error: any;
+  error: Error | null;
 };
 
 /**
@@ -50,9 +50,10 @@ function sanitizeTaskData<T extends Record<string, any>>(
 /**
  * 에러 핸들링 헬퍼
  */
-function handleApiError(operation: string, error: any): ApiResponse<any> {
-  console.error(`${operation} 실패:`, error);
-  return { data: null, error };
+function handleApiError<T>(operation: string, error: unknown): ApiResponse<T> {
+  const err = error instanceof Error ? error : new Error(String(error));
+  console.error(`${operation} 실패:`, err);
+  return { data: null, error: err };
 }
 
 /**

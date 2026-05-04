@@ -1,9 +1,17 @@
 import { bgColorOpacity } from "@/app/sample/color/page";
+
+interface BadgeConfig {
+  title: string;
+  className: string;
+  category: "status" | "priority";
+  dotColor?: string;
+}
+
 interface BadgeType {
   type: keyof typeof badgeConfigs;
 }
 
-export const badgeConfigs = {
+export const badgeConfigs: Record<string, BadgeConfig> = {
   dueSoon: {
     title: "계획 진행중",
     className: `${bgColorOpacity.colorOpacity2[3]} text-white dark:text-white/80`,
@@ -67,9 +75,8 @@ export default function Badge({ type }: BadgeType) {
       data-type={type}
       className={`py-1.5 px-2 rounded-sm text-xs font-medium ${badgeConfig.className}`}
     >
-      {(badgeConfig.category === "priority" ||
-        (badgeConfig as any).dotColor) && (
-        <PriorityDot color={(badgeConfig as any).dotColor} />
+      {(badgeConfig.category === "priority" && badgeConfig.dotColor) && (
+        <PriorityDot color={badgeConfig.dotColor} />
       )}
       {badgeConfig.title}
     </span>

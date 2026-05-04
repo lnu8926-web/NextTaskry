@@ -59,12 +59,12 @@ export function useCalendarEvents(tasks: Task[]) {
         }
 
         // 담당자 정보 추출
-        const assignees = (t as any).assignee
+        const assignees = t.assignee
           ? [
               {
-                id: (t as any).assignee.id,
-                name: (t as any).assignee.name,
-                avatarUrl: (t as any).assignee.avatar_url,
+                id: t.assignee.user_id,
+                name: t.assignee.name,
+                avatarUrl: t.assignee.avatar_url || undefined,
               },
             ]
           : [];

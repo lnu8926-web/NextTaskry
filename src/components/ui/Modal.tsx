@@ -36,9 +36,9 @@ export default function Modal({
   children,
 }: ModalProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const config = type
+  const config: any = type
     ? modalConfigs[type as keyof typeof modalConfigs]
-    : ({} as any);
+    : { title: undefined, description: undefined, warning: undefined };
   // prop으로 전달받은 title, description이 있다면 사용하고, 없으면 config 값 사용
   const finalTitle = title ?? config.title;
   const finalDescription = description ?? config.description;
