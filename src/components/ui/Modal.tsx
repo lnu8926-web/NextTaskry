@@ -53,6 +53,7 @@ export default function Modal({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [type, onClose]);
 
   // body 스크롤 방지

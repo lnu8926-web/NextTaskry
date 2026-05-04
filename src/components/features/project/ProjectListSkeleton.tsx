@@ -7,7 +7,7 @@
   }
 */
 }
-import { SectionHeader } from "../SectionHeader";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import Container from "@/components/shared/Container";
 
 export default function ProjectListSkeleton() {

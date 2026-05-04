@@ -427,7 +427,6 @@ export default function TaskDetail({
         <StatusPrioritySection
           status={editedTask.status}
           priority={editedTask.priority || "normal"}
-          disabled={isProjectEnded}
           onStatusChange={(v) => !isProjectEnded && handleChange("status", v)}
           onPriorityChange={(v) =>
             !isProjectEnded && handleChange("priority", v)

@@ -9,7 +9,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 // 각 API에서 반복되는 try, catch 로직을 줄이기 위함
 // ------------------------------------------------------
 
-async function handleRequest(fn: () => Promise<NextResponse>) {
+async function handleRequest(fn: () => Promise<NextResponse | undefined>) {
   try {
     return await fn();
   } catch (error) {

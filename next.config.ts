@@ -4,9 +4,6 @@ const nextConfig: NextConfig = {
   // 개발 중 Fast Refresh 개선
   reactStrictMode: true,
 
-  typescript: {
-    ignoreBuildErrors: true,
-  },
 
   images: {
     remotePatterns: [

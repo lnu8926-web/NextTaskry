@@ -10,6 +10,26 @@ import React, {
 } from "react";
 import Button from "@/components/ui/Button";
 
+interface ToolbarButtonProps {
+  format: "bold" | "italic" | "list" | "heading";
+  children: React.ReactNode;
+  shortcut?: string;
+  onApply: (format: "bold" | "italic" | "list" | "heading") => void;
+}
+
+function ToolbarButton({ format, children, shortcut, onApply }: ToolbarButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onApply(format)}
+      className="text-sm transition-all border border-border rounded-sm px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-100/20"
+      title={shortcut}
+    >
+      {children}
+    </button>
+  );
+}
+
 interface RichTextEditorProps {
   value: string;
   onChange: (e: any) => void;
@@ -24,7 +44,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
     const textareaRef = useReactRef<HTMLTextAreaElement>(null);
 
     // 부모에게 textarea ref를 노출
-    useImperativeHandle(ref, () => textareaRef.current, []);
+    useImperativeHandle(ref, () => textareaRef.current!, []);
     const [activeFormats, setActiveFormats] = useState({});
     const [showPreview, setShowPreview] = useState(false);
 
@@ -58,27 +78,8 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
       setActiveFormats(active);
     }, []);
 
-    // 키보드 단축키 처리
-    const handleKeyDown = useCallback((e: any) => {
-      // Ctrl/Cmd + B: 굵게
-      if ((e.ctrlKey || e.metaKey) && e.key === "b") {
-        e.preventDefault();
-        applyFormat("bold");
-      }
-      // Ctrl/Cmd + I: 기울임
-      else if ((e.ctrlKey || e.metaKey) && e.key === "i") {
-        e.preventDefault();
-        applyFormat("italic");
-      }
-      // Ctrl/Cmd + U: 목록
-      else if ((e.ctrlKey || e.metaKey) && e.key === "u") {
-        e.preventDefault();
-        applyFormat("list");
-      }
-    }, []);
-
     const applyFormat = useCallback(
-      (format: any) => {
+      (format: "bold" | "italic" | "list" | "heading") => {
         const textarea = textareaRef.current;
         if (!textarea) return;
 
@@ -123,6 +124,28 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
       [onChange, detectActiveFormats]
     );
 
+    // 키보드 단축키 처리
+    const handleKeyDown = useCallback(
+      (e: any) => {
+        // Ctrl/Cmd + B: 굵게
+        if ((e.ctrlKey || e.metaKey) && e.key === "b") {
+          e.preventDefault();
+          applyFormat("bold");
+        }
+        // Ctrl/Cmd + I: 기울임
+        else if ((e.ctrlKey || e.metaKey) && e.key === "i") {
+          e.preventDefault();
+          applyFormat("italic");
+        }
+        // Ctrl/Cmd + U: 목록
+        else if ((e.ctrlKey || e.metaKey) && e.key === "u") {
+          e.preventDefault();
+          applyFormat("list");
+        }
+      },
+      [applyFormat]
+    );
+
     // 마크다운을 HTML로 변환
     // 마크다운을 HTML로 변환하는 함수
     const renderMarkdown = (text: string) => {
@@ -152,30 +175,19 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
       );
     };
 
-    const ToolbarButton = ({ format, children, shortcut }: any) => (
-      <button
-        type="button"
-        onClick={() => applyFormat(format)}
-        className="text-sm transition-all border border-border rounded-sm px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-100/20"
-        title={shortcut}
-      >
-        {children}
-      </button>
-    );
-
     return (
       <div className={`rounded-lg `}>
         {/* 툴바 */}
         <div className="flex flex-wrap justify-end gap-3 items-center justify-between p-2 border border-b-0 border-border rounded-t-lg">
           <div className="flex gap-1 flex-wrap w-full">
-            <ToolbarButton format="bold" shortcut="Ctrl+B">
+            <ToolbarButton format="bold" shortcut="Ctrl+B" onApply={applyFormat}>
               <strong>B</strong> (굵게)
             </ToolbarButton>
-            <ToolbarButton format="italic" shortcut="Ctrl+I">
+            <ToolbarButton format="italic" shortcut="Ctrl+I" onApply={applyFormat}>
               <em>I</em> (기울임)
             </ToolbarButton>
-            <ToolbarButton format="heading">H1 (제목)</ToolbarButton>
-            <ToolbarButton format="list" shortcut="Ctrl+U">
+            <ToolbarButton format="heading" onApply={applyFormat}>H1 (제목)</ToolbarButton>
+            <ToolbarButton format="list" shortcut="Ctrl+U" onApply={applyFormat}>
               • (목록)
             </ToolbarButton>
           </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
-export default function NoticesLayout({ children }) {
+export default function NoticesLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // 공지사항 페이지 진입 시 스크롤 활성화
     document.body.classList.remove("overflow-hidden", "h-full");

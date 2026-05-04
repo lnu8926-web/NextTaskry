@@ -76,6 +76,7 @@ export default function DropdownToggle({
         },
       ];
     }
+    return [];
   };
   const getOptions = options();
 

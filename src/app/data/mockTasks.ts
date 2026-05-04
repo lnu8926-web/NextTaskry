@@ -1,7 +1,6 @@
 // Mock 데이터 - 실제 DB 없이 테스트용
-import { Task } from "../types/kanban";
-
-export const mockTasks: Task[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const mockTasks: any[] = [
   // 프로젝트 1: project01
   {
     id: "1",

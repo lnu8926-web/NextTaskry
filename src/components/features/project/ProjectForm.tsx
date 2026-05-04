@@ -38,7 +38,9 @@ interface ProjectProps {
 
 export default function ProjectForm() {
   const router = useRouter();
-  const [projectId, setProjectId] = useState<string>("");
+  const [projectId, setProjectId] = useState<string>(
+    () => (typeof window !== "undefined" ? sessionStorage.getItem("current_Project_Id") ?? "" : "")
+  );
   const [projectData, setProjectData] = useState<ProjectProps>({
     projectName: "",
     type: "",
@@ -54,13 +56,6 @@ export default function ProjectForm() {
   const [userList, setUserList] = useState<Item[]>([]);
   const [projectMember, setProjectMember] = useState<any[]>([]);
 
-  useEffect(() => {
-    const storedProjectId = sessionStorage.getItem("current_Project_Id");
-
-    if (storedProjectId) {
-      setProjectId(storedProjectId);
-    }
-  }, [router]);
 
   useEffect(() => {
     const fetchData = async () => {

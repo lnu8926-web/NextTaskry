@@ -6,7 +6,7 @@ import { useModal } from "@/hooks/useModal";
 
 export default function Page() {
   type buttonType = {
-    type?: string;
+    type?: "error" | "delete" | "success" | "progress" | "deleteSuccess";
     title?: string;
     description?: string;
     warning?: string;
@@ -48,7 +48,7 @@ export default function Page() {
                 key={button.name}
                 onClick={() =>
                   openModal(
-                    button.type,
+                    button.type!,
                     button.title,
                     button.description,
                     button.warning

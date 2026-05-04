@@ -42,7 +42,7 @@ const formatted = data.map((row) => ({
   status: row.status,
   created_at: row.created_at,
   updated_at: row.updated_at,
-  project_name: row.projects?.project_name ?? null,
+  project_name: (row.projects as unknown as { project_name: string } | null)?.project_name ?? null,
 }));
 
 

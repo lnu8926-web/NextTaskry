@@ -94,10 +94,12 @@ export default function ProjectBoard() {
   }, [filter.view, status, currentPage, session?.user?.user_id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [filter.view]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAllData();
   }, [fetchAllData]);
 
