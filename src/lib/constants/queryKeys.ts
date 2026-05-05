@@ -21,4 +21,15 @@ export const queryKeys = {
     detail: (projectId: string) =>
       ["project-form", projectId] as const,
   },
+  tasks: {
+    all: ["tasks"] as const,
+    list: (projectId: string) =>
+      [...queryKeys.tasks.all, projectId] as const,
+  },
+  workspace: {
+    info: (projectId: string) =>
+      ["workspace-info", projectId] as const,
+    role: (projectId: string, userId: string | undefined) =>
+      ["workspace-role", projectId, userId] as const,
+  },
 } as const;
