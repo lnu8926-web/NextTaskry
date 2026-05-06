@@ -9,8 +9,6 @@ import Container from "@/components/shared/Container";
 import ProjectBoard from "@/components/features/project/ProjectBoard";
 
 const Home = () => {
-  console.log("프로젝트 목록페이지");
-
   const [inviteData, setInviteData] = useState(null);
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
 
 export interface ProfileModalProps {
   isOpen: boolean;
@@ -32,10 +33,12 @@ export default function ProfileModal({ onClose, user }: ProfileModalProps) {
 
         {/* 유저 정보 */}
         <div className="flex flex-col items-center">
-          <img
+          <Image
             src={user?.image ?? "/default.png"}
             alt="profile"
-            className="w-16 h-16 rounded-full border"
+            width={64}
+            height={64}
+            className="w-16 h-16 rounded-full border object-cover"
           />
 
           <h3 className="mt-3 text-lg font-semibold">{user?.name}</h3>

@@ -6,11 +6,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { queryKeys } from "@/lib/constants/queryKeys";
 
 // 메인 기능 컴포넌트들 - 칸반보드, 캘린더, 네비게이션
-import CalendarView from "@/components/features/calendarView/CalendarView";
-import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
 // 타입 정의 및 유틸리티
@@ -32,11 +31,16 @@ import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
 import { ProjectRole } from "@/types";
 
-// 메모 기능 컴포넌트 - 실시간 협업 메모
-import MemoView from "@/components/features/kanban/MemoView";
-
-// 프로젝트 정보 패널
-import ProjectInfoPanel from "@/components/features/project/ProjectInfoPanel";
+const CalendarView = dynamic(
+  () => import("@/components/features/calendarView/CalendarView")
+);
+const KanbanBoard = dynamic(
+  () => import("@/components/features/kanban/KanbanBoard")
+);
+const MemoView = dynamic(() => import("@/components/features/kanban/MemoView"));
+const ProjectInfoPanel = dynamic(
+  () => import("@/components/features/project/ProjectInfoPanel")
+);
 
 // 네비게이션 타입 정의 - 하단 탭 네비게이션용
 type NavItem = "calendar" | "kanban" | "memo" | "project";
@@ -198,7 +202,6 @@ export default function ProjectPage() {
    */
   useEffect(() => {
     if (!projectId || !kanbanBoardId) return;
-    console.log("리얼타임 업데이트 설정 실행");
 
     // 칸반보드별 채널 생성 (네임스페이스 분리)
     const channel = supabase
@@ -212,8 +215,6 @@ export default function ProjectPage() {
           filter: `kanban_board_id=eq.${kanbanBoardId}`, // 현재 보드의 태스크만
         },
         (payload) => {
-          console.log("리얼타임 업데이트 수신:", payload.eventType, payload);
-
           if (payload.eventType === "INSERT") {
             const newTaskRaw = payload.new as Task;
 
