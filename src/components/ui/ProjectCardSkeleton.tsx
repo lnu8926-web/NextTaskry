@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/shadcn/Skeleton";
 
-export const ProjectCardSkeleton = () => {
+export default function ProjectCardSkeleton() {
   return (
     <div className="border rounded-lg py-6 px-4 space-y-2">
       {/* 제목 */}

@@ -14,7 +14,7 @@ import Container from "@/components/shared/Container";
 import ProjectBoardEmpty from "./ProjectBoardEmpty";
 import ProjectCard from "./ProjectCard";
 import CommonPagination from "@/components/ui/CommonPagination";
-import { ProjectCardSkeleton } from "@/components/ui/ProjectCardSkeleton";
+import ProjectCardSkeleton from "@/components/ui/ProjectCardSkeleton";
 import type { Project } from "@/types/project";
 
 export default function ProjectBoard() {
