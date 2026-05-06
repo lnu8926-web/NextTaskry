@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CommonTable, { TableColumn } from "@/components/ui/Commontable";
+import CommonTable, { TableColumn } from "@/components/ui/CommonTable";
 import { Button } from "@/components/ui/shadcn/Button";
 import Container from "@/components/shared/Container";
 

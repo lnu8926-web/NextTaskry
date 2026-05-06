@@ -2,7 +2,7 @@
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 import Container from "@/components/shared/Container";
 
@@ -48,7 +48,7 @@ function LoginContent() {
           icon="google"
           variant="primary"
           size={18}
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={() => redirect("/")}
         >
           Google로 시작하기
         </Button>
