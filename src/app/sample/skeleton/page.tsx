@@ -1,6 +1,6 @@
 import Container from "@/components/shared/Container";
-import { ProjectCardSkeleton } from "@/components/ui/ProjectCardSkeleton";
-import { UserTableSkeleton } from "@/components/ui/UserTableSkeleton";
+import  ProjectCardSkeleton  from "@/components/ui/ProjectCardSkeleton";
+import  UserTableSkeleton from "@/components/ui/UserTableSkeleton";
 
 export default function Page() {
   return (

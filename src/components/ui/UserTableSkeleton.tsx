@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/shadcn/Skeleton";
 
-export const UserTableSkeleton = () => {
+export default function UserTableSkeleton() {
   return (
     <div className="flex items-center gap-4 border-b py-4">
       {/* 이름 - text-center 영역 */}
