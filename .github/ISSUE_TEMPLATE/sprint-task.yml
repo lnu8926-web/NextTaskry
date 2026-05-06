@@ -1,0 +1,68 @@
+name: Sprint Task
+description: Refactor or feature task for sprint backlog
+title: "[type][area] "
+labels: ["type:refactor", "priority:medium"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - refactor
+        - feature
+        - chore
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - structure
+        - kanban
+        - project
+        - notice
+        - auth
+        - admin
+        - ui
+        - api
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What should be changed?
+      placeholder: Describe task in 2-4 lines.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Checkbox list recommended.
+      value: |
+        - [ ] Criteria 1
+        - [ ] Criteria 2
+    validations:
+      required: true
+  - type: textarea
+    id: test
+    attributes:
+      label: Test Plan
+      placeholder: Unit/manual/e2e test plan
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimate (story points)
+      placeholder: e.g. 2, 3, 5
