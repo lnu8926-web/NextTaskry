@@ -10,3 +10,17 @@ export const PRIORITY_COLORS: Record<string, string> = {
   high: "bg-red-200 text-red-800",
   normal: "bg-blue-200 text-blue-800",
 } as const;
+
+export const STATUS_COLORS = {
+  todo: "bg-gray-200",
+  inprogress: "bg-blue-200",
+  in_progress: "bg-blue-200",
+  done: "bg-green-200",
+} as const;
+
+export const PRIORITY_LABELS = {
+  high: "높음",
+  normal: "보통",
+  medium: "보통",
+  low: "낮음",
+} as const;
