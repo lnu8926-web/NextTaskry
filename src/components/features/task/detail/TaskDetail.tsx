@@ -24,37 +24,12 @@ import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
 import { Task } from "@/types/kanban";
 import type { ProjectMemberWithUser } from "@/types/projectMember";
 
-// ============================================
-// 🛠️ 유틸리티 함수들
-// ============================================
 
-/**
- * 📅 날짜/시간 변환 유틸리티
- *
- * ISO 문자열과 UI 표시용 날짜/시간 간 변환을 담당
- * DB 저장 형식과 사용자 친화적 형식 간의 브릿지 역할
- */
-const dateTimeUtils = {
-  // 🔄 저장용: 날짜+시간을 ISO 문자열로 변환 (DB 저장용)
-  toISOString: (dateStr: string, timeStr?: string) => {
-    const time = timeStr || "00:00"; // 시간이 없으면 자정으로
-    return `${dateStr}T${time}:00.000Z`; // ISO 8601 형식
-  },
-
-  // 🎨 표시용: ISO 문자열을 날짜/시간으로 분리 (UI 표시용)
-  parseDateTime: (isoString?: string | null) => {
-    if (!isoString) return { date: "", time: "", hasTime: false };
-
-    const [datePart, timePart] = isoString.split("T"); // ISO 문자열 파싱
-    const [hours, minutes] = timePart.split(":");
-
-    return {
-      date: datePart, // YYYY-MM-DD 형식
-      time: `${hours}:${minutes}`, // HH:MM 형식
-      hasTime: hours !== "00" || minutes !== "00", // 실제 시간 정보 있는지 확인
-    };
-  },
-};
+// model 
+import {
+  dateTimeUtils,
+  fetchProjectMembersForAssignment,
+} from "@/features/task/model";
 
 // ============================================
 // 📋 타입 정의
@@ -162,29 +137,8 @@ export default function TaskDetail({
 
       setIsLoadingMembers(true); // 로딩 상태 시작
       try {
-        // 🌐 API 호출: 프로젝트 멤버 목록 요청
-        const response = await fetch(
-          `/api/projectMembers/forAssignment?projectId=${task.project_id}`
-        );
-
-        // 🚑 HTTP 에러 처리
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error ||
-              `HTTP ${response.status}: 프로젝트 멤버를 불러오는 데 실패했습니다.`
-          );
-        }
-
-        const result = await response.json();
-
-        // 📈 응답 데이터 처리
-        if (result.data) {
-          setMembers(result.data as ProjectMemberWithUser[]); // 성공: 멤버 목록 설정
-        } else {
-          console.warn("프로젝트 멤버 데이터가 없습니다:", result);
-          setMembers(undefined); // 데이터 없음: 빈 배열
-        }
+        const data = await fetchProjectMembersForAssignment(task.project_id);
+        setMembers(data);
       } catch (error) {
         // 🚑 예외 처리: 네트워크 오류, API 에러 등
         console.error("프로젝트 멤버 조회 에러:", error);
@@ -799,3 +753,7 @@ function ActionButtons({
     </div>
   );
 }
+function setMembers(data: ProjectMemberWithUser[] | undefined) {
+  throw new Error("Function not implemented.");
+}
+
