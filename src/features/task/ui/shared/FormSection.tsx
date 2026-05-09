@@ -1,5 +1,5 @@
 // 설명, 날짜, 메모, 서브태스크 등 폼 섹션을 감싸는 컴포넌트
-import { FieldLabel } from "@/components/features/task/shared/FieldLabel";
+import { FieldLabel } from "@/features/task/ui/shared/FieldLabel";
 
 export function FormSection({
   icon,

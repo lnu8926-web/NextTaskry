@@ -6,11 +6,11 @@ import { Task, TaskStatus, TaskPriority, Subtask } from "@/types";
 import Button from "@/components/ui/Button";
 
 // 공용 컴포넌트
-import { FormSection } from "@/components/features/task/shared/FormSection";
-import { StatusPrioritySection } from "@/components/features/task/shared/StatusPrioritySection";
-import { DateFields } from "@/components/features/task/shared/DateFields";
-import { SubtaskSection } from "@/components/features/task/shared/SubtaskSection";
-import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
+import { FormSection } from "@/features/task/ui/shared/FormSection";
+import { StatusPrioritySection } from "@/features/task/ui/shared/StatusPrioritySection";
+import { DateFields } from "@/features/task/ui/shared/DateFields";
+import { SubtaskSection } from "@/features/task/ui/shared/SubtaskSection";
+import { AssigneeField } from "@/features/task/ui/fields/AssigneeField";
 import type { ProjectMemberWithUser } from "@/types/projectMember";
 
 // ============================================

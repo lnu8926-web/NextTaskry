@@ -1,6 +1,6 @@
 // 작업의 상태 및 우선순위 선택 섹션 컴포넌트, 동일한 UI가 여러 곳에서 사용됨
 import { Icon } from "@/components/shared/Icon";
-import BadgeSelector from "@/components/features/task/fields/BadgeSelector";
+import BadgeSelector from "@/features/task/ui/fields/BadgeSelector";
 import { TaskPriority, TaskStatus } from "@/types";
 
 const STATUS_OPTIONS: {

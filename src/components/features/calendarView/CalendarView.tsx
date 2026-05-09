@@ -10,8 +10,8 @@ import { Task, TaskPriority } from "@/types/kanban";
 
 // 컴포넌트
 import Modal from "@/components/ui/Modal";
-import TaskAdd from "@/components/features/task/add/TaskAdd";
-import TaskDetail from "@/components/features/task/detail/TaskDetail";
+import TaskAdd from "@/features/task/ui/add/TaskAdd";
+import TaskDetail from "@/features/task/ui/detail/TaskDetail";
 import CalendarHeader from "@/components/features/calendarView/components/CalendarHeader";
 import CalendarHelp from "@/components/features/calendarView/components/CalendarHelp";
 import CalendarStats from "@/components/features/calendarView/components/CalendarStats";

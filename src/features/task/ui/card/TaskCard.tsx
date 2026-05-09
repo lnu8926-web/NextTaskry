@@ -3,10 +3,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { Task } from "@/types";
 import { CSS } from "@dnd-kit/utilities";
 import { Check } from "lucide-react";
-import PriorityBadge from "@/components/features/task/fields/PriorityBadge";
-import AssigneeInfo from "@/components/features/task/fields/AssigneeInfo";
-import SubtaskList from "@/components/features/task/fields/SubtaskList";
-import DateInfo from "@/components/features/task/fields/DateInfo";
+import PriorityBadge from "@/features/task/ui/fields/PriorityBadge";
+import AssigneeInfo from "@/features/task/ui/fields/AssigneeInfo";
+import SubtaskList from "@/features/task/ui/fields/SubtaskList";
+import DateInfo from "@/features/task/ui/fields/DateInfo";
 
 interface TaskCardProps {
   task: Task;
