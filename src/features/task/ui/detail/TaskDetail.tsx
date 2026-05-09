@@ -14,11 +14,11 @@ import { useModal } from "@/hooks/useModal"; // 모달 상태 관리 훅
 import Modal from "@/components/ui/Modal"; // 모달 컴포넌트
 
 // Task 관련 공용 컴포넌트들 - 재사용성을 위해 분리
-import { FormSection } from "@/components/features/task/shared/FormSection"; // 폼 섹션 래퍼
-import { StatusPrioritySection } from "@/components/features/task/shared/StatusPrioritySection"; // 상태/우선순위
-import { DateFields } from "@/components/features/task/shared/DateFields"; // 날짜 입력 필드들
-import { SubtaskSection } from "@/components/features/task/shared/SubtaskSection"; // 서브태스크 관리
-import { AssigneeField } from "@/components/features/task/fields/AssigneeField"; // 담당자 선택
+import { FormSection } from "@/features/task/ui/shared/FormSection"; // 폼 섹션 래퍼
+import { StatusPrioritySection } from "@/features/task/ui/shared/StatusPrioritySection"; // 상태/우선순위
+import { DateFields } from "@/features/task/ui/shared/DateFields"; // 날짜 입력 필드들
+import { SubtaskSection } from "@/features/task/ui/shared/SubtaskSection"; // 서브태스크 관리
+import { AssigneeField } from "@/features/task/ui/fields/AssigneeField"; // 담당자 선택
 
 // 타입 정의
 import { Task } from "@/types/kanban";

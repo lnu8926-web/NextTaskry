@@ -15,10 +15,10 @@ import {
 import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/types";
 import KanbanColumn from "@/components/features/kanban/KanbanColumn";
-import TaskCard from "@/components/features/task/card/TaskCard";
+import TaskCard from "@/features/task/ui/card/TaskCard";
 import Modal from "@/components/ui/Modal";
-import TaskDetail from "@/components/features/task/detail/TaskDetail";
-import TaskAdd from "@/components/features/task/add/TaskAdd";
+import TaskDetail from "@/features/task/ui/detail/TaskDetail";
+import TaskAdd from "@/features/task/ui/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
 import { showToast } from "@/lib/utils/toast";
 import KanbanHeader from "./components/KanbanHeader";
