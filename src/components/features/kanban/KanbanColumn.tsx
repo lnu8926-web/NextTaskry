@@ -4,7 +4,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import TaskCard from "@/features/task/ui/card/TaskCard";
+import { TaskCard } from "@/features/task";
 import { Task, TaskStatus } from "@/types";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getTaskStatusColor, isTaskOverdue } from "@/lib/utils/taskUtils";
