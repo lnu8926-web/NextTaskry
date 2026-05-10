@@ -25,7 +25,7 @@ import { SectionHeader } from "@/components/shared/SectionHeader";
 import { NoticeWithNumber } from "@/types/notice";
 import { useSession } from "next-auth/react";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
+import { useNoticeDelete } from "@/features/notice/model/useNoticeDelete";
 import Link from "next/link";
 import EmptyNotice from "@/features/notice/ui/EmptyNotice";
 import NoticeList from "@/features/notice/ui/NoticeList";
