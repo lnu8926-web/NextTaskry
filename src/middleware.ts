@@ -1,38 +1,78 @@
+import { createServerClient } from "@supabase/ssr";
 import { withAuth } from "next-auth/middleware";
-//미들웨어에서는 "세션(session)"이 절대 보이지 않고, 오직 JWT token 만 접근 가능
+import { NextResponse, type NextRequest } from "next/server";
+
+async function hasSupabaseSession(req: NextRequest): Promise<boolean> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return false;
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: req.headers,
+    },
+  });
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return req.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) {
+    return false;
+  }
+
+  return Boolean(user);
+}
+
+// 미들웨어에서는 NextAuth JWT token과 Supabase 세션을 병행 체크한다.
 export default withAuth(
-  function proxy(req) {
-    const token = req.nextauth.token;
+  async function proxy(req) {
     const pathname = req.nextUrl.pathname;
+    const token = req.nextauth.token;
+    const hasNextAuthToken = Boolean(token);
+    const hasSupabaseAuth = hasNextAuthToken ? false : await hasSupabaseSession(req);
+    const isAuthenticated = hasNextAuthToken || hasSupabaseAuth;
     const role = token?.role;
 
     // 1) 로그인 안 한 유저 → 로그인 페이지 빼고 모두 접근 불가
-    if (!token && pathname !== "/login") {
-      return Response.redirect(new URL("/login", req.url));
+    if (!isAuthenticated && pathname !== "/login") {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
     // 2) 로그인 한 유저 → 로그인 페이지 접근 불가
-    if (token && pathname === "/login") {
-      return Response.redirect(new URL("/", req.url));
+    if (isAuthenticated && pathname === "/login") {
+      return NextResponse.redirect(new URL("/", req.url));
     }
 
     if (pathname.startsWith("/admin")) {
-      // 로그인 안 했으면 당연히 접근 불가
-      if (!token) {
-        return Response.redirect(new URL("/login", req.url));
-      }
-
-      // 로그인했지만 role !== admin → 접근 불가
-      if (role !== "admin") {
-        return Response.redirect(new URL("/", req.url));
+      // 관리자 라우트는 NextAuth role 기반으로만 허용
+      if (!hasNextAuthToken || role !== "admin") {
+        return NextResponse.redirect(new URL("/", req.url));
       }
     }
 
-    return;
+    return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: () => true, // 모든 요청을 검사하도록 설정
+      authorized: () => true,
     },
   }
 );
