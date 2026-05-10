@@ -39,7 +39,7 @@ const KanbanBoard = dynamic(
 );
 const MemoView = dynamic(() => import("@/components/features/kanban/MemoView"));
 const ProjectInfoPanel = dynamic(
-  () => import("@/features/project/ui/ProjectInfoPanel")
+  () => import("@/features/project").then((mod) => mod.ProjectInfoPanel)
 );
 
 // 네비게이션 타입 정의 - 하단 탭 네비게이션용
@@ -65,7 +65,10 @@ export default function ProjectPage() {
   const queryClient = useQueryClient();
 
   // === 핵심 상태 관리 ===
-  const [projectId, setProjectId] = useState<string>(""); // sessionStorage에서 가져올 프로젝트 ID
+  const [projectId] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return sessionStorage.getItem("current_Project_Id") ?? "";
+  }); // sessionStorage에서 가져올 프로젝트 ID
   const [kanbanBoardId, setKanbanBoardId] = useState<string>(""); // 칸반보드 ID (실시간 구독용)
 
   // === UI 상태 관리 ===
@@ -101,7 +104,7 @@ export default function ProjectPage() {
   });
 
   // === 사용자 역할 조회 ===
-  const { data: userRole = null } = useQuery({
+  useQuery({
     queryKey: queryKeys.workspace.role(projectId, userId),
     queryFn: async () => {
       if (!userId || !projectId) return null;
@@ -139,17 +142,12 @@ export default function ProjectPage() {
    * ⚠️ 주의: 현재는 클라이언트 사이드 제어만 구현됨 (실제 보안은 아님)
    */
   useEffect(() => {
-    const storedProjectId = sessionStorage.getItem("current_Project_Id");
-
-    if (!storedProjectId) {
+    if (!projectId) {
       // 세션에 프로젝트 ID가 없으면 홈으로 리다이렉트 (워크플로우 제어)
       showToast("프로젝트를 먼저 선택해주세요", "error");
       router.push("/");
-      return;
     }
-
-    setProjectId(storedProjectId);
-  }, [router]);
+  }, [projectId, router]);
 
   /**
    * � 칸반보드 초기화 (최초 1회 자동 생성 포함)
@@ -322,7 +320,7 @@ export default function ProjectPage() {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ taskId, updates }: { taskId: string; updates: Partial<Task> }) => {
-      const { data, error } = await updateTask(taskId, updates);
+      const { error } = await updateTask(taskId, updates);
       if (error) throw error;
       return { taskId, updates };
     },

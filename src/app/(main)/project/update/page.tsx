@@ -1,4 +1,4 @@
-import ProjectForm from "@/features/project/ui/ProjectForm";
+import { ProjectForm } from "@/features/project";
 
     
 export default async function UpdateProject() {

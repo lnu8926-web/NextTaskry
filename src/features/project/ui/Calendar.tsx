@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import * as React from "react"
 import { ChevronDownIcon } from "lucide-react"
@@ -25,7 +25,6 @@ export function Calendar22({
   placeholder = "Select Date"
 }: Calendar22Props) {
   const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(undefined)
 
   const handleSelectDate = (selectedDate: Date | undefined) => {
     // 외부로 변경 사항을 알립니다.
@@ -34,7 +33,7 @@ export function Calendar22({
     }
     // Popover를 닫습니다.
     setOpen(false);
-  }
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -55,11 +54,11 @@ export function Calendar22({
             selected={value} // 외부에서 받은 value를 Calendar의 selected 프롭에 전달
             captionLayout="dropdown"
             onSelect={handleSelectDate} // 수정된 핸들러 사용
-            startMonth={new Date(1900, 0)} 
-            endMonth={new Date(2100, 11)} 
+            startMonth={new Date(1900, 0)}
+            endMonth={new Date(2100, 11)}
           />
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
