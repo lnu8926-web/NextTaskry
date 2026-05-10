@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { supabase } from "@/lib/supabase/supabase";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,80 +16,78 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async signIn({ user }) {
-      // const supabase = supabaseServer;
-      const email = user.email;
-
+      const email = user.email?.trim().toLowerCase();
       if (!email) return false;
 
-      // 기존 유저 조회
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email)
-        .single();
+      const now = new Date().toISOString();
+      const userPayload = {
+        user_name: user.name,
+        profile_image: user.image,
+        updated_at: now,
+        is_active: true,
+        auth_provider: "google",
+      };
 
-      // 기존 유저가 있고, global_role === 'admin'이면 → 관리자 정보만 업데이트만
-      if (existingUser?.global_role === "admin") {
-        console.log("관리자입니다. ");
-
-        await supabase
+      try {
+        // maybeSingle avoids treating "no row" as an exception path.
+        const { data: existingUser, error: existingUserError } = await supabaseAdmin
           .from("users")
-          .update({
-            user_name: user.name,
-            profile_image: user.image,
-            updated_at: new Date().toISOString(),
-            is_active: true,
-            auth_provider: "google",
-          })
+          .select("user_id, global_role")
+          .eq("email", email)
+          .maybeSingle();
+
+        if (existingUserError) {
+          console.error("[auth] failed to fetch user", existingUserError);
+          return false;
+        }
+
+        if (!existingUser) {
+          const { error: insertError } = await supabaseAdmin.from("users").insert({
+            email,
+            global_role: "user",
+            ...userPayload,
+          });
+
+          if (insertError) {
+            console.error("[auth] failed to create user", insertError);
+            return false;
+          }
+
+          return true;
+        }
+
+        const { error: updateError } = await supabaseAdmin
+          .from("users")
+          .update(userPayload)
           .eq("email", email);
 
-        return true;
-      }
-
-      //신규 유저라면 INSERT
-      if (!existingUser) {
-        console.log("신규유저입니다. ");
-        await supabase.from("users").insert({
-          email: user.email,
-          user_name: user.name,
-          profile_image: user.image,
-          // password: null,              // 소셜 로그인 → 사용 X
-          global_role: "user", // 일반 유저
-          auth_provider: "google",
-          is_active: true,
-          updated_at: new Date().toISOString(),
-        });
+        if (updateError) {
+          console.error("[auth] failed to update user", updateError);
+          return false;
+        }
 
         return true;
+      } catch (error) {
+        console.error("[auth] unexpected signIn error", error);
+        return false;
       }
-
-      //기존 일반 유저라면 UPDATE
-      await supabase
-        .from("users")
-        .update({
-          user_name: user.name,
-          profile_image: user.image,
-          updated_at: new Date().toISOString(),
-          is_active: true,
-          auth_provider: "google",
-        })
-        .eq("email", email);
-
-      console.log("기존유저입니다. ");
-      return true;
     },
 
     async jwt({ token, user }) {
       //처음 토큰 생성한 뒤 payload에 유저정보를 브라우저에 세션으로 넘겨주기위한 코드
       // 그 뒤 토큰 검증할때마다 실행될때는 user가 없기때문에 하위 코드는 실행되지않는다.
-      if (user) {
-        // DB에서 유저 조회
-        // const supabase = supabaseServer;
-        const { data: existingUser } = await supabase
+      if (user?.email) {
+        const email = user.email.trim().toLowerCase();
+        const { data: existingUser, error: existingUserError } = await supabaseAdmin
           .from("users")
           .select("user_id, global_role, user_name, email, profile_image")
-          .eq("email", user.email)
-          .single();
+          .eq("email", email)
+          .maybeSingle();
+
+        if (existingUserError) {
+          console.error("[auth] failed to load user for jwt", existingUserError);
+          return token;
+        }
 
         if (existingUser) {
           token.user_id = existingUser.user_id;
@@ -115,7 +113,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  
   secret: process.env.NEXTAUTH_SECRET,
 };
 

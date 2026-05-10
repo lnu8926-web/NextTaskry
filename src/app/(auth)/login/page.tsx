@@ -2,7 +2,7 @@
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { signIn } from "next-auth/react";
-import { redirect, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 import Container from "@/components/shared/Container";
 
@@ -17,7 +17,6 @@ function LoginContent() {
       localStorage.setItem("invite_id", inviteId);
     }
 
-    console.log(inviteId,"inviteId")
   }, [searchParams]);
 
   return (
@@ -48,7 +47,7 @@ function LoginContent() {
           icon="google"
           variant="primary"
           size={18}
-          onClick={() => redirect("/")}
+          onClick={() => signIn("google", { callbackUrl: "/" })}
         >
           Google로 시작하기
         </Button>
