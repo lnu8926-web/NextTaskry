@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 import Container from "@/components/shared/Container";
+import { signInWithSupabaseGoogle } from "@/lib/supabase/auth";
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -16,8 +17,6 @@ function LoginContent() {
     if (inviteId) {
       localStorage.setItem("invite_id", inviteId);
     }
-
-    console.log(inviteId,"inviteId")
   }, [searchParams]);
 
   return (
@@ -48,9 +47,24 @@ function LoginContent() {
           icon="google"
           variant="primary"
           size={18}
-          onClick={() => redirect("/")}
+          onClick={() => signIn("google", { callbackUrl: "/" })}
         >
           Google로 시작하기
+        </Button>
+
+      
+      </div>
+
+      <div className="mt-8">
+
+          <Button
+          btnType="basic"
+          icon="google"
+          variant="primary"
+          size={18}
+          onClick={signInWithSupabaseGoogle}
+        >
+          Supabase Google로 시작하기
         </Button>
       </div>
     </Container>
