@@ -98,6 +98,9 @@ dist
 # Sveltekit cache directory
 .svelte-kit/
 
+# VS Code workspace settings
+.vscode/
+
 # vitepress build output
 **/.vitepress/dist
 
