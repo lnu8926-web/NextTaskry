@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase/supabase";
 import { useEffect, useState } from "react";
 import InviteDecisionModal_V2 from "@/components/features/invite/InviteDecisionModal_V2";
 import Container from "@/components/shared/Container";
-import ProjectBoard from "@/components/features/project/ProjectBoard";
+import ProjectBoard from "@/features/project/ui/ProjectBoard";
 
 const Home = () => {
   const [inviteData, setInviteData] = useState(null);

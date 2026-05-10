@@ -1,4 +1,4 @@
-import ProjectBoard from "@/components/features/project/ProjectBoard";
+import ProjectBoard from "@/features/project/ui/ProjectBoard";
 
 export default function Dashboard() {
     return (

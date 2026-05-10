@@ -1,6 +1,6 @@
-import ProjectBoardHeader from "@/components/features/project/ProjectBoardHeader";
+import ProjectBoardHeader from "@/features/project/ui/ProjectBoardHeader";
 import PorjectBoardFilter from "./ProjectBoardFilter";
-import ProjectBoardBody from "@/components/features/project/ProjectBoardBody";
+import ProjectBoardBody from "@/features/project/ui/ProjectBoardBody";
 import { ProjectBoardProvider } from "@/providers/ProjectBoardProvider";
 
 export default function ProjectBoard() {

@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/features/project/Card";
+} from "@/features/project/ui/Card";
 import { DeleteDialog } from "./DeleteDialog";
 import { deleteProject, deleteProjectMember } from "@/lib/api/projects";
 import { useRouter } from "next/navigation";
