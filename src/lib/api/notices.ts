@@ -9,14 +9,29 @@ export const ITEM_PER_PAGE = NOTICE_CONSTANS.ITEMS_PER_PAGE;
 // ------------------------------------------------------
 
 async function handleApiResponse<T>(response: Response): Promise<T> {
-  // HTTP 응답 상태 확인
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `API 요청 실패: ${response.status}`);
-  }
-  return response.json();
-}
+  const errorData = await response.json().catch(() => ({}));
 
+  if (!response.ok) {
+    const serverMessage =
+      typeof errorData?.error === "string" ? errorData.error : null;
+
+    const fallbackMessageByStatus: Record<number, string> = {
+      400: "잘못된 요청입니다.",
+      401: "로그인이 필요합니다.",
+      403: "권한이 없습니다.",
+      404: "요청한 데이터를 찾을 수 없습니다.",
+      500: "서버 오류가 발생했습니다.",
+    };
+
+    const fallback =
+      fallbackMessageByStatus[response.status] ||
+      `API 요청 실패: ${response.status}`;
+
+    throw new Error(serverMessage || fallback);
+  }
+
+  return errorData as T;
+}
 // ------------------------------------------------------
 // 공지사항 목록 조회
 // ------------------------------------------------------
@@ -28,7 +43,6 @@ export async function getNotices(
   try {
     const response = await fetch(
       `/api/announcements?page=${page}&limit=${limit}`
-      // /api/announcements?page=1&limit=8
     );
     const result = await handleApiResponse<{
       data: Notice[];

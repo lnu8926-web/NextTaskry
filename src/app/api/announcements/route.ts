@@ -13,18 +13,20 @@ async function handleRequest(fn: () => Promise<NextResponse | undefined>) {
   } catch (error) {
     console.error("서버 오류:", error);
     const msg =
-      error instanceof Error ? error.message : "서버 오류가 발생했습니다.";
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" &&
+            error !== null &&
+            "message" in error &&
+            typeof (error as { message?: unknown }).message === "string"
+          ? String((error as { message: string }).message)
+          : "서버 오류가 발생했습니다.";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
 // ------------------------------------------------------
 // 권한 체크
-// 1) 세션이 없거나, user가 없으면 -> 로그인 필요 반환
-// 3) 세션에 user.email이 없을 경우 -> 관리자 권한 필요 반환
-
-// 251121. 테스트를 위해 임시방편으로 NEXT_PUBLIC_ADMIN_EMAILS로
-// 이메일을 받고 있는데, 추후 session?.user?.role === "admin"로 원복 필요
 // ------------------------------------------------------
 
 export async function checkAdminFnc() {
@@ -40,10 +42,6 @@ export async function checkAdminFnc() {
     };
   }
 
-  // const adminEmails =
-  //   process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-  
-  // 관리자 권한 체크 (오류코드 403)
   const isAdmin = authUser.role === "admin";
   if (!isAdmin) {
     return {
@@ -55,13 +53,7 @@ export async function checkAdminFnc() {
     };
   }
 
-
-  //------------------ 디버깅용
-  const user_id = authUser.userId ?? crypto.randomUUID();
-  if (!authUser.userId) {
-    console.warn("세션에 user_id가 없습니다. 임시 UUID를 사용합니다.");
-  }
-  //------------------ END 디버깅용
+  const user_id = authUser.userId;
 
   return { authorized: true, user_id };
 }
