@@ -6,8 +6,8 @@ import { showToast } from "@/lib/utils/toast";
 import { createNotice } from "@/lib/api/notices";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { NoticeForm } from "@/features/notice/ui/NoticeForm";
-import { useNoticeForm } from "@/features/notice/model/useNoticeForm";
+import { NoticeForm } from "@/features/notice";
+import { useNoticeForm } from "@/features/notice";
 import Button from "@/components/ui/Button";
 
 export default function AdminNoticeCreatePage() {
