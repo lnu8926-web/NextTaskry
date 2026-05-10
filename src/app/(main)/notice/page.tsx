@@ -25,7 +25,6 @@ import { SectionHeader } from "@/components/shared/SectionHeader";
 import { NoticeWithNumber } from "@/types/notice";
 import { useSession } from "next-auth/react";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { isAdmin } from "@/lib/utils/auth";
 import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
 import Link from "next/link";
 import EmptyNotice from "@/components/features/notice/EmptyNotice";
@@ -36,7 +35,7 @@ import CommonPagination from "@/components/ui/CommonPagination";
 
 export default function NoticePage() {
   const { data: session } = useSession();
-  const admin = isAdmin(session);
+  const admin = session?.user?.role === "admin";
 
   const [notices, setNotices] = useState<NoticeWithNumber[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,7 +95,7 @@ export default function NoticePage() {
         <>
           <div className="flex justify-between items-center mb-5">
             <p className="text-base font-bold">총 {totalItems}개</p>
-            {admin && (
+            {session?.user?.role === "admin" && (
               <Link href="/admin/notice/create">
                 <Button
                   btnType="form_s"

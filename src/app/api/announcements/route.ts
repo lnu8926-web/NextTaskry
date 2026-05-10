@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
+import { getUnifiedAuthUser } from "@/lib/auth/unifiedAuth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 // ------------------------------------------------------
@@ -30,9 +28,9 @@ async function handleRequest(fn: () => Promise<NextResponse | undefined>) {
 // ------------------------------------------------------
 
 export async function checkAdminFnc() {
-  const session = await getServerSession(authOptions);
+  const authUser = await getUnifiedAuthUser();
 
-  if (!session?.user) {
+  if (!authUser.isAuthenticated || !authUser.userId) {
     return {
       authorized: false,
       error: NextResponse.json(
@@ -44,7 +42,9 @@ export async function checkAdminFnc() {
 
   // const adminEmails =
   //   process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-  const isAdmin = session?.user?.role === "admin";
+  
+  // 관리자 권한 체크 (오류코드 403)
+  const isAdmin = authUser.role === "admin";
   if (!isAdmin) {
     return {
       authorized: false,
@@ -55,9 +55,10 @@ export async function checkAdminFnc() {
     };
   }
 
+
   //------------------ 디버깅용
-  const user_id = session.user.user_id ?? crypto.randomUUID();
-  if (!session.user.user_id) {
+  const user_id = authUser.userId ?? crypto.randomUUID();
+  if (!authUser.userId) {
     console.warn("세션에 user_id가 없습니다. 임시 UUID를 사용합니다.");
   }
   //------------------ END 디버깅용

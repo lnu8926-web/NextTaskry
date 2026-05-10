@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase/supabase";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getUnifiedAuthUser } from "@/lib/auth/unifiedAuth";
 import type { ProjectMemo } from "@/types/projectMemo";
 
 // ============================================
@@ -19,16 +18,16 @@ interface ApiError {
  * 현재 인증된 사용자 ID 가져오기
  */
 async function getAuthUserId() {
-  const session = await getServerSession(authOptions);
+  const authUser = await getUnifiedAuthUser();
 
-  if (!session?.user?.user_id) {
+  if (!authUser.isAuthenticated || !authUser.userId) {
     throw {
       error: "인증이 필요합니다",
       status: 401,
     };
   }
 
-  return session.user.user_id;
+  return authUser.userId;
 }
 
 /**

@@ -11,6 +11,8 @@
 **Taskry**는 복잡한 절차 없이 누구나 쉽게 업무 흐름을 관리할 수 있는 웹 기반 협업 도구입니다.  
 직관적인 UI와 실시간 동기화를 통해 팀의 생산성을 극대화합니다.
 
+업데이트일: 2026-05-10
+
 ## 📸 Screen Shots
 
 |                              메인 대시보드                               |                                  칸반보드                                  |                                 캘린더                                  |
@@ -79,9 +81,24 @@ DIRECT_URL=your+direct_url
 # Supabase API
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ```
 
-### 3. 실행 명령어
+### 3. 인증 운영 방식
+
+- 현재 인증은 NextAuth와 Supabase Auth를 병행 운영합니다.
+- 로그인 페이지에서 NextAuth Google 또는 Supabase Google 로그인으로 진입할 수 있습니다.
+- 보호 라우트는 NextAuth 토큰과 Supabase 세션을 함께 확인합니다.
+- 서버 API는 통합 인증 유틸을 통해 사용자 컨텍스트를 추출합니다.
+- 관리자 API는 role === "admin" 기준으로만 허용합니다.
+
+### 4. 로그인 오류 점검 순서
+
+- Google OAuth Client ID/Secret과 승인된 Redirect URI를 먼저 확인합니다.
+- Supabase OAuth Redirect URL과 앱의 redirectTo 설정 일치 여부를 확인합니다.
+- 브라우저 쿠키/세션 상태와 서버 환경변수 누락 여부를 확인합니다.
+
+### 5. 실행 명령어
 
 ```
 npm run dev
