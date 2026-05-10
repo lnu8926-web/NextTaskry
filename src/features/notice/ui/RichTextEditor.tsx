@@ -38,7 +38,7 @@ interface RichTextEditorProps {
   className?: string;
 }
 
-const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
+export const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
   ({ value, onChange, placeholder, rows = 15, className }, ref) => {
     const textareaId = "editor-textarea";
     const textareaRef = useReactRef<HTMLTextAreaElement>(null);
