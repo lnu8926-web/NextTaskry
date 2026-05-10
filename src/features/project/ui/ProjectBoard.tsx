@@ -1,14 +1,27 @@
-import ProjectBoardHeader from "@/features/project/ui/ProjectBoardHeader";
+"use client";
+
+import ProjectBoardHeader from "./ProjectBoardHeader";
 import PorjectBoardFilter from "./ProjectBoardFilter";
-import ProjectBoardBody from "@/features/project/ui/ProjectBoardBody";
+import ProjectBoardBody from "./ProjectBoardBody";
 import { ProjectBoardProvider } from "@/providers/ProjectBoardProvider";
+import { useProjectBoard } from "@/providers/ProjectBoardProvider";
 
 export default function ProjectBoard() {
   return (
-     <ProjectBoardProvider>
-        <ProjectBoardHeader />
-        <PorjectBoardFilter />
-        <ProjectBoardBody />
-     </ProjectBoardProvider>
+      <ProjectBoardProvider>
+         <ProjectBoardContent />
+      </ProjectBoardProvider>
   );
+}
+
+function ProjectBoardContent() {
+   const { filter } = useProjectBoard();
+
+   return (
+      <>
+         <ProjectBoardHeader />
+         <PorjectBoardFilter />
+         <ProjectBoardBody key={filter.view} />
+      </>
+   );
 }

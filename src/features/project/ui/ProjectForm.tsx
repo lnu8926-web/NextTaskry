@@ -2,9 +2,9 @@
 
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
-import { Calendar22 } from "@/features/project/ui/Calendar";
-import { StatusSelect } from "@/features/project/ui/StatusSelect";
-import { TypeSelect } from "@/features/project/ui/TypeSelect";
+import { Calendar22 } from "./Calendar";
+import { StatusSelect } from "./StatusSelect";
+import { TypeSelect } from "./TypeSelect";
 import { Input } from "@/components/ui/shadcn/Input";
 import { Label } from "@/components/ui/shadcn/Label";
 import { Textarea } from "@/components/ui/shadcn/Textarea";
@@ -14,7 +14,7 @@ import {
   getProjectMember,
   updateProject,
   updateProjectMember,
-} from "@/lib/api/projects";
+} from "../model";
 import { showToast } from "@/lib/utils/toast";
 import { getUser, getUserById } from "@/lib/api/users";
 import { useRouter } from "next/navigation";
@@ -40,7 +40,7 @@ interface ProjectProps {
 
 export default function ProjectForm() {
   const router = useRouter();
-  const [projectId, setProjectId] = useState<string>(
+  const [projectId] = useState<string>(
     () => (typeof window !== "undefined" ? sessionStorage.getItem("current_Project_Id") ?? "" : "")
   );
   const [projectData, setProjectData] = useState<ProjectProps>({
@@ -234,11 +234,6 @@ export default function ProjectForm() {
       showToast("저장에 실패했습니다.", "error");
     },
   });
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    submitProject();
-  };
 
   return (
     <Container>

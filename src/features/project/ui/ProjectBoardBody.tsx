@@ -4,8 +4,8 @@ import {
   getProject,
   getProjectByIds,
   getProjectMemberByUser,
-} from "@/lib/api/projects";
-import { useState, useEffect, useMemo } from "react";
+} from "../model";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import { useSession } from "next-auth/react";
@@ -14,8 +14,7 @@ import Container from "@/components/shared/Container";
 import ProjectBoardEmpty from "./ProjectBoardEmpty";
 import ProjectCard from "./ProjectCard";
 import CommonPagination from "@/components/ui/CommonPagination";
-import ProjectCardSkeleton from "@/components/ui/ProjectCardSkeleton";
-import type { Project } from "@/types/project";
+import type { Project } from "../model";
 
 export default function ProjectBoard() {
   const { data: session, status } = useSession();
@@ -64,15 +63,11 @@ export default function ProjectBoard() {
     staleTime: 1000 * 60 * 3,
   });
 
-  const projectList = queryResult?.projectList ?? [];
   const projectMember = queryResult?.projectMember ?? {};
   const totalPage = queryResult?.totalPage ?? 1;
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filter.view]);
-
   const sortedProjectList = useMemo(() => {
+    const projectList = queryResult?.projectList ?? [];
     if (projectList.length === 0) return [];
 
     const dateFieldMap = {
@@ -93,7 +88,7 @@ export default function ProjectBoard() {
 
       return isAsc ? timeA - timeB : timeB - timeA;
     });
-  }, [projectList, filter.date, filter.sort]);
+  }, [queryResult?.projectList, filter.date, filter.sort]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);

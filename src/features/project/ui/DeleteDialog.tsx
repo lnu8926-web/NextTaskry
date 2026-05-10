@@ -1,3 +1,5 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import {
   Dialog,
@@ -9,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/shadcn/Dialog";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface DeleteDialogProps {
   onClick: () => void;
@@ -17,7 +19,7 @@ interface DeleteDialogProps {
 
 export function DeleteDialog({ onClick }: DeleteDialogProps) {
   const [open, setOpen] = useState(false);
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = () => {
     onClick();
     setOpen(false);
   };

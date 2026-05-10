@@ -1,3 +1,5 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import {
@@ -7,14 +9,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/features/project/ui/Card";
+} from "./Card";
 import { DeleteDialog } from "./DeleteDialog";
-import { deleteProject, deleteProjectMember } from "@/lib/api/projects";
+import { deleteProject, deleteProjectMember } from "../model";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
-import type { Project } from "@/types/project";
+import type { Project } from "../model";
 
 interface ProjectCardProps {
   project: Project;
