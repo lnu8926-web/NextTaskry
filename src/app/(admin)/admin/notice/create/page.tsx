@@ -6,7 +6,7 @@ import { showToast } from "@/lib/utils/toast";
 import { createNotice } from "@/lib/api/notices";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { NoticeForm } from "@/components/features/notice/NoticeForm";
+import { NoticeForm } from "@/features/notice/ui/NoticeForm";
 import { useNoticeForm } from "@/hooks/notice/useNoticeForm";
 import Button from "@/components/ui/Button";
 

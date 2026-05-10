@@ -3,7 +3,7 @@
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import Link from "next/link";
-import NoticePagination from "@/components/features/notice/NoticePagination";
+import NoticePagination from "@/features/notice/ui/NoticePagination";
 import { useCallback, useEffect, useState } from "react";
 import { getNotices, ITEM_PER_PAGE } from "@/lib/api/notices";
 import { showToast } from "@/lib/utils/toast";
