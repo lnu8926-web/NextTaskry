@@ -1,4 +1,4 @@
-// import ProjectForm from "@/components/features/project/ProjectForm";
+// import ProjectForm from "@/features/project/ui/ProjectForm";
     
 export default async function UpdateProject({params}:{params:Promise<{id:string}>}) {
     const {id} = await params;
