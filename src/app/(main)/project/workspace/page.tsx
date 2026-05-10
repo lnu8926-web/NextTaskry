@@ -39,7 +39,7 @@ const KanbanBoard = dynamic(
 );
 const MemoView = dynamic(() => import("@/components/features/kanban/MemoView"));
 const ProjectInfoPanel = dynamic(
-  () => import("@/components/features/project/ProjectInfoPanel")
+  () => import("@/features/project/ui/ProjectInfoPanel")
 );
 
 // 네비게이션 타입 정의 - 하단 탭 네비게이션용

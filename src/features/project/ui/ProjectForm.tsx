@@ -2,9 +2,9 @@
 
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
-import { Calendar22 } from "@/components/features/project/Calendar";
-import { StatusSelect } from "@/components/features/project/StatusSelect";
-import { TypeSelect } from "@/components/features/project/TypeSelect";
+import { Calendar22 } from "@/features/project/ui/Calendar";
+import { StatusSelect } from "@/features/project/ui/StatusSelect";
+import { TypeSelect } from "@/features/project/ui/TypeSelect";
 import { Input } from "@/components/ui/shadcn/Input";
 import { Label } from "@/components/ui/shadcn/Label";
 import { Textarea } from "@/components/ui/shadcn/Textarea";
