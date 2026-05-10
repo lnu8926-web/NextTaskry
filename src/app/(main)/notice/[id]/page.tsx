@@ -13,7 +13,6 @@ import { NoticeNavigation } from "@/components/features/notice/NoticeNavigation"
 import { NoticeActionButtons } from "@/components/features/notice/NoticeActionButtons";
 import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
 import { useNoticeForm } from "@/hooks/notice/useNoticeForm";
-import { isAdmin } from "@/lib/utils/auth";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
 import Link from "next/link";
 import Container from "@/components/shared/Container";
@@ -27,7 +26,7 @@ export default function NoticeDetail() {
   // ------------------ ID 추출 및 타입 안정성 확보
   const { data: session } = useSession();
   const noticeId = (Array.isArray(params.id) ? params.id[0] : params.id) ?? "";
-  const admin = isAdmin(session);
+  const admin = session?.user?.role === "admin";
 
   // ------------------ 공지사항 데이터 로드
   const { notice, nextNotice, prevNotice, isLoading, error, reload } =

@@ -8,13 +8,11 @@ import { useState } from "react";
 import Link from "next/link";
 import ProfileModal from "@/app/(auth)/login/components/ProfileModal";
 import Button from "@/components/ui/Button";
-import { isAdmin } from "@/lib/utils/auth";
 
 export function Header() {
   const { setTheme, resolvedTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
-  const admin = isAdmin(session);
 
   const handleLoginModal = () => {
     if (!session) {
@@ -63,7 +61,7 @@ export function Header() {
               ></Button>
             </Link>
 
-            {admin && (
+            {session?.user?.role === "admin" && (
               <Link href="/admin?tabs=users">
                 <Button
                   btnType="icon"
