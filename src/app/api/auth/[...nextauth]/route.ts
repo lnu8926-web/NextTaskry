@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         .single();
 
       if (existingUser?.global_role === "admin") {
-        await supabase
+        const { error } = await supabase
           .from("users")
           .update({
             user_name: user.name,
@@ -44,11 +44,12 @@ export const authOptions: NextAuthOptions = {
           })
           .eq("email", email);
 
+        if (error) console.error("[signIn] admin UPDATE 실패:", error);
         return true;
       }
 
       if (!existingUser) {
-        await supabase.from("users").insert({
+        const { error } = await supabase.from("users").insert({
           email: user.email,
           user_name: user.name,
           profile_image: user.image,
@@ -58,10 +59,11 @@ export const authOptions: NextAuthOptions = {
           updated_at: new Date().toISOString(),
         });
 
+        if (error) console.error("[signIn] INSERT 실패:", error);
         return true;
       }
 
-      await supabase
+      const { error } = await supabase
         .from("users")
         .update({
           user_name: user.name,
@@ -72,6 +74,7 @@ export const authOptions: NextAuthOptions = {
         })
         .eq("email", email);
 
+      if (error) console.error("[signIn] UPDATE 실패:", error);
       return true;
     },
 
