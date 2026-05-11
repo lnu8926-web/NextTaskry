@@ -2,10 +2,9 @@
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { signIn } from "next-auth/react";
-import { redirect, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 import Container from "@/components/shared/Container";
-import { signInWithSupabaseGoogle } from "@/lib/supabase/auth";
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -41,7 +40,7 @@ function LoginContent() {
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-col items-center gap-3">
         <Button
           btnType="basic"
           icon="google"
@@ -52,19 +51,14 @@ function LoginContent() {
           Google로 시작하기
         </Button>
 
-      
-      </div>
-
-      <div className="mt-8">
-
-          <Button
+        <Button
           btnType="basic"
-          icon="google"
-          variant="primary"
+          icon="github"
+          variant="basic"
           size={18}
-          onClick={signInWithSupabaseGoogle}
+          onClick={() => signIn("github", { callbackUrl: "/" })}
         >
-          Supabase Google로 시작하기
+          GitHub로 시작하기
         </Button>
       </div>
     </Container>
