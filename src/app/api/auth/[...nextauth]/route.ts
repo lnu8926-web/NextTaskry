@@ -1,5 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import GithubProvider from "next-auth/providers/github";
 import { supabase } from "@/lib/supabase/supabase";
 
 export const authOptions: NextAuthOptions = {
@@ -8,6 +9,10 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    GithubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -15,23 +20,19 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async signIn({ user }) {
-      // const supabase = supabaseServer;
+    async signIn({ user, account }) {
       const email = user.email;
+      const provider = account?.provider ?? "unknown";
 
       if (!email) return false;
 
-      // 기존 유저 조회
       const { data: existingUser } = await supabase
         .from("users")
         .select("*")
         .eq("email", email)
         .single();
 
-      // 기존 유저가 있고, global_role === 'admin'이면 → 관리자 정보만 업데이트만
       if (existingUser?.global_role === "admin") {
-        console.log("관리자입니다. ");
-
         await supabase
           .from("users")
           .update({
@@ -39,23 +40,20 @@ export const authOptions: NextAuthOptions = {
             profile_image: user.image,
             updated_at: new Date().toISOString(),
             is_active: true,
-            auth_provider: "google",
+            auth_provider: provider,
           })
           .eq("email", email);
 
         return true;
       }
 
-      //신규 유저라면 INSERT
       if (!existingUser) {
-        console.log("신규유저입니다. ");
         await supabase.from("users").insert({
           email: user.email,
           user_name: user.name,
           profile_image: user.image,
-          // password: null,              // 소셜 로그인 → 사용 X
-          global_role: "user", // 일반 유저
-          auth_provider: "google",
+          global_role: "user",
+          auth_provider: provider,
           is_active: true,
           updated_at: new Date().toISOString(),
         });
@@ -63,7 +61,6 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      //기존 일반 유저라면 UPDATE
       await supabase
         .from("users")
         .update({
@@ -71,11 +68,10 @@ export const authOptions: NextAuthOptions = {
           profile_image: user.image,
           updated_at: new Date().toISOString(),
           is_active: true,
-          auth_provider: "google",
+          auth_provider: provider,
         })
         .eq("email", email);
 
-      console.log("기존유저입니다. ");
       return true;
     },
 
