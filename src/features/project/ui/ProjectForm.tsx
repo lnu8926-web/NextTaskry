@@ -95,13 +95,15 @@ export default function ProjectForm() {
       const project = projectResult.data?.[0];
       if (project) {
         setProjectData({
-          ...project,
-          projectName: project.project_name,
+          projectName: project.project_name ?? "",
+          type: project.type ?? "",
+          status: project.status ?? "",
+          techStack: project.tech_stack ?? "",
+          description: project.description ?? "",
           startedAt: project.started_at,
           endedAt: project.ended_at,
           createdAt: project.created_at,
           updatedAt: project.updated_at,
-          techStack: project.tech_stack,
         });
       }
 
@@ -207,6 +209,22 @@ export default function ProjectForm() {
       (member) => member.userId !== id
     );
     setProjectMember(filterProjectMember);
+  };
+
+  const handleSubmit = () => {
+    if (!projectData.projectName.trim()) {
+      showToast("프로젝트 명을 입력해주세요.", "error");
+      return;
+    }
+    if (!projectData.type) {
+      showToast("프로젝트 분류를 선택해주세요.", "error");
+      return;
+    }
+    if (!projectData.status) {
+      showToast("프로젝트 상태를 선택해주세요.", "error");
+      return;
+    }
+    submitProject();
   };
 
   const { mutate: submitProject, isPending: isSubmitting } = useMutation({
@@ -381,7 +399,7 @@ export default function ProjectForm() {
             variant="primary"
             size={16}
             className="hover:cursor-pointer mr-2 text-white"
-            onClick={() => submitProject()}
+            onClick={handleSubmit}
             disabled={isSubmitting}
           >
             {isSubmitting ? "저장 중..." : projectId ? "수정 완료" : "프로젝트 생성"}
