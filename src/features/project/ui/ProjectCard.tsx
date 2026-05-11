@@ -1,107 +1,114 @@
 "use client";
 
-import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./Card";
 import { DeleteDialog } from "./DeleteDialog";
 import { deleteProject, deleteProjectMember } from "../model";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
-import type { Project } from "../model";
+import type { Project, ProjectStatus } from "../model";
+import { Pencil, CalendarDays } from "lucide-react";
 
 interface ProjectCardProps {
   project: Project;
   projectMember: Record<string, number> | null;
 }
 
-export default function ProjectCard({
-  project,
-  projectMember,
-}: ProjectCardProps) {
+const STATUS_CONFIG: Record<ProjectStatus, { label: string; dot: string; text: string }> = {
+  active:    { label: "진행중",   dot: "bg-emerald-400",              text: "text-emerald-600 dark:text-emerald-400" },
+  completed: { label: "완료",     dot: "bg-gray-300 dark:bg-gray-500", text: "text-gray-400 dark:text-gray-500"       },
+  archived:  { label: "일시정지", dot: "bg-amber-400",                text: "text-amber-500 dark:text-amber-400"     },
+};
+
+function formatDate(d: string) {
+  const date = new Date(d);
+  const dateStr = date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const timeStr = date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return `${dateStr.replace(/\. /g, ".").replace(/\.$/, "")} ${timeStr}`;
+}
+
+function formatDateRange(start?: string, end?: string) {
+  if (!start && !end) return null;
+  if (!end) return formatDate(start!);
+  return `${formatDate(start!)} – ${formatDate(end)}`;
+}
+
+export default function ProjectCard({ project, projectMember }: ProjectCardProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const handleSelectProject = (projectId: string) => {
-    // 세션 스토리지에 선택한 프로젝트 ID 저장
-    sessionStorage.setItem("current_Project_Id", projectId);
-    // URL에 ID 노출없이 프로젝트 페이지로 이동
-    router.push("/project/workspace");
-  };
+  const memberCount = projectMember?.[project.project_id] ?? 1;
+  const status = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.active;
+  const dateRange = formatDateRange(project.started_at, project.ended_at);
 
-  const handleEditProject = (projectId: string) => {
-    // 세션 스토리지에 선택한 프로젝트 ID 저장
-    sessionStorage.setItem("current_Project_Id", projectId);
-
-    // URL에 ID 노출없이 프로젝트 페이지로 이동
-    router.push("/project/update/");
-  };
-
-  async function handleDeleteProject(id: string) {
-    // 프로젝트 및 프로젝트 멤버 정보 삭제
-    await deleteProject(id);
-    await deleteProjectMember(id);
-
-    // 캐시 무효화 → 목록 자동 재조회
+  async function handleDelete() {
+    await deleteProject(project.project_id);
+    await deleteProjectMember(project.project_id);
     queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
-
     showToast("삭제되었습니다.", "deleted");
   }
 
   return (
-    <>
-      <Card
-        onClick={() => {
-          handleSelectProject(project.project_id);
-        }}
-      >
-        <div>
-          <CardHeader className="flex w-full mb-2">
-            <CardTitle>{project.project_name}</CardTitle>
-          </CardHeader>
-          <CardDescription className="flex">
-            <div className="flex gap-2 text-sm text-dark-description">
-              {project.description}
-            </div>
-          </CardDescription>
+    <div
+      onClick={() => router.push(`/project/workspace/${project.project_id}`)}
+      className="group relative flex flex-col bg-card rounded-2xl border border-border p-5 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:border-main-200 dark:hover:border-main-700"
+    >
+      {/* 상태 */}
+      <div className={`flex items-center gap-1.5 text-xs font-medium mb-3 ${status.text}`}>
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${status.dot}`} />
+        {status.label}
+      </div>
+
+      {/* 제목 + 설명 */}
+      <div className="flex-1 min-h-0 mb-4">
+        <h3 className="font-semibold text-base text-foreground line-clamp-1 mb-1.5">
+          {project.project_name}
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+          {project.description || "설명이 없습니다."}
+        </p>
+      </div>
+
+      {/* 날짜 */}
+      {dateRange && (
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4">
+          <CalendarDays className="w-3.5 h-3.5 shrink-0 text-main-400 dark:text-main-300" />
+          <span>{dateRange}</span>
         </div>
-        <CardContent className="flex justify-end">
-          <div className="flex gap-2 font-medium text-main-400 dark:text-main-200 ">
-            <Icon
-              type="users"
-              size={18}
-              className="text-main-400 dark:text-main-200 "
-            />
-            <div className="text-sm">
-              {projectMember ? projectMember[project.project_id] : 1}팀원
-            </div>
+      )}
+
+      {/* 팀원 수 + 호버 액션 */}
+      <div className="flex items-center justify-between pt-3 border-t border-border/60">
+        <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+          <Icon type="users" size={12} />
+          {memberCount}명
+        </span>
+
+        {/* 호버 시 나타나는 액션 버튼 */}
+        <div
+          className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => router.push(`/project/update/${project.project_id}`)}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-main-500 hover:bg-main-500/10 transition-colors"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+          <div className="[&>button]:w-7 [&>button]:h-7 [&>button]:rounded-lg">
+            <DeleteDialog onClick={handleDelete} />
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-end gap-2">
-          <div onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
-            <Button
-              btnType="icon"
-              icon="edit"
-              size={16}
-              variant="primary"
-              onClick={() => handleEditProject(project.project_id)}
-            />
-          </div>
-          <div onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
-            <DeleteDialog
-              onClick={() => handleDeleteProject(project.project_id)}
-            />
-          </div>
-        </CardFooter>
-      </Card>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }

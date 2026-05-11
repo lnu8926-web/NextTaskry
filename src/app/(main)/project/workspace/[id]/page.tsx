@@ -1,0 +1,385 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
+import { queryKeys } from "@/lib/constants/queryKeys";
+
+import BottomNavigation from "@/components/layout/BottomNavigation";
+
+import { Task } from "@/types/kanban";
+import { showToast } from "@/lib/utils/toast";
+
+import {
+  getTasksByBoardId,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "@/app/api/tasks/tasks";
+
+import { useSession } from "next-auth/react";
+import { supabase } from "@/lib/supabase/supabase";
+import { ProjectRole } from "@/types";
+
+const CalendarView = dynamic(
+  () => import("@/components/features/calendarView/CalendarView")
+);
+const KanbanBoard = dynamic(
+  () => import("@/components/features/kanban/KanbanBoard")
+);
+const MemoView = dynamic(() => import("@/components/features/kanban/MemoView"));
+const ProjectInfoPanel = dynamic(
+  () => import("@/features/project").then((mod) => mod.ProjectInfoPanel)
+);
+
+type NavItem = "calendar" | "kanban" | "memo" | "project";
+
+export default function ProjectPage() {
+  const { id: projectId } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+
+  const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
+  const [currentView, setCurrentView] = useState<NavItem>("kanban");
+  const [showMemoPanel, setShowMemoPanel] = useState(false);
+  const [showProjectInfoPanel, setShowProjectInfoPanel] = useState(false);
+
+  const userId = session?.user?.user_id;
+  const taskQueryKey = queryKeys.tasks.list(projectId);
+
+  const { data: projectInfo } = useQuery({
+    queryKey: queryKeys.workspace.info(projectId),
+    queryFn: async () => {
+      const res = await fetch(`/api/projects/${projectId}`);
+      if (!res.ok) return { project_name: "알 수 없는 프로젝트", started_at: "", ended_at: "" };
+      return res.json();
+    },
+    enabled: !!projectId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: tasks = [], isLoading: tasksLoading } = useQuery({
+    queryKey: taskQueryKey,
+    queryFn: async () => {
+      const { data, error } = await getTasksByBoardId(projectId);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!projectId,
+    staleTime: 0,
+  });
+
+  useQuery({
+    queryKey: queryKeys.workspace.role(projectId, userId),
+    queryFn: async () => {
+      if (!userId || !projectId) return null;
+      const { data, error } = await supabase
+        .from("project_members")
+        .select("role")
+        .eq("project_id", projectId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) {
+        console.error("프로젝트 멤버 역할 조회 오류:", error);
+        return null;
+      }
+      return (data?.role as ProjectRole) ?? null;
+    },
+    enabled: !!projectId && !!userId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const projectName = projectInfo?.project_name || "이름 없는 프로젝트";
+  const projectStartDate = projectInfo?.started_at || "";
+  const projectEndDate = projectInfo?.ended_at || "";
+
+  useEffect(() => {
+    if (!projectId || projectId === "undefined") {
+      router.push("/");
+    }
+  }, [projectId, router]);
+
+  useEffect(() => {
+    if (!projectId || projectId === "undefined" || projectId === "null") return;
+
+    const initKanbanBoard = async () => {
+      const kanbanRes = await fetch(`/api/kanban/boards?projectId=${projectId}`);
+      if (!kanbanRes.ok) return;
+
+      const kanbanData = await kanbanRes.json();
+
+      if (kanbanData && kanbanData.length > 0) {
+        setKanbanBoardId(kanbanData[0].id);
+      } else {
+        const createRes = await fetch("/api/kanban/boards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            project_id: projectId,
+            columns: "todo,inprogress,done",
+          }),
+        });
+        if (createRes.ok) {
+          const newKanban = await createRes.json();
+          setKanbanBoardId(newKanban.id);
+        }
+      }
+    };
+
+    initKanbanBoard();
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!projectId || !kanbanBoardId) return;
+
+    const channel = supabase
+      .channel(`taskry-board-${kanbanBoardId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+          filter: `kanban_board_id=eq.${kanbanBoardId}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newTaskRaw = payload.new as Task;
+
+            const enrichTask = async () => {
+              let assignee = null;
+
+              if (newTaskRaw.assigned_user_id) {
+                const { data: userData } = await supabase
+                  .from("users")
+                  .select("user_id, user_name, email")
+                  .eq("user_id", newTaskRaw.assigned_user_id)
+                  .single();
+
+                if (userData) {
+                  assignee = {
+                    user_id: userData.user_id,
+                    name: userData.user_name,
+                    email: userData.email,
+                  };
+                }
+              }
+
+              const enrichedTask = { ...newTaskRaw, assignee } as Task;
+
+              queryClient.setQueryData(taskQueryKey, (prev: Task[]) => {
+                if (!prev) return [enrichedTask];
+                if (prev.some((t) => t.id === enrichedTask.id)) return prev;
+                return [...prev, enrichedTask];
+              });
+            };
+
+            enrichTask();
+          } else if (payload.eventType === "UPDATE") {
+            const updatedTaskRaw = payload.new as Task;
+
+            const enrichUpdateTask = async () => {
+              let assignee = null;
+
+              if (updatedTaskRaw.assigned_user_id) {
+                const { data: userData } = await supabase
+                  .from("users")
+                  .select("user_id, user_name, email")
+                  .eq("user_id", updatedTaskRaw.assigned_user_id)
+                  .single();
+
+                if (userData) {
+                  assignee = {
+                    user_id: userData.user_id,
+                    name: userData.user_name,
+                    email: userData.email,
+                  };
+                }
+              }
+
+              const enrichedTask = { ...updatedTaskRaw, assignee } as Task;
+
+              queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
+                (prev || []).map((t) => (t.id === enrichedTask.id ? enrichedTask : t))
+              );
+            };
+
+            enrichUpdateTask();
+          } else if (payload.eventType === "DELETE") {
+            const deletedTask = payload.old as Task;
+            queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
+              (prev || []).filter((t) => t.id !== deletedTask.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [projectId, kanbanBoardId, queryClient, taskQueryKey]);
+
+  const createTaskMutation = useMutation({
+    mutationFn: async (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
+      const { data, error } = await createTask(taskData);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data) {
+        queryClient.setQueryData(taskQueryKey, (prev: Task[]) => {
+          if ((prev || []).some((t) => t.id === data.id)) return prev;
+          return [...(prev || []), data];
+        });
+        showToast("작업이 생성되었습니다.", "success");
+      }
+    },
+    onError: () => showToast("작업 생성 실패", "error"),
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, updates }: { taskId: string; updates: Partial<Task> }) => {
+      const { error } = await updateTask(taskId, updates);
+      if (error) throw error;
+      return { taskId, updates };
+    },
+    onSuccess: ({ taskId, updates }) => {
+      queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
+        (prev || []).map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+      );
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const { error } = await deleteTask(taskId);
+      if (error) throw error;
+      return taskId;
+    },
+    onSuccess: (taskId) => {
+      queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
+        (prev || []).filter((t) => t.id !== taskId)
+      );
+      showToast("작업이 삭제되었습니다.", "success");
+    },
+    onError: () => showToast("작업 삭제 실패", "error"),
+  });
+
+  const handleCreateTask = (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
+    createTaskMutation.mutate(taskData);
+  };
+
+  const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
+    updateTaskMutation.mutate({ taskId, updates });
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    deleteTaskMutation.mutate(taskId);
+  };
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: taskQueryKey });
+  };
+
+  const handleViewChange = (view: NavItem) => {
+    if (view === "memo") {
+      setShowMemoPanel((prev) => !prev);
+    } else if (view === "project") {
+      router.push("/");
+    } else {
+      setCurrentView(view);
+      setShowMemoPanel(false);
+    }
+  };
+
+  if (tasksLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-400 dark:text-gray-500 text-lg">불러오는 중...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
+      <div className="flex-1 flex overflow-hidden gap-2 lg:gap-3 min-h-0 p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto w-full">
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
+            showProjectInfoPanel
+              ? `w-[240px] lg:w-[280px] ${showMemoPanel ? "xl:w-[260px]" : "xl:w-[300px]"} opacity-100`
+              : "w-0 opacity-0"
+          }`}
+        >
+          <ProjectInfoPanel
+            projectId={projectId}
+            projectName={projectName}
+            projectStartDate={projectStartDate}
+            projectEndDate={projectEndDate}
+            tasks={tasks}
+            onClose={() => setShowProjectInfoPanel(false)}
+          />
+        </aside>
+
+        <main className="flex flex-col overflow-hidden transition-all duration-300 min-h-0 flex-1 min-w-0">
+          <div className="flex-1 overflow-hidden min-h-0">
+            {currentView === "kanban" && (
+              <KanbanBoard
+                boardId={kanbanBoardId}
+                tasks={tasks}
+                onCreateTask={handleCreateTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+                onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
+                project={{
+                  project_id: projectId,
+                  project_name: projectName,
+                  started_at: projectStartDate,
+                  ended_at: projectEndDate,
+                }}
+              />
+            )}
+
+            {currentView === "calendar" && (
+              <CalendarView
+                tasks={tasks}
+                boardId={kanbanBoardId}
+                project={{
+                  project_id: projectId,
+                  project_name: projectName,
+                  started_at: projectStartDate,
+                  ended_at: projectEndDate,
+                }}
+                onCreateTask={handleCreateTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+                onSelectTask={() => {}}
+                onTaskCreated={handleRefresh}
+                onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
+              />
+            )}
+          </div>
+        </main>
+
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
+            showMemoPanel
+              ? `w-[240px] lg:w-[280px] ${showProjectInfoPanel ? "xl:w-[260px]" : "xl:w-[300px]"} opacity-100`
+              : "w-0 opacity-0"
+          }`}
+        >
+          <MemoView projectId={projectId} />
+        </aside>
+      </div>
+
+      <div className="shrink-0">
+        <BottomNavigation
+          activeView={showMemoPanel ? "memo" : currentView}
+          onViewChange={handleViewChange}
+        />
+      </div>
+    </div>
+  );
+}

@@ -1,12 +1,5 @@
-import { ProjectForm } from "@/features/project";
+import { redirect } from "next/navigation";
 
-    
-export default async function UpdateProject() {
-
-    // id를 통해서 프로젝트 API 요청 작성
-    return (
-    <div>
-        <ProjectForm />
-    </div>
-    );
+export default function UpdatePage() {
+  redirect("/");
 }
