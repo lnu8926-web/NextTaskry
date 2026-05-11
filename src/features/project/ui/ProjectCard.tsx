@@ -21,12 +21,25 @@ const STATUS_CONFIG: Record<ProjectStatus, { label: string; dot: string; text: s
   archived:  { label: "일시정지", dot: "bg-amber-400",                text: "text-amber-500 dark:text-amber-400"     },
 };
 
+function formatDate(d: string) {
+  const date = new Date(d);
+  const dateStr = date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const timeStr = date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return `${dateStr.replace(/\. /g, ".").replace(/\.$/, "")} ${timeStr}`;
+}
+
 function formatDateRange(start?: string, end?: string) {
-  const fmt = (d: string) =>
-    new Date(d).toLocaleDateString("ko-KR", { year: "numeric", month: "short" });
   if (!start && !end) return null;
-  if (!end) return fmt(start!);
-  return `${fmt(start!)} – ${fmt(end)}`;
+  if (!end) return formatDate(start!);
+  return `${formatDate(start!)} – ${formatDate(end)}`;
 }
 
 export default function ProjectCard({ project, projectMember }: ProjectCardProps) {
