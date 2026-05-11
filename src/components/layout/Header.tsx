@@ -29,41 +29,29 @@ export function Header() {
 
   return (
     <>
-      <header
-        className="
-      fixed top-0 left-0 right-0 z-50 
-      w-full py-3 
-      border-b border-border 
-      flex items-center justify-between 
-      
-      bg-background backdrop-blur-md"
-      >
-        <div className="w-full max-w-[1280px] px-10 mx-auto flex justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Icon
-              type="board"
-              size={22}
-              className="text-main-500 dark:text-main-300"
-            />
-            <span className="font-bold text-lg text-dark-title">Taskry</span>
+      <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-border bg-card">
+        <div className="w-full max-w-7xl px-8 mx-auto h-16 flex items-center justify-between">
+          <Link href="/" className="flex flex-col items-start leading-none gap-0.5">
+            <span className="font-bold text-2xl text-main-500 dark:text-main-400 leading-none">Taskry</span>
+            <span className="text-[13px] text-main-600 dark:text-main-300 leading-snug">프로젝트 관리 플랫폼</span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               btnType="icon"
               icon="userCircle"
               size={20}
-              className="w-10 h-10"
+              className="w-[42px] h-[42px] rounded-[10px] border border-border"
               onClick={handleLoginModal}
-            ></Button>
+            />
 
             <Link href="/notice">
               <Button
                 btnType="icon"
                 icon="speakerphone"
                 size={20}
-                className="w-10 h-10"
-              ></Button>
+                className="w-[42px] h-[42px] rounded-[10px] border border-border"
+              />
             </Link>
 
             {session?.user?.role === "admin" && (
@@ -72,31 +60,21 @@ export function Header() {
                   btnType="icon"
                   icon="crown"
                   size={20}
-                  className="w-10 h-10"
-                ></Button>
+                  className="w-[42px] h-[42px] rounded-[10px] border border-border"
+                />
               </Link>
             )}
 
-            <Button
-              btnType="icon"
-              size={20}
-              className="w-10 h-10"
+            <button
+              className="w-[42px] h-[42px] rounded-[10px] border border-border bg-card flex items-center justify-center hover:bg-accent/10 transition-colors"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
               {mounted && resolvedTheme === "dark" ? (
-                <Icon
-                  type="sun"
-                  size={20}
-                  className="text-yellow-300 dark:text-yellow-400"
-                />
+                <Icon type="sun" size={20} className="text-yellow-300" />
               ) : (
-                <Icon
-                  type="moon"
-                  size={20}
-                  className="text-gray-600 dark:text-gray-300"
-                />
+                <Icon type="moon" size={20} className="text-main-600" />
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </header>

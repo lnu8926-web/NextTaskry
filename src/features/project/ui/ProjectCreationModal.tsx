@@ -161,7 +161,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card rounded-xl shadow-sm border border-border z-50 w-[calc(100%-2rem)] sm:w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
+        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card rounded-[14px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)] border border-border z-50 w-[calc(100%-2rem)] sm:w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
           {/* 헤더 */}
           <div className="sticky top-0 bg-card border-b border-border px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
             <div className="flex-1">
@@ -169,11 +169,11 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                 {[1, 2, 3].map((s) => (
                   <div
                     key={s}
-                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${s <= step ? "bg-main-400 dark:bg-main-300" : "bg-gray-200 dark:bg-gray-600"}`}
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${s <= step ? "bg-main-500 dark:bg-main-400" : "bg-main-100 dark:bg-main-700"}`}
                   />
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground">Step {step} / 3</p>
+              <p className="text-sm text-main-600 dark:text-main-300">Step {step} / 3</p>
             </div>
             <Dialog.Close asChild>
               <button onClick={handleClose} className="ml-4 text-muted-foreground hover:text-foreground transition-colors">
@@ -195,11 +195,11 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                     value={name}
                     onChange={(e) => { setName(e.target.value); setNameError(""); }}
                     placeholder="프로젝트 이름을 입력해주세요"
-                    className="w-full px-6 py-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-main-400 text-foreground text-lg placeholder:text-muted-foreground text-center"
+                    className="w-full px-6 py-4 bg-background border border-border rounded-[10px] focus:outline-none focus:ring-2 focus:ring-main-500 text-foreground text-lg placeholder:text-main-600 dark:placeholder:text-main-400 text-center"
                     autoFocus
                     onKeyDown={(e) => e.key === "Enter" && handleNext()}
                   />
-                  {nameError && <p className="text-red-100 text-sm mt-2 text-center">{nameError}</p>}
+                  {nameError && <p className="text-red-500 dark:text-red-400 text-sm mt-2 text-center">{nameError}</p>}
                 </div>
               </div>
             )}
@@ -214,13 +214,13 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                     <button
                       key={value}
                       onClick={() => setType(value)}
-                      className={`p-5 rounded-xl border transition-all text-left ${
+                      className={`p-5 rounded-[10px] border transition-all text-left ${
                         type === value
-                          ? "border-main-400 bg-main-400/10 dark:border-main-300 dark:bg-main-300/10"
-                          : "border-border bg-card hover:border-main-400/50 dark:hover:border-main-300/50"
+                          ? "border-main-500 bg-main-500/10 dark:border-main-400 dark:bg-main-400/10"
+                          : "border-border bg-card hover:border-main-500/50 dark:hover:border-main-400/50"
                       }`}
                     >
-                      <Icon className={`w-7 h-7 mb-3 ${type === value ? "text-main-400 dark:text-main-300" : "text-muted-foreground"}`} />
+                      <Icon className={`w-7 h-7 mb-3 ${type === value ? "text-main-500 dark:text-main-400" : "text-muted-foreground"}`} />
                       <h3 className="font-medium text-foreground mb-1">{label}</h3>
                       <p className="text-sm text-muted-foreground leading-snug">{desc}</p>
                     </button>
@@ -239,10 +239,10 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                     <button
                       key={opt.value}
                       onClick={() => setDuration(opt.value)}
-                      className={`px-5 py-2.5 rounded-lg font-medium transition-all text-sm ${
+                      className={`px-5 py-2.5 rounded-[10px] font-medium transition-all text-sm ${
                         duration === opt.value
-                          ? "bg-main-400 dark:bg-main-300 text-white dark:text-gray-900"
-                          : "bg-card border border-border text-foreground hover:border-main-400 dark:hover:border-main-300"
+                          ? "bg-main-500 dark:bg-main-400 text-white"
+                          : "bg-card border border-border text-foreground hover:border-main-500 dark:hover:border-main-400"
                       }`}
                     >
                       {opt.label}
@@ -258,7 +258,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-main-400 text-foreground"
+                        className="w-full px-4 py-2.5 bg-background border border-border rounded-[10px] focus:outline-none focus:ring-2 focus:ring-main-500 text-foreground"
                       />
                     </div>
                     <div>
@@ -267,7 +267,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-main-400 text-foreground"
+                        className="w-full px-4 py-2.5 bg-background border border-border rounded-[10px] focus:outline-none focus:ring-2 focus:ring-main-500 text-foreground"
                       />
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="프로젝트를 간단히 설명해주세요 (최대 300자)"
                             rows={3}
-                            className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-main-400 text-foreground placeholder:text-muted-foreground resize-none"
+                            className="w-full px-4 py-3 bg-background border border-border rounded-[10px] focus:outline-none focus:ring-2 focus:ring-main-500 text-foreground placeholder:text-muted-foreground resize-none"
                           />
                         </div>
                         <div>
@@ -299,7 +299,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                             value={techStack}
                             onChange={(e) => setTechStack(e.target.value)}
                             placeholder="예) React, TypeScript"
-                            className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-main-400 text-foreground placeholder:text-muted-foreground"
+                            className="w-full px-4 py-2.5 bg-background border border-border rounded-[10px] focus:outline-none focus:ring-2 focus:ring-main-500 text-foreground placeholder:text-muted-foreground"
                           />
                         </div>
                         <div>
@@ -315,7 +315,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                               {members.map((m) => (
                                 <span
                                   key={m.userId}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-main-400/10 dark:bg-main-300/10 text-main-500 dark:text-main-300 text-sm rounded-lg"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-main-500/10 dark:bg-main-400/10 text-main-600 dark:text-main-300 text-sm rounded-lg"
                                 >
                                   {m.userName}
                                   <button
@@ -350,7 +350,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                 <button
                   onClick={handleNext}
                   disabled={step === 2 && !type}
-                  className="px-8 py-2.5 bg-main-400 dark:bg-main-300 text-white dark:text-gray-900 rounded-lg hover:bg-main-500 dark:hover:bg-main-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                  className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                 >
                   다음
                 </button>
@@ -358,7 +358,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                 <button
                   onClick={handleSubmit}
                   disabled={!canSubmit || isSubmitting}
-                  className="px-8 py-2.5 bg-main-400 dark:bg-main-300 text-white dark:text-gray-900 rounded-lg hover:bg-main-500 dark:hover:bg-main-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                  className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                 >
                   {isSubmitting ? "생성 중..." : "생성하기"}
                 </button>
