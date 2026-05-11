@@ -8,53 +8,36 @@ import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import type { Project, ProjectStatus } from "../model";
-import { CalendarDays, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 interface ProjectCardProps {
   project: Project;
   projectMember: Record<string, number> | null;
 }
 
-const TYPE_LABEL: Record<string, string> = {
-  "팀 프로젝트": "팀 프로젝트",
-  "개인 프로젝트": "개인 프로젝트",
-  "학습 프로젝트": "학습 프로젝트",
-  "상용 프로젝트": "상용 프로젝트",
+const STATUS_CONFIG: Record<ProjectStatus, { label: string; dot: string; text: string }> = {
+  active:    { label: "진행중",   dot: "bg-emerald-400",              text: "text-emerald-600 dark:text-emerald-400" },
+  completed: { label: "완료",     dot: "bg-gray-300 dark:bg-gray-500", text: "text-gray-400 dark:text-gray-500"       },
+  archived:  { label: "일시정지", dot: "bg-amber-400",                text: "text-amber-500 dark:text-amber-400"     },
 };
 
-const STATUS_CONFIG: Record<ProjectStatus, { label: string; className: string }> = {
-  active: {
-    label: "진행중",
-    className: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
-  },
-  completed: {
-    label: "완료",
-    className: "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400",
-  },
-  archived: {
-    label: "일시정지",
-    className: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-  },
-};
-
-function formatDate(dateStr?: string) {
-  if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).replace(/\. /g, ".").replace(/\.$/, "");
+function formatDateRange(start?: string, end?: string) {
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString("ko-KR", { year: "numeric", month: "short" });
+  if (!start && !end) return null;
+  if (!end) return fmt(start!);
+  return `${fmt(start!)} – ${fmt(end)}`;
 }
 
 export default function ProjectCard({ project, projectMember }: ProjectCardProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const memberCount = projectMember ? (projectMember[project.project_id] ?? 1) : 1;
-  const statusConfig = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.active;
-  const typeLabel = TYPE_LABEL[project.type] ?? project.type;
+  const memberCount = projectMember?.[project.project_id] ?? 1;
+  const status = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.active;
+  const dateRange = formatDateRange(project.started_at, project.ended_at);
 
-  async function handleDeleteProject() {
+  async function handleDelete() {
     await deleteProject(project.project_id);
     await deleteProjectMember(project.project_id);
     queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
@@ -64,49 +47,48 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
   return (
     <div
       onClick={() => router.push(`/project/workspace/${project.project_id}`)}
-      className="flex flex-col bg-card rounded-2xl border border-border cursor-pointer transition-all duration-200 hover:border-main-300 hover:shadow-md dark:hover:border-main-600 p-5"
+      className="group relative flex flex-col bg-card rounded-2xl border border-border p-5 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 hover:border-main-200 dark:hover:border-main-700"
     >
-      {/* 상단 — 타입 뱃지 + 이름 + 설명 */}
-      <div className="flex-1 min-h-0">
-        <span className="inline-block px-2 py-0.5 bg-main-500/10 dark:bg-main-400/10 text-main-600 dark:text-main-300 text-xs font-medium rounded-full mb-2">
-          {typeLabel}
-        </span>
-        <h3 className="font-semibold text-base text-foreground mb-1 line-clamp-1">
+      {/* 상태 */}
+      <div className={`flex items-center gap-1.5 text-xs font-medium mb-3 ${status.text}`}>
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${status.dot}`} />
+        {status.label}
+      </div>
+
+      {/* 제목 + 설명 */}
+      <div className="flex-1 min-h-0 mb-4">
+        <h3 className="font-semibold text-[15px] text-foreground line-clamp-1 mb-1.5">
           {project.project_name}
         </h3>
-        <p className="text-sm text-gray-400 dark:text-gray-500 line-clamp-2 min-h-10">
-          {project.description || "설명 없음"}
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          {project.description || "설명이 없습니다."}
         </p>
       </div>
 
-      {/* 날짜 */}
-      <div className="flex items-center gap-1.5 mt-4 text-xs text-main-600 dark:text-main-300">
-        <CalendarDays className="w-3.5 h-3.5 shrink-0" />
-        <span>
-          {formatDate(project.started_at)} ~ {formatDate(project.ended_at)}
-        </span>
-      </div>
-
-      {/* 푸터 — 팀원 수 + 상태 뱃지 + 버튼 */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-sm font-medium text-main-500 dark:text-main-400">
-            <Icon type="users" size={16} className="text-main-500 dark:text-main-400" />
-            <span>{memberCount}팀원</span>
-          </div>
-          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${statusConfig.className}`}>
-            {statusConfig.label}
+      {/* 메타 정보 + 호버 액션 */}
+      <div className="flex items-center justify-between pt-3 border-t border-border/60">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          {dateRange && <span>{dateRange}</span>}
+          <span className="flex items-center gap-1">
+            <Icon type="users" size={12} className="opacity-60" />
+            {memberCount}명
           </span>
         </div>
 
-        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        {/* 호버 시 나타나는 액션 버튼 */}
+        <div
+          className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             onClick={() => router.push(`/project/update/${project.project_id}`)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-border hover:bg-main-500/10 hover:border-main-300 text-muted-foreground hover:text-main-500 transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-main-500 hover:bg-main-500/10 transition-colors"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
-          <DeleteDialog onClick={handleDeleteProject} />
+          <div className="[&>button]:w-7 [&>button]:h-7 [&>button]:rounded-lg">
+            <DeleteDialog onClick={handleDelete} />
+          </div>
         </div>
       </div>
     </div>
