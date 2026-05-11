@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { showToast } from "@/lib/utils/toast";
 import { Icon } from "@/components/shared/Icon";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ProfileModal from "@/app/(auth)/login/components/ProfileModal";
 import Button from "@/components/ui/Button";
@@ -12,7 +12,12 @@ import Button from "@/components/ui/Button";
 export function Header() {
   const { setTheme, resolvedTheme } = useTheme();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { data: session } = useSession();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLoginModal = () => {
     if (!session) {
@@ -78,7 +83,7 @@ export function Header() {
               className="w-10 h-10"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
-              {resolvedTheme === "dark" ? (
+              {mounted && resolvedTheme === "dark" ? (
                 <Icon
                   type="sun"
                   size={20}
