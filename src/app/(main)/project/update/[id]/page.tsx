@@ -1,10 +1,10 @@
-export default async function UpdateProject({params}:{params:Promise<{id:string}>}) {
-    const {id} = await params;
+import { ProjectForm } from "@/features/project";
 
-    // id를 통해서 프로젝트 API 요청 작성
-    return (
+export default async function UpdateProjectPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
     <div>
-        {/* <ProjectForm id={id}/> */}
+      <ProjectForm projectId={id} />
     </div>
-    );
+  );
 }

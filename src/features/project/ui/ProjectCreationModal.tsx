@@ -7,6 +7,7 @@ import { X, ChevronDown, ChevronUp, Briefcase, User, BookOpen, Building2 } from 
 import { createProject, updateProjectMember } from "../model";
 import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import { ComboBox, type Item } from "./ComboBox";
 import { getUser } from "@/lib/api/users";
@@ -41,6 +42,7 @@ interface MemberItem {
 
 export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModalProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
@@ -148,6 +150,9 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
       queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
       showToast("프로젝트가 생성되었습니다.", "success");
       handleClose();
+      if (projectId) {
+        router.push(`/project/workspace/${projectId}`);
+      }
     } catch {
       showToast("생성에 실패했습니다.", "error");
     } finally {

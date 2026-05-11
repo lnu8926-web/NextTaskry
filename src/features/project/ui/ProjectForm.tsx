@@ -38,11 +38,12 @@ interface ProjectProps {
   description: string;
 }
 
-export default function ProjectForm() {
+interface ProjectFormProps {
+  projectId?: string;
+}
+
+export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
   const router = useRouter();
-  const [projectId] = useState<string>(
-    () => (typeof window !== "undefined" ? sessionStorage.getItem("current_Project_Id") ?? "" : "")
-  );
   const [projectData, setProjectData] = useState<ProjectProps>({
     projectName: "",
     type: "",
