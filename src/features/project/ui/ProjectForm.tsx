@@ -95,13 +95,15 @@ export default function ProjectForm() {
       const project = projectResult.data?.[0];
       if (project) {
         setProjectData({
-          ...project,
-          projectName: project.project_name,
+          projectName: project.project_name ?? "",
+          type: project.type ?? "",
+          status: project.status ?? "",
+          techStack: project.tech_stack ?? "",
+          description: project.description ?? "",
           startedAt: project.started_at,
           endedAt: project.ended_at,
           createdAt: project.created_at,
           updatedAt: project.updated_at,
-          techStack: project.tech_stack,
         });
       }
 
