@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
-import { supabase } from "@/lib/supabase/supabase";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -26,14 +26,14 @@ export const authOptions: NextAuthOptions = {
 
       if (!email) return false;
 
-      const { data: existingUser } = await supabase
+      const { data: existingUser } = await supabaseAdmin
         .from("users")
         .select("*")
         .eq("email", email)
         .single();
 
       if (existingUser?.global_role === "admin") {
-        await supabase
+        await supabaseAdmin
           .from("users")
           .update({
             user_name: user.name,
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (!existingUser) {
-        await supabase.from("users").insert({
+        await supabaseAdmin.from("users").insert({
           email: user.email,
           user_name: user.name,
           profile_image: user.image,
@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      await supabase
+      await supabaseAdmin
         .from("users")
         .update({
           user_name: user.name,
@@ -80,8 +80,7 @@ export const authOptions: NextAuthOptions = {
       // 그 뒤 토큰 검증할때마다 실행될때는 user가 없기때문에 하위 코드는 실행되지않는다.
       if (user) {
         // DB에서 유저 조회
-        // const supabase = supabaseServer;
-        const { data: existingUser } = await supabase
+        const { data: existingUser } = await supabaseAdmin
           .from("users")
           .select("user_id, global_role, user_name, email, profile_image")
           .eq("email", user.email)
