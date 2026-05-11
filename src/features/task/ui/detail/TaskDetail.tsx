@@ -49,25 +49,6 @@ interface TaskDetailProps {
   onClose?: () => void; // ❌ 모달 닫기 콜백
 }
 
-/**
- * 프로젝트 멤버 타입
- *
- * 담당자 선택 드롭다운에서 사용되는 멤버 정보
- * Supabase JOIN 쿼리 결과 구조
- */
-type ProjectMember = {
-  project_id: string; // 🏷️ 프로젝트 ID
-  user_id: string; // 👤 사용자 ID
-  role: string; // 🎭 역할 (leader/member)
-  users: {
-    // 👥 사용자 상세 정보 (JOIN)
-    id: string; // 사용자 고유 ID
-    name: string; // 사용자 이름
-    email: string; // 이메일
-    avatar_url: string; // 프로필 이미지 URL
-  };
-};
-
 // ============================================
 // 🎯 메인 컴포넌트
 // ============================================
@@ -317,7 +298,7 @@ export default function TaskDetail({
       delete (filteredUpdates as any).created_at;
       delete (filteredUpdates as any).kanban_boards;
 
-      await onUpdate?.(task.id, filteredUpdates);
+      if (onUpdate) await onUpdate(task.id, filteredUpdates);
       showToast("작업이 저장되었습니다.", "success");
 
       setTimeout(() => {
@@ -336,7 +317,7 @@ export default function TaskDetail({
   // 작업 삭제 실행
   const confirmDelete = async () => {
     try {
-      await onDelete?.(task.id);
+      if(onDelete) await onDelete(task.id);
 
       // 삭제 성공 모달 표시
       openModal(
@@ -753,7 +734,5 @@ function ActionButtons({
     </div>
   );
 }
-function setMembers(data: ProjectMemberWithUser[] | undefined) {
-  throw new Error("Function not implemented.");
-}
+
 
