@@ -8,7 +8,7 @@ import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import type { Project, ProjectStatus } from "../model";
-import { Pencil } from "lucide-react";
+import { Pencil, CalendarDays } from "lucide-react";
 
 interface ProjectCardProps {
   project: Project;
@@ -65,15 +65,20 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
         </p>
       </div>
 
-      {/* 메타 정보 + 호버 액션 */}
-      <div className="flex items-center justify-between pt-3 border-t border-border/60">
-        <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
-          {dateRange && <span>{dateRange}</span>}
-          <span className="flex items-center gap-1">
-            <Icon type="users" size={12} />
-            {memberCount}명
-          </span>
+      {/* 날짜 */}
+      {dateRange && (
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4">
+          <CalendarDays className="w-3.5 h-3.5 shrink-0 text-main-400 dark:text-main-300" />
+          <span>{dateRange}</span>
         </div>
+      )}
+
+      {/* 팀원 수 + 호버 액션 */}
+      <div className="flex items-center justify-between pt-3 border-t border-border/60">
+        <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+          <Icon type="users" size={12} />
+          {memberCount}명
+        </span>
 
         {/* 호버 시 나타나는 액션 버튼 */}
         <div
