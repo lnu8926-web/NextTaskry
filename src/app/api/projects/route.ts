@@ -58,12 +58,12 @@ export async function POST(request: Request) {
     .from("projects")
     .insert([{
       project_name: projectName,
-      type,
-      status,
-      started_at: startedAt,
-      ended_at: endedAt,
-      tech_stack: techStack,
-      description,
+      ...(type && { type }),
+      ...(status && { status }),
+      ...(startedAt && { started_at: startedAt }),
+      ...(endedAt && { ended_at: endedAt }),
+      ...(techStack && { tech_stack: techStack }),
+      ...(description && { description }),
       user_id: auth.userId,
     }])
     .select();

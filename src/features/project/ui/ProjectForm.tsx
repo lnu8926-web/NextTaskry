@@ -209,6 +209,22 @@ export default function ProjectForm() {
     setProjectMember(filterProjectMember);
   };
 
+  const handleSubmit = () => {
+    if (!projectData.projectName.trim()) {
+      showToast("프로젝트 명을 입력해주세요.", "error");
+      return;
+    }
+    if (!projectData.type) {
+      showToast("프로젝트 분류를 선택해주세요.", "error");
+      return;
+    }
+    if (!projectData.status) {
+      showToast("프로젝트 상태를 선택해주세요.", "error");
+      return;
+    }
+    submitProject();
+  };
+
   const { mutate: submitProject, isPending: isSubmitting } = useMutation({
     mutationFn: async () => {
       let targetId = projectId;
@@ -381,7 +397,7 @@ export default function ProjectForm() {
             variant="primary"
             size={16}
             className="hover:cursor-pointer mr-2 text-white"
-            onClick={() => submitProject()}
+            onClick={handleSubmit}
             disabled={isSubmitting}
           >
             {isSubmitting ? "저장 중..." : projectId ? "수정 완료" : "프로젝트 생성"}
