@@ -57,20 +57,20 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
 
       {/* 제목 + 설명 */}
       <div className="flex-1 min-h-0 mb-4">
-        <h3 className="font-semibold text-[15px] text-foreground line-clamp-1 mb-1.5">
+        <h3 className="font-semibold text-base text-foreground line-clamp-1 mb-1.5">
           {project.project_name}
         </h3>
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
           {project.description || "설명이 없습니다."}
         </p>
       </div>
 
       {/* 메타 정보 + 호버 액션 */}
       <div className="flex items-center justify-between pt-3 border-t border-border/60">
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
           {dateRange && <span>{dateRange}</span>}
           <span className="flex items-center gap-1">
-            <Icon type="users" size={12} className="opacity-60" />
+            <Icon type="users" size={12} />
             {memberCount}명
           </span>
         </div>
@@ -82,7 +82,7 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
         >
           <button
             onClick={() => router.push(`/project/update/${project.project_id}`)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-main-500 hover:bg-main-500/10 transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-main-500 hover:bg-main-500/10 transition-colors"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>

@@ -23,7 +23,7 @@ const pill = (active: boolean) =>
     "px-2.5 py-1 rounded-md text-sm transition-colors",
     active
       ? "bg-main-500/10 dark:bg-main-400/10 text-main-600 dark:text-main-300 font-medium"
-      : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+      : "text-gray-500 dark:text-gray-400 hover:text-foreground hover:bg-muted/40"
   );
 
 const Divider = () => <span className="w-px h-4 bg-border shrink-0" />;
