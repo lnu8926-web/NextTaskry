@@ -8,7 +8,7 @@ interface ResultProps {
     count?: number;
     timestamp: Timestamp;
 }
-const USER_BASE_URL = 'http://localhost:3000/api/users/test'
+const USER_BASE_URL = '/api/users/test'
 
 // Project Info API
 export async function getUser(): Promise<ResultProps> {

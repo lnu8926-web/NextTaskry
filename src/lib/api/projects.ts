@@ -27,8 +27,8 @@ interface ProjectMemberProps {
   role: string;
 }
 
-const PROJECT_BASE_URL = "http://localhost:3000/api/projects";
-const PROJECT_MEMBER_BASE_URL = "http://localhost:3000/api/projectMembers";
+const PROJECT_BASE_URL = "/api/projects";
+const PROJECT_MEMBER_BASE_URL = "/api/projectMembers";
 
 // Project Info API
 export async function getProject(page: number = 0): Promise<ResultProps> {
