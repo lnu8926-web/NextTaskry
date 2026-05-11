@@ -36,7 +36,7 @@ export function Header() {
       border-b border-border 
       flex items-center justify-between 
       
-      bg-bakground backdrop-blur-md"
+      bg-background backdrop-blur-md"
       >
         <div className="w-full max-w-[1280px] px-10 mx-auto flex justify-between">
           <Link href="/" className="flex items-center gap-2">
