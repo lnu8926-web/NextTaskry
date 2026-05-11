@@ -42,15 +42,15 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --color-main-50:  #EEF4EE;
-  --color-main-100: #D4E0D4;
-  --color-main-200: #B5C99A;
-  --color-main-300: #A3B18A;
-  --color-main-400: #6B8F71;
-  --color-main-500: #344E41;
-  --color-main-600: #252E27;
-  --color-main-700: #1A2318;
-  --color-main-800: #131A14;
+  --color-main-50:  #E4F3F7;
+  --color-main-100: #BDE3EC;
+  --color-main-200: #8ECFDE;
+  --color-main-300: #5BBECE;
+  --color-main-400: #3A8A9A;
+  --color-main-500: #1A4A5A;
+  --color-main-600: #143B48;
+  --color-main-700: #0E2B35;
+  --color-main-800: #091E25;
 
   --color-gray-100: #ebe9e9;
   --color-gray-200: #c5c0c1;
@@ -73,43 +73,43 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #F1F3F2;
-  --foreground: #344E41;
+  --background: #EEF7F9;
+  --foreground: #1A4A5A;
   --card: #FFFFFF;
-  --card-foreground: #344E41;
+  --card-foreground: #1A4A5A;
   --popover: #FFFFFF;
-  --popover-foreground: #344E41;
-  --primary: #344E41;
+  --popover-foreground: #1A4A5A;
+  --primary: #1A4A5A;
   --primary-foreground: #FFFFFF;
-  --secondary: #6B8F71;
+  --secondary: #3A8A9A;
   --secondary-foreground: #FFFFFF;
-  --muted: #D4E0D4;
-  --muted-foreground: #6B8F71;
-  --accent: #A3B18A;
+  --muted: #BDE3EC;
+  --muted-foreground: #3A8A9A;
+  --accent: #5BBECE;
   --accent-foreground: #FFFFFF;
   --destructive: #E57373;
   --destructive-foreground: #FFFFFF;
-  --border: #D4E0D4;
+  --border: #BDE3EC;
   --input: #FFFFFF;
-  --ring: #A3B18A;
+  --ring: #5BBECE;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #F1F3F2;
-  --sidebar-foreground: #344E41;
-  --sidebar-primary: #344E41;
+  --sidebar: #EEF7F9;
+  --sidebar-foreground: #1A4A5A;
+  --sidebar-primary: #1A4A5A;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #D4E0D4;
-  --sidebar-accent-foreground: #344E41;
-  --sidebar-border: #D4E0D4;
-  --sidebar-ring: #A3B18A;
+  --sidebar-accent: #BDE3EC;
+  --sidebar-accent-foreground: #1A4A5A;
+  --sidebar-border: #BDE3EC;
+  --sidebar-ring: #5BBECE;
 
-  --dark-title: #344E41;
-  --dark-body: #344E41;
-  --dark-description: #6B8F71;
-  --dark-border: #D4E0D4;
+  --dark-title: #1A4A5A;
+  --dark-body: #1A4A5A;
+  --dark-description: #3A8A9A;
+  --dark-border: #BDE3EC;
 }
 
 .dark {
