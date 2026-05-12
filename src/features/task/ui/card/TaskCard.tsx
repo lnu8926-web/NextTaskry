@@ -1,73 +1,101 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useMemo, useEffect, useState, useRef, useCallback } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { Task } from "@/types";
 import { CSS } from "@dnd-kit/utilities";
 import { Check } from "lucide-react";
 import PriorityBadge from "@/features/task/ui/fields/PriorityBadge";
-import AssigneeInfo from "@/features/task/ui/fields/AssigneeInfo";
-import SubtaskList from "@/features/task/ui/fields/SubtaskList";
 import DateInfo from "@/features/task/ui/fields/DateInfo";
 
 interface TaskCardProps {
   task: Task;
   projectId: string;
   onClick?: () => void;
-  isOverlay?: boolean; // ✨ DragOverlay 모드
+  isOverlay?: boolean;
+  onTitleUpdate?: (title: string) => void;
 }
 
 const TaskCard = ({
   task,
-  projectId,
+  projectId: _projectId,
   onClick,
   isOverlay = false,
+  onTitleUpdate,
 }: TaskCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [contentHeight, setContentHeight] = useState(0);
   const [isNew, setIsNew] = useState(true);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(task.title);
+  const titleInputRef = useRef<HTMLTextAreaElement>(null);
 
-  // 지연 여부 체크 (마감일+시간이 지났고 완료되지 않은 경우)
   const isOverdue = useMemo(() => {
     if (!task.ended_at || task.status === "done") return false;
-
     const now = new Date();
-
-    // 시간 정보가 있는 경우 (use_time && end_time)
     if (task.use_time && task.end_time) {
       const endDateStr = task.ended_at.includes("T")
         ? task.ended_at.split("T")[0]
         : task.ended_at;
-      const deadlineDateTime = new Date(`${endDateStr}T${task.end_time}`);
-      return now > deadlineDateTime;
+      return now > new Date(`${endDateStr}T${task.end_time}`);
     }
-
-    // 날짜만 있는 경우 - 오늘 자정 기준
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endDateStr = task.ended_at.includes("T")
       ? task.ended_at.split("T")[0]
       : task.ended_at;
     const [year, month, day] = endDateStr.split("-").map(Number);
-    const endDate = new Date(year, month - 1, day);
-
-    return endDate < today;
+    return new Date(year, month - 1, day) < today;
   }, [task.ended_at, task.end_time, task.use_time, task.status]);
 
-  // 완료 여부
   const isCompleted = task.status === "done";
 
-  // 새 카드 애니메이션 (마운트 후 해제)
   useEffect(() => {
     const timer = setTimeout(() => setIsNew(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  const handleTitleSave = useCallback(() => {
+    const trimmed = editedTitle.trim();
+    if (trimmed && trimmed !== task.title) {
+      onTitleUpdate?.(trimmed);
+    }
+    setIsEditingTitle(false);
+  }, [editedTitle, task.title, onTitleUpdate]);
+
+  const handleTitleDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isOverlay || !onTitleUpdate) return;
+      e.stopPropagation();
+      setEditedTitle(task.title);
+      setIsEditingTitle(true);
+    },
+    [isOverlay, onTitleUpdate, task.title]
+  );
+
+  const handleTitleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleTitleSave();
+      }
+      if (e.key === "Escape") {
+        setIsEditingTitle(false);
+        setEditedTitle(task.title);
+      }
+    },
+    [handleTitleSave, task.title]
+  );
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useSortable({
       id: task.id,
       animateLayoutChanges: () => false,
+      disabled: isEditingTitle,
     });
 
-  // --- 스타일 처리 ---
   const dragStyle = useMemo(
     () => ({
       transform: transform ? CSS.Transform.toString(transform) : undefined,
@@ -78,32 +106,6 @@ const TaskCard = ({
     [transform, isDragging, isOverlay]
   );
 
-  const toggleExpanded = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsExpanded((prev) => !prev);
-  }, []);
-
-  const hasAdditionalInfo = useMemo(() => {
-    return Boolean(
-      task.description ||
-        task.assigned_user_id ||
-        task.started_at ||
-        task.ended_at ||
-        (task.subtasks && task.subtasks.length > 0) ||
-        task.memo
-    );
-  }, [task]);
-
-  // --- Height 계산 (아코디언) ---
-  useEffect(() => {
-    if (!contentRef.current) return;
-
-    const calc = () => setContentHeight(contentRef.current!.scrollHeight);
-    calc();
-    const timer = setTimeout(calc, 80);
-    return () => clearTimeout(timer);
-  }, [task, isExpanded]);
-
   return (
     <div
       ref={setNodeRef}
@@ -112,78 +114,62 @@ const TaskCard = ({
       {...(!isOverlay ? listeners : {})}
       onClick={onClick}
       className={`
-        bg-white dark:bg-gray-700
-        text-gray-700 dark:text-gray-300
-        p-4 rounded-lg shadow-md
+        bg-card text-foreground
+        p-4 rounded-[10px] border shadow-[0_1px_3px_rgba(0,0,0,0.08)]
         cursor-grab active:cursor-grabbing
         ${
           isCompleted
-            ? "border-l-4 border-l-green-500 border border-green-200 dark:border-green-800 opacity-75"
+            ? "border-l-[3px] border-l-emerald-500 border-border opacity-70"
             : isOverdue
-            ? "border-l-4 border-l-red-500 border border-red-200 dark:border-red-800"
-            : "border border-gray-200 dark:border-gray-500"
+            ? "border-l-[3px] border-l-red-500 border-border"
+            : "border-border"
         }
-        ${
-          isDragging
-            ? ""
-            : "hover:shadow-lg hover:border-main-300 dark:hover:border-main-400"
-        }
-        ${isOverlay ? "shadow-2xl scale-[1.02] opacity-90" : ""}
+        ${!isDragging ? "hover:shadow-md hover:border-main-300 dark:hover:border-main-500" : ""}
+        ${isOverlay ? "shadow-2xl scale-[1.02]" : ""}
         ${isNew && !isOverlay ? "animate-slide-in-down" : ""}
         transition-shadow duration-150
       `}
     >
-      {/* 헤더 */}
-      <div className="flex items-start justify-between gap-3 mb-3 pb-2 border-b border-gray-200 dark:border-gray-600">
-        <div className="flex items-start gap-2 flex-1">
-          {/* 완료 체크 아이콘 */}
-          {isCompleted && (
-            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center mt-0.5">
-              <Check className="w-3 h-3 text-white" strokeWidth={3} />
+      {/* 제목 행 */}
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          {isCompleted && !isEditingTitle && (
+            <div className="shrink-0 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center mt-0.5">
+              <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
             </div>
           )}
-          <h3
-            className={`font-bold text-lg flex-1 line-clamp-2 ${
-              isCompleted
-                ? "text-gray-500 dark:text-gray-400 line-through"
-                : "text-gray-800 dark:text-gray-100"
-            }`}
-          >
-            {task.title}
-          </h3>
-        </div>
-
-        {/* 우선순위 + 펼치기 버튼 */}
-        <div className="flex items-center gap-2">
-          {task.priority && <PriorityBadge priority={task.priority} />}
-          {hasAdditionalInfo && !isOverlay && (
-            <button
-              onClick={toggleExpanded}
-              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+          {isEditingTitle ? (
+            <textarea
+              ref={titleInputRef}
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              onBlur={handleTitleSave}
+              onKeyDown={handleTitleKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              rows={2}
+              className="w-full text-sm font-semibold text-foreground leading-snug bg-muted/50 border border-main-300 rounded px-1.5 py-0.5 resize-none focus:outline-none focus:ring-1 focus:ring-main-500"
+            />
+          ) : (
+            <h3
+              onDoubleClick={handleTitleDoubleClick}
+              className={`font-semibold text-sm flex-1 line-clamp-2 leading-snug ${
+                onTitleUpdate ? "cursor-text" : ""
+              } ${
+                isCompleted
+                  ? "text-muted-foreground line-through"
+                  : "text-foreground"
+              }`}
             >
-              <svg
-                className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
-                  isExpanded ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+              {task.title}
+            </h3>
           )}
         </div>
+        {task.priority && <PriorityBadge priority={task.priority} />}
       </div>
 
-      {/* 접혔을 때 날짜 표시 */}
-      {!isExpanded && !isOverlay && (task.started_at || task.ended_at) && (
-        <div className="pt-1">
+      {/* 마감일 */}
+      {(task.started_at || task.ended_at) && !isOverlay && (
+        <div className="mt-2">
           <DateInfo
             startedAt={task.started_at ?? undefined}
             endedAt={task.ended_at ?? undefined}
@@ -195,56 +181,43 @@ const TaskCard = ({
         </div>
       )}
 
-      {/* 펼쳐진 내용 */}
-      {!isOverlay && (
-        <div
-          className="overflow-hidden transition-[max-height,opacity,transform] duration-400 ease-out"
-          style={{
-            maxHeight:
-              isExpanded || !hasAdditionalInfo ? `${contentHeight}px` : "0px",
-            opacity: isExpanded || !hasAdditionalInfo ? 1 : 0,
-            transform: isExpanded ? "scale(1)" : "scale(0.98)",
-          }}
-        >
-          <div ref={contentRef} className="space-y-3">
-            {task.description && (
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/40 p-3 rounded-lg">
-                {task.description}
-              </p>
-            )}
-
-            {task.assigned_user_id && (
-              <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-lg">
-                <AssigneeInfo
-                  userId={task.assigned_user_id}
-                  projectId={projectId}
+      {/* 서브태스크 진행률 + 담당자 */}
+      {!isOverlay && (Array.isArray(task.subtasks) && task.subtasks.length > 0 || task.assignee) && (
+        <div className="mt-2 flex items-center gap-2">
+          {Array.isArray(task.subtasks) && task.subtasks.length > 0 && (
+            <>
+              <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-main-500 dark:bg-main-400 rounded-full transition-all"
+                  style={{
+                    width: `${Math.round(
+                      (task.subtasks.filter((s) => s.completed).length /
+                        task.subtasks.length) *
+                        100
+                    )}%`,
+                  }}
                 />
               </div>
-            )}
-
-            {(task.started_at || task.ended_at) && (
-              <DateInfo
-                startedAt={task.started_at ?? undefined}
-                endedAt={task.ended_at ?? undefined}
-                startTime={task.start_time || undefined}
-                endTime={task.end_time || undefined}
-                useTime={task.use_time ?? false}
-                status={task.status}
-              />
-            )}
-
-            {Array.isArray(task.subtasks) && task.subtasks.length > 0 && (
-              <div className="bg-gray-50 dark:bg-gray-800/40 p-3 rounded-lg">
-                <SubtaskList subtasks={task.subtasks} />
-              </div>
-            )}
-
-            {task.memo && (
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg text-xs text-gray-700 dark:text-yellow-200">
-                {task.memo}
-              </div>
-            )}
-          </div>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length}
+              </span>
+            </>
+          )}
+          {task.assignee && (
+            <div className="ml-auto shrink-0" title={task.assignee.name}>
+              {task.assignee.avatar_url ? (
+                <img
+                  src={task.assignee.avatar_url}
+                  alt={task.assignee.name}
+                  className="w-5 h-5 rounded-full object-cover border border-border"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-main-500/20 flex items-center justify-center text-[10px] font-semibold text-main-700 dark:text-main-300 border border-border">
+                  {task.assignee.name.slice(0, 1).toUpperCase()}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

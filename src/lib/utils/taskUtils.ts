@@ -8,19 +8,19 @@ import { TaskStatus, TaskPriority } from "@/types";
 export const getTaskStatusColor = (status: TaskStatus) => {
   const colors = {
     todo: {
-      bg: "bg-gray-400 dark:bg-gray-600",
-      text: "text-gray-700 dark:text-gray-200",
+      bg: "bg-gray-500 dark:bg-gray-500",
+      text: "text-gray-600 dark:text-gray-300",
       border: "border-gray-300 dark:border-gray-500",
     },
     inprogress: {
-      bg: "bg-blue-400 dark:bg-blue-500",
-      text: "text-blue-700 dark:text-blue-200",
+      bg: "bg-blue-500 dark:bg-blue-400",
+      text: "text-blue-600 dark:text-blue-300",
       border: "border-blue-300 dark:border-blue-500",
     },
     done: {
-      bg: "bg-green-400 dark:bg-green-600",
-      text: "text-green-700 dark:text-green-300",
-      border: "border-green-300 dark:border-green-500",
+      bg: "bg-emerald-500 dark:bg-emerald-400",
+      text: "text-emerald-600 dark:text-emerald-300",
+      border: "border-emerald-300 dark:border-emerald-500",
     },
   };
   return colors[status];

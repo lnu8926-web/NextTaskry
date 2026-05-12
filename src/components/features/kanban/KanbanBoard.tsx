@@ -27,6 +27,7 @@ import KanbanLegend from "./components/KanbanLegend";
 import KanbanFilterComponent, {
   KanbanFilterType,
 } from "./components/KanbanFilter";
+import SidePanel from "@/components/ui/SidePanel";
 import { useKanbanKeyboard } from "@/hooks/kanban/useKanbanKeyboard";
 
 interface KanbanBoardProps {
@@ -64,20 +65,13 @@ const KanbanBoard = ({
   const projectStartedAt = project?.started_at;
   const projectEndedAt = project?.ended_at;
 
-  console.log("KanbanBoard - Project Info:", {
-    project,
-    projectName,
-    projectStartedAt,
-    projectEndedAt,
-    boardId,
-    projectId,
-  });
-
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
+  const [addTaskDefaultStatus, setAddTaskDefaultStatus] = useState<TaskStatus | undefined>(undefined);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [showFilter, setShowFilter] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<KanbanFilterType>({
     priority: "all",
     assignee: "all",
@@ -120,21 +114,11 @@ const KanbanBoard = ({
       return [];
     }
 
-    if (filter.assignee === "me") {
-      console.log("내 작업 필터 활성화");
-      console.log("세션 상태:", status);
-      console.log("현재 사용자 ID:", session?.user?.user_id);
-      console.log(
-        "전체 태스크:",
-        tasks.map((t) => ({
-          id: t.id,
-          title: t.title,
-          assigned_user_id: t.assigned_user_id,
-        }))
-      );
-    }
-
     return tasks.filter((task) => {
+      if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+
       if (filter.priority !== "all" && task.priority !== filter.priority) {
         return false;
       }
@@ -149,11 +133,6 @@ const KanbanBoard = ({
         if (filter.assignee === "me") {
           const currentUserId = session?.user?.user_id;
           const taskUserId = task.assigned_user_id;
-
-          console.log(
-            `태스크 '${task.title}' 체크 - 할당된 사용자: ${taskUserId}, 현재 사용자: ${currentUserId}`
-          );
-          console.log("타입 체크:", typeof taskUserId, typeof currentUserId);
 
           const taskUserIdStr = taskUserId ? String(taskUserId) : null;
           const currentUserIdStr = currentUserId ? String(currentUserId) : null;
@@ -230,7 +209,7 @@ const KanbanBoard = ({
 
       return true;
     });
-  }, [tasks, filter, session, status]);
+  }, [tasks, filter, session, status, searchQuery]);
 
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
     const columnTasks = filteredTasks.filter(
@@ -302,19 +281,26 @@ const KanbanBoard = ({
   }, []);
 
   const handleFilterChange = (key: keyof KanbanFilterType, value: string) => {
-    setFilter((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setFilter((prev) => ({ ...prev, [key]: value }));
   };
+
+  const handleFilterReset = () => {
+    setFilter({ priority: "all", assignee: "all", date: "all" });
+  };
+
+  const handleColumnAddClick = useCallback((status: TaskStatus) => {
+    setAddTaskDefaultStatus(status);
+    setShowTaskAddModal(true);
+  }, []);
 
   const handleTaskAddSuccess = useCallback(
     (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
       onCreateTask?.(taskData);
       onTaskCreated?.();
       setShowTaskAddModal(false);
+      setAddTaskDefaultStatus(undefined);
     },
-    [onCreateTask, onTaskCreated, setShowTaskAddModal]
+    [onCreateTask, onTaskCreated]
   );
 
   const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
@@ -339,7 +325,7 @@ const KanbanBoard = ({
   return (
     <KanbanLayout projectId={projectId}>
       {/* 전체 컨테이너 - 캘린더와 동일한 구조 */}
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+      <div className="h-full bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-border overflow-hidden flex flex-col">
         {/* 칸반 헤더 */}
         <KanbanHeader
           projectName={projectName}
@@ -347,6 +333,13 @@ const KanbanBoard = ({
           onToggleFilter={() => setShowFilter(!showFilter)}
           onToggleHelp={() => setShowHelp(!showHelp)}
           showHelp={showHelp}
+          hasActiveFilter={
+            filter.priority !== "all" ||
+            filter.assignee !== "all" ||
+            filter.date !== "all"
+          }
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
           tasksCount={tasks.length}
           project={project}
           onProjectInfoClick={onProjectInfoClick}
@@ -355,15 +348,19 @@ const KanbanBoard = ({
         {/* 도움말 */}
         {showHelp && <KanbanHelp />}
 
+        {/* 활성 필터 태그 칩 */}
+        <FilterChips filter={filter} onFilterChange={handleFilterChange} onReset={handleFilterReset} />
+
         {/* 필터 */}
         {showFilter && (
-          <div className="px-2 sm:px-4">
+          <div className="px-2 sm:px-4 animate-in slide-in-from-top-2 duration-150">
             <KanbanFilterComponent
               filter={filter}
               onFilterChange={handleFilterChange}
               showFilter={showFilter}
               taskCount={filteredTasks.length}
               totalCount={tasks.length}
+              onReset={handleFilterReset}
             />
           </div>
         )}
@@ -380,6 +377,8 @@ const KanbanBoard = ({
             groupedTasks={groupedTasks}
             projectId={projectId}
             onTaskClick={handleTaskClick}
+            onColumnAddClick={handleColumnAddClick}
+            onTitleUpdate={handleUpdateTask}
             isDragging={!!activeTask}
           />
 
@@ -406,8 +405,8 @@ const KanbanBoard = ({
         </div>
       </div>
 
-      {selectedTask && (
-        <Modal isOpen onClose={() => setSelectedTask(null)}>
+      <SidePanel isOpen={!!selectedTask} onClose={() => setSelectedTask(null)}>
+        {selectedTask && (
           <TaskDetail
             task={{
               ...selectedTask,
@@ -419,18 +418,19 @@ const KanbanBoard = ({
             onDelete={handleDeleteTask}
             onClose={() => setSelectedTask(null)}
           />
-        </Modal>
-      )}
+        )}
+      </SidePanel>
 
       {showTaskAddModal && (
-        <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
+        <Modal isOpen onClose={() => { setShowTaskAddModal(false); setAddTaskDefaultStatus(undefined); }}>
           <TaskAdd
             boardId={boardId}
             projectId={projectId}
             projectStartedAt={projectStartedAt}
             projectEndedAt={projectEndedAt}
+            initialStatus={addTaskDefaultStatus}
             onSuccess={handleTaskAddSuccess}
-            onCancel={() => setShowTaskAddModal(false)}
+            onCancel={() => { setShowTaskAddModal(false); setAddTaskDefaultStatus(undefined); }}
           />
         </Modal>
       )}
@@ -442,18 +442,22 @@ function ColumnGrid({
   groupedTasks,
   projectId,
   onTaskClick,
+  onColumnAddClick,
+  onTitleUpdate,
   isDragging,
 }: {
   groupedTasks: Record<TaskStatus, Task[]>;
   projectId: string;
   onTaskClick: (task: Task) => void;
+  onColumnAddClick: (status: TaskStatus) => void;
+  onTitleUpdate: (taskId: string, updates: Partial<Task>) => void;
   isDragging: boolean;
 }) {
   return (
     <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
-      <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+      <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden bg-[#F0F4F5] dark:bg-muted/20">
         <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
-          <div className="flex gap-2 sm:gap-3 md:gap-4 h-full justify-start sm:justify-center min-w-fit p-2 sm:p-3 md:p-4">
+          <div className="flex gap-4 h-full justify-start sm:justify-center min-w-fit p-4">
             {KANBAN_COLUMNS.map((column) => (
               <KanbanColumn
                 key={column.id}
@@ -462,12 +466,68 @@ function ColumnGrid({
                 tasks={groupedTasks[column.id] || []}
                 projectId={projectId}
                 onTaskClick={onTaskClick}
+                onAddClick={() => onColumnAddClick(column.id as TaskStatus)}
+                onTitleUpdate={(taskId, title) => onTitleUpdate(taskId, { title })}
                 isDragging={isDragging}
+                collapsible={column.id === "done"}
               />
             ))}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+const FILTER_LABELS: Record<string, Record<string, string>> = {
+  priority: { high: "높음", normal: "보통", low: "낮음" },
+  assignee: { me: "내 작업", assigned: "할당됨", unassigned: "미할당" },
+  date:     { today: "오늘", thisWeek: "이번주", overdue: "지연" },
+};
+const FILTER_NAMES: Record<string, string> = {
+  priority: "우선순위",
+  assignee: "담당자",
+  date: "기간",
+};
+
+function FilterChips({
+  filter,
+  onFilterChange,
+  onReset,
+}: {
+  filter: KanbanFilterType;
+  onFilterChange: (key: keyof KanbanFilterType, value: string) => void;
+  onReset: () => void;
+}) {
+  const chips = (Object.keys(filter) as (keyof KanbanFilterType)[]).filter(
+    (key) => filter[key] !== "all"
+  );
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap px-4 py-1.5 border-b border-border animate-in slide-in-from-top-1 duration-150">
+      {chips.map((key) => (
+        <span
+          key={key}
+          className="flex items-center gap-1 px-2 py-0.5 bg-main-500/10 text-main-700 dark:text-main-300 text-xs rounded-full"
+        >
+          <span className="font-medium">{FILTER_NAMES[key]}:</span>
+          <span>{FILTER_LABELS[key]?.[filter[key]] ?? filter[key]}</span>
+          <button
+            onClick={() => onFilterChange(key, "all")}
+            className="ml-0.5 hover:text-main-900 dark:hover:text-main-100 transition-colors"
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      <button
+        onClick={onReset}
+        className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors ml-1"
+      >
+        전체 초기화
+      </button>
     </div>
   );
 }

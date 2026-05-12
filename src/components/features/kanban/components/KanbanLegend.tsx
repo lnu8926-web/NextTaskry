@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { Task } from "@/types/kanban";
 import { format, addDays } from "date-fns";
 import { AlertTriangle, Clock } from "lucide-react";
+import PriorityBadge from "@/features/task/ui/fields/PriorityBadge";
 
 interface KanbanLegendProps {
   tasks?: Task[];
@@ -74,26 +75,20 @@ export default function KanbanLegend({
   if (compact) {
     // 컴팩트 모드 (모바일용)
     return (
-      <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-3 px-3 py-2 bg-muted/40 border-t border-border">
         <div className="flex items-center gap-2 text-xs">
           {/* 통계 */}
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-            <span className="text-gray-600 dark:text-gray-400">
-              {stats.todo}
-            </span>
+            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+            <span className="text-muted-foreground">{stats.todo}</span>
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-            <span className="text-gray-600 dark:text-gray-400">
-              {stats.inprogress}
-            </span>
+            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span className="text-muted-foreground">{stats.inprogress}</span>
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-            <span className="text-gray-600 dark:text-gray-400">
-              {stats.done}
-            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="text-muted-foreground">{stats.done}</span>
           </span>
           {stats.overdue > 0 && (
             <span className="flex items-center gap-1 text-red-500">
@@ -125,38 +120,32 @@ export default function KanbanLegend({
     );
   }
 
-  // 기본 모드 - CalendarStats와 동일한 스타일
+  // 기본 모드
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+    <div className="flex items-center justify-between px-4 py-3 bg-muted/40 border-t border-border">
       {/* 왼쪽: 통계 + 범례 */}
       <div className="flex items-center gap-4 sm:gap-6 text-sm flex-wrap">
         {/* 상태별 통계 */}
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-gray-400"></span>
-          <span className="text-gray-600 dark:text-gray-400">할일</span>
-          <span className="font-semibold text-gray-800 dark:text-gray-200">
-            {stats.todo}
-          </span>
+          <span className="w-3 h-3 rounded-full bg-gray-500"></span>
+          <span className="text-muted-foreground">할일</span>
+          <span className="font-semibold text-foreground">{stats.todo}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-blue-400"></span>
-          <span className="text-gray-600 dark:text-gray-400">진행중</span>
-          <span className="font-semibold text-gray-800 dark:text-gray-200">
-            {stats.inprogress}
-          </span>
+          <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+          <span className="text-muted-foreground">진행중</span>
+          <span className="font-semibold text-foreground">{stats.inprogress}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-green-500"></span>
-          <span className="text-gray-600 dark:text-gray-400">완료</span>
-          <span className="font-semibold text-gray-800 dark:text-gray-200">
-            {stats.done}
-          </span>
+          <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <span className="text-muted-foreground">완료</span>
+          <span className="font-semibold text-foreground">{stats.done}</span>
         </div>
 
         {/* 긴급/임박/지연 표시 */}
         {(stats.urgent > 0 || stats.upcoming > 0 || stats.overdue > 0) && (
           <>
-            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span className="text-border">|</span>
             {stats.urgent > 0 && (
               <div className="flex items-center gap-1 text-orange-500">
                 <AlertTriangle size={14} />
@@ -188,43 +177,34 @@ export default function KanbanLegend({
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1" title="지연된 태스크">
             <span className="w-1 h-4 bg-red-500 rounded-sm" />
-            <span className="text-gray-600 dark:text-gray-400">지연</span>
+            <span className="text-muted-foreground">지연</span>
           </span>
           <span className="flex items-center gap-1" title="완료된 태스크">
-            <span className="w-1 h-4 bg-green-500 rounded-sm" />
-            <span className="text-gray-600 dark:text-gray-400">완료</span>
+            <span className="w-1 h-4 bg-emerald-500 rounded-sm" />
+            <span className="text-muted-foreground">완료</span>
           </span>
         </div>
 
         {/* 구분선 */}
-        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <span className="text-border">|</span>
 
         {/* 우선순위 범례 */}
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1">
-            <span className="text-red-500">▲</span>
-            <span className="text-gray-600 dark:text-gray-400">높음</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="text-yellow-500">▲</span>
-            <span className="text-gray-600 dark:text-gray-400">보통</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="text-green-500">▲</span>
-            <span className="text-gray-600 dark:text-gray-400">낮음</span>
-          </span>
+        <div className="flex items-center gap-2">
+          <PriorityBadge priority="high" />
+          <PriorityBadge priority="normal" />
+          <PriorityBadge priority="low" />
         </div>
       </div>
 
       {/* 오른쪽: 진행률 */}
       <div className="flex items-center gap-3">
-        <div className="hidden sm:block w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="hidden sm:block w-24 h-2 bg-border rounded-full overflow-hidden">
           <div
             className="h-full bg-main-500 transition-all duration-300"
             style={{ width: `${completionRate}%` }}
           />
         </div>
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span className="text-sm font-medium text-foreground">
           {completionRate}% 완료
         </span>
       </div>
