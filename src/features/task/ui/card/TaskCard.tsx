@@ -181,24 +181,43 @@ const TaskCard = ({
         </div>
       )}
 
-      {/* 서브태스크 진행률 */}
-      {Array.isArray(task.subtasks) && task.subtasks.length > 0 && !isOverlay && (
+      {/* 서브태스크 진행률 + 담당자 */}
+      {!isOverlay && (Array.isArray(task.subtasks) && task.subtasks.length > 0 || task.assignee) && (
         <div className="mt-2 flex items-center gap-2">
-          <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
-            <div
-              className="h-full bg-main-500 dark:bg-main-400 rounded-full transition-all"
-              style={{
-                width: `${Math.round(
-                  (task.subtasks.filter((s) => s.completed).length /
-                    task.subtasks.length) *
-                    100
-                )}%`,
-              }}
-            />
-          </div>
-          <span className="text-xs text-muted-foreground shrink-0">
-            {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length}
-          </span>
+          {Array.isArray(task.subtasks) && task.subtasks.length > 0 && (
+            <>
+              <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-main-500 dark:bg-main-400 rounded-full transition-all"
+                  style={{
+                    width: `${Math.round(
+                      (task.subtasks.filter((s) => s.completed).length /
+                        task.subtasks.length) *
+                        100
+                    )}%`,
+                  }}
+                />
+              </div>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length}
+              </span>
+            </>
+          )}
+          {task.assignee && (
+            <div className="ml-auto shrink-0" title={task.assignee.name}>
+              {task.assignee.avatar_url ? (
+                <img
+                  src={task.assignee.avatar_url}
+                  alt={task.assignee.name}
+                  className="w-5 h-5 rounded-full object-cover border border-border"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-main-500/20 flex items-center justify-center text-[10px] font-semibold text-main-700 dark:text-main-300 border border-border">
+                  {task.assignee.name.slice(0, 1).toUpperCase()}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

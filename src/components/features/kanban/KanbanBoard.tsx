@@ -71,6 +71,7 @@ const KanbanBoard = ({
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [showFilter, setShowFilter] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<KanbanFilterType>({
     priority: "all",
     assignee: "all",
@@ -114,6 +115,10 @@ const KanbanBoard = ({
     }
 
     return tasks.filter((task) => {
+      if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+
       if (filter.priority !== "all" && task.priority !== filter.priority) {
         return false;
       }
@@ -204,7 +209,7 @@ const KanbanBoard = ({
 
       return true;
     });
-  }, [tasks, filter, session, status]);
+  }, [tasks, filter, session, status, searchQuery]);
 
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
     const columnTasks = filteredTasks.filter(
@@ -333,6 +338,8 @@ const KanbanBoard = ({
             filter.assignee !== "all" ||
             filter.date !== "all"
           }
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
           tasksCount={tasks.length}
           project={project}
           onProjectInfoClick={onProjectInfoClick}
@@ -459,6 +466,7 @@ function ColumnGrid({
                 onAddClick={() => onColumnAddClick(column.id as TaskStatus)}
                 onTitleUpdate={(taskId, title) => onTitleUpdate(taskId, { title })}
                 isDragging={isDragging}
+                collapsible={column.id === "done"}
               />
             ))}
           </div>

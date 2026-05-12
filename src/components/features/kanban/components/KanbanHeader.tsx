@@ -1,9 +1,10 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { showToast } from "@/lib/utils/toast";
-import { Info, SlidersHorizontal, HelpCircle, Plus } from "lucide-react";
+import { Info, SlidersHorizontal, HelpCircle, Plus, Search, X } from "lucide-react";
 
 interface KanbanHeaderProps {
   projectName: string;
@@ -12,6 +13,8 @@ interface KanbanHeaderProps {
   onToggleHelp: () => void;
   showHelp: boolean;
   hasActiveFilter?: boolean;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
   tasksCount: number;
   project?: {
     project_id?: string;
@@ -29,10 +32,24 @@ export default function KanbanHeader({
   onToggleHelp,
   showHelp,
   hasActiveFilter = false,
+  searchQuery = "",
+  onSearchChange,
   tasksCount,
   project,
   onProjectInfoClick,
 }: KanbanHeaderProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus();
+  }, [searchOpen]);
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    onSearchChange?.("");
+  };
+
   const getProjectPeriodInfo = () => {
     if (!project?.started_at || !project?.ended_at) return null;
 
@@ -41,21 +58,12 @@ export default function KanbanHeader({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const startStr = startDate.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-    const endStr = endDate.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    const startStr = startDate.toLocaleDateString("ko-KR", { year: "numeric", month: "short", day: "numeric" });
+    const endStr   = endDate.toLocaleDateString("ko-KR",   { year: "numeric", month: "short", day: "numeric" });
 
-    const timeDiff = endDate.getTime() - today.getTime();
+    const timeDiff    = endDate.getTime() - today.getTime();
     const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    const timeToStart = startDate.getTime() - today.getTime();
-    const daysToStart = Math.ceil(timeToStart / (1000 * 3600 * 24));
+    const daysToStart   = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
 
     let badgeText: string;
     let badgeClass: string;
@@ -87,14 +95,8 @@ export default function KanbanHeader({
   const handleAddClick = () => {
     if (project?.ended_at) {
       const today = new Date().toISOString().split("T")[0];
-      if (today < project.started_at!) {
-        showToast("아직 프로젝트가 시작되지 않았습니다.", "warning");
-        return;
-      }
-      if (today > project.ended_at) {
-        showToast("종료된 프로젝트입니다.", "warning");
-        return;
-      }
+      if (today < project.started_at!) { showToast("아직 프로젝트가 시작되지 않았습니다.", "warning"); return; }
+      if (today > project.ended_at)    { showToast("종료된 프로젝트입니다.", "warning"); return; }
     }
     onAddClick();
   };
@@ -107,9 +109,7 @@ export default function KanbanHeader({
         {/* 왼쪽: 프로젝트명 + 기간 */}
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-foreground truncate">
-              {projectName}
-            </h2>
+            <h2 className="text-lg font-semibold text-foreground truncate">{projectName}</h2>
             <button onClick={onProjectInfoClick} className={iconBtn} title="프로젝트 정보">
               <Info className="w-4 h-4" />
             </button>
@@ -129,12 +129,38 @@ export default function KanbanHeader({
           )}
         </div>
 
-        {/* 오른쪽: 날짜 + 작업 수 + 버튼 */}
+        {/* 오른쪽 */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:block text-right text-xs text-muted-foreground">
-            <div className="font-medium text-foreground">{tasksCount}개 작업</div>
-            <div>{format(new Date(), "M월 d일 (E)", { locale: ko })}</div>
-          </div>
+          {/* 검색 인풋 (열렸을 때) */}
+          {searchOpen ? (
+            <div className="flex items-center gap-1 px-2 py-1 bg-card border border-border rounded-lg">
+              <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <input
+                ref={searchRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => onSearchChange?.(e.target.value)}
+                onKeyDown={(e) => e.key === "Escape" && closeSearch()}
+                placeholder="작업 검색..."
+                className="w-32 sm:w-48 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+              />
+              <button onClick={closeSearch} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="hidden sm:block text-right text-xs text-muted-foreground">
+                <div className="font-medium text-foreground">{tasksCount}개 작업</div>
+                <div>{format(new Date(), "M월 d일 (E)", { locale: ko })}</div>
+              </div>
+              {onSearchChange && (
+                <button onClick={() => setSearchOpen(true)} className={iconBtn} title="검색">
+                  <Search className="w-4 h-4" />
+                </button>
+              )}
+            </>
+          )}
 
           <button
             onClick={handleAddClick}
