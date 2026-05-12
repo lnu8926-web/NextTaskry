@@ -169,7 +169,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 supports-backdrop-filter:bg-black/40 supports-backdrop-filter:backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card rounded-[14px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)] border border-border z-50 w-[calc(100%-2rem)] sm:w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
           <Dialog.Title className="sr-only">프로젝트 생성</Dialog.Title>
           {/* 헤더 */}

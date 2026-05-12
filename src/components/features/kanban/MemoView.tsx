@@ -612,7 +612,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
             placeholder="메모를 입력하세요..."
             disabled={loadingMemos}
             rows={3}
-            className="w-full p-3 sm:p-4 pr-8 sm:pr-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 rounded-xl resize-none text-sm input-focus-style transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+            className="w-full pt-(--fluid-textarea-p) pb-(--fluid-textarea-p) pl-(--fluid-textarea-p) pr-8 sm:pr-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 rounded-xl resize-none text-sm input-focus-style transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100 disabled:opacity-50"
           />
           {newMemo && (
             <button
@@ -801,7 +801,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
 
                 {/* 작성자 */}
                 <div className="flex justify-end">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-md text-xs text-gray-600 dark:text-gray-400">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/80 dark:bg-gray-800/80 supports-backdrop-filter:bg-white/60 supports-backdrop-filter:dark:bg-gray-800/60 supports-backdrop-filter:backdrop-blur-sm rounded-md text-xs text-gray-600 dark:text-gray-400">
                     <svg
                       className="w-3 h-3"
                       fill="currentColor"

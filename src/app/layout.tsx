@@ -38,7 +38,7 @@ export default function RootLayout({
           <AuthProviders>
             <div className="h-full flex flex-col">
               <Header />
-              <div className="flex-1 overflow-auto">{children}</div>
+              <div className="flex-1 min-w-0 overflow-auto scrollbar-gutter-stable">{children}</div>
               <Toaster />
             </div>
           </AuthProviders>
