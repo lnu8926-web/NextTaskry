@@ -3,7 +3,7 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { X, ChevronDown, ChevronUp, Briefcase, User, BookOpen, Building2 } from "lucide-react";
+import { X, ChevronDown, ChevronUp, Briefcase, User, BookOpen, Building2, CheckCircle2 } from "lucide-react";
 import { createProject, updateProjectMember } from "../model";
 import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -57,6 +57,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
   const [selectedUser, setSelectedUser] = useState<Item | null>(null);
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
 
   const { data: userList = [] } = useQuery({
     queryKey: queryKeys.users.all,
@@ -86,6 +87,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
     setIsExpanded(false);
     setSelectedUser(null);
     setMembers([]);
+    setCreatedProjectId(null);
   };
 
   const handleClose = () => {
@@ -148,10 +150,12 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
       }
 
       queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
-      showToast("프로젝트가 생성되었습니다.", "success");
-      handleClose();
       if (projectId) {
-        router.push(`/project/workspace/${projectId}`);
+        setCreatedProjectId(projectId);
+        setStep(4);
+      } else {
+        showToast("프로젝트가 생성되었습니다.", "success");
+        handleClose();
       }
     } catch {
       showToast("생성에 실패했습니다.", "error");
@@ -167,6 +171,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card rounded-[14px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)] border border-border z-50 w-[calc(100%-2rem)] sm:w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
+          <Dialog.Title className="sr-only">프로젝트 생성</Dialog.Title>
           {/* 헤더 */}
           <div className="sticky top-0 bg-card border-b border-border px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
             <div className="flex-1">
@@ -174,11 +179,11 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                 {[1, 2, 3].map((s) => (
                   <div
                     key={s}
-                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${s <= step ? "bg-main-500 dark:bg-main-400" : "bg-main-100 dark:bg-main-700"}`}
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${s <= Math.min(step, 3) ? "bg-main-500 dark:bg-main-400" : "bg-main-100 dark:bg-main-700"}`}
                   />
                 ))}
               </div>
-              <p className="text-sm text-main-600 dark:text-main-300">Step {step} / 3</p>
+              {step < 4 && <p className="text-sm text-main-600 dark:text-main-300">Step {step} / 3</p>}
             </div>
             <Dialog.Close asChild>
               <button onClick={handleClose} className="ml-4 text-muted-foreground hover:text-foreground transition-colors">
@@ -230,6 +235,16 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                       <p className="text-sm text-muted-foreground leading-snug">{desc}</p>
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="flex flex-col items-center text-center py-6 space-y-4">
+                <CheckCircle2 className="w-16 h-16 text-main-500 dark:text-main-400" />
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-1">프로젝트가 생성되었습니다!</h2>
+                  <p className="text-sm text-muted-foreground">칸반보드로 바로 이동할까요?</p>
                 </div>
               </div>
             )}
@@ -345,28 +360,47 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
           {/* 푸터 */}
           <div className="sticky bottom-0 bg-card border-t border-border px-6 sm:px-8 py-4 sm:py-5">
             <div className="flex items-center gap-3">
-              {step > 1 && (
-                <button onClick={handleBack} className="px-5 py-2.5 text-muted-foreground hover:text-foreground transition-colors text-sm">
-                  이전
-                </button>
-              )}
-              <div className="flex-1" />
-              {step < 3 ? (
-                <button
-                  onClick={handleNext}
-                  disabled={step === 2 && !type}
-                  className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
-                >
-                  다음
-                </button>
+              {step === 4 ? (
+                <>
+                  <button
+                    onClick={handleClose}
+                    className="flex-1 px-5 py-2.5 border border-border rounded-[10px] text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors text-sm font-medium"
+                  >
+                    목록으로
+                  </button>
+                  <button
+                    onClick={() => { handleClose(); router.push(`/project/workspace/${createdProjectId}`); }}
+                    className="flex-1 px-5 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors text-sm font-medium"
+                  >
+                    바로 이동
+                  </button>
+                </>
               ) : (
-                <button
-                  onClick={handleSubmit}
-                  disabled={!canSubmit || isSubmitting}
-                  className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
-                >
-                  {isSubmitting ? "생성 중..." : "생성하기"}
-                </button>
+                <>
+                  {step > 1 && (
+                    <button onClick={handleBack} className="px-5 py-2.5 text-muted-foreground hover:text-foreground transition-colors text-sm">
+                      이전
+                    </button>
+                  )}
+                  <div className="flex-1" />
+                  {step < 3 ? (
+                    <button
+                      onClick={handleNext}
+                      disabled={step === 2 && !type}
+                      className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                    >
+                      다음
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleSubmit}
+                      disabled={!canSubmit || isSubmitting}
+                      className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                    >
+                      {isSubmitting ? "생성 중..." : "생성하기"}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
