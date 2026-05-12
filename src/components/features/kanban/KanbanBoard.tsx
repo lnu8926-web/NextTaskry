@@ -348,6 +348,9 @@ const KanbanBoard = ({
         {/* 도움말 */}
         {showHelp && <KanbanHelp />}
 
+        {/* 활성 필터 태그 칩 */}
+        <FilterChips filter={filter} onFilterChange={handleFilterChange} onReset={handleFilterReset} />
+
         {/* 필터 */}
         {showFilter && (
           <div className="px-2 sm:px-4 animate-in slide-in-from-top-2 duration-150">
@@ -472,6 +475,59 @@ function ColumnGrid({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+const FILTER_LABELS: Record<string, Record<string, string>> = {
+  priority: { high: "높음", normal: "보통", low: "낮음" },
+  assignee: { me: "내 작업", assigned: "할당됨", unassigned: "미할당" },
+  date:     { today: "오늘", thisWeek: "이번주", overdue: "지연" },
+};
+const FILTER_NAMES: Record<string, string> = {
+  priority: "우선순위",
+  assignee: "담당자",
+  date: "기간",
+};
+
+function FilterChips({
+  filter,
+  onFilterChange,
+  onReset,
+}: {
+  filter: KanbanFilterType;
+  onFilterChange: (key: keyof KanbanFilterType, value: string) => void;
+  onReset: () => void;
+}) {
+  const chips = (Object.keys(filter) as (keyof KanbanFilterType)[]).filter(
+    (key) => filter[key] !== "all"
+  );
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap px-4 py-1.5 border-b border-border animate-in slide-in-from-top-1 duration-150">
+      {chips.map((key) => (
+        <span
+          key={key}
+          className="flex items-center gap-1 px-2 py-0.5 bg-main-500/10 text-main-700 dark:text-main-300 text-xs rounded-full"
+        >
+          <span className="font-medium">{FILTER_NAMES[key]}:</span>
+          <span>{FILTER_LABELS[key]?.[filter[key]] ?? filter[key]}</span>
+          <button
+            onClick={() => onFilterChange(key, "all")}
+            className="ml-0.5 hover:text-main-900 dark:hover:text-main-100 transition-colors"
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      <button
+        onClick={onReset}
+        className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors ml-1"
+      >
+        전체 초기화
+      </button>
     </div>
   );
 }
