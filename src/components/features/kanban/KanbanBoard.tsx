@@ -64,15 +64,6 @@ const KanbanBoard = ({
   const projectStartedAt = project?.started_at;
   const projectEndedAt = project?.ended_at;
 
-  console.log("KanbanBoard - Project Info:", {
-    project,
-    projectName,
-    projectStartedAt,
-    projectEndedAt,
-    boardId,
-    projectId,
-  });
-
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -120,20 +111,6 @@ const KanbanBoard = ({
       return [];
     }
 
-    if (filter.assignee === "me") {
-      console.log("내 작업 필터 활성화");
-      console.log("세션 상태:", status);
-      console.log("현재 사용자 ID:", session?.user?.user_id);
-      console.log(
-        "전체 태스크:",
-        tasks.map((t) => ({
-          id: t.id,
-          title: t.title,
-          assigned_user_id: t.assigned_user_id,
-        }))
-      );
-    }
-
     return tasks.filter((task) => {
       if (filter.priority !== "all" && task.priority !== filter.priority) {
         return false;
@@ -149,11 +126,6 @@ const KanbanBoard = ({
         if (filter.assignee === "me") {
           const currentUserId = session?.user?.user_id;
           const taskUserId = task.assigned_user_id;
-
-          console.log(
-            `태스크 '${task.title}' 체크 - 할당된 사용자: ${taskUserId}, 현재 사용자: ${currentUserId}`
-          );
-          console.log("타입 체크:", typeof taskUserId, typeof currentUserId);
 
           const taskUserIdStr = taskUserId ? String(taskUserId) : null;
           const currentUserIdStr = currentUserId ? String(currentUserId) : null;
@@ -339,7 +311,7 @@ const KanbanBoard = ({
   return (
     <KanbanLayout projectId={projectId}>
       {/* 전체 컨테이너 - 캘린더와 동일한 구조 */}
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+      <div className="h-full bg-card rounded-lg shadow-sm border border-border overflow-hidden flex flex-col">
         {/* 칸반 헤더 */}
         <KanbanHeader
           projectName={projectName}
@@ -451,7 +423,7 @@ function ColumnGrid({
 }) {
   return (
     <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
-      <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+      <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden">
         <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
           <div className="flex gap-2 sm:gap-3 md:gap-4 h-full justify-start sm:justify-center min-w-fit p-2 sm:p-3 md:p-4">
             {KANBAN_COLUMNS.map((column) => (

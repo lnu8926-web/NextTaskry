@@ -37,25 +37,16 @@ const KanbanColumn = ({
   const overdueCount =
     id !== "done" ? tasks.filter((task) => isTaskOverdue(task)).length : 0;
 
-  // 드래그 오버 시 컬럼 스타일
   const getColumnStyle = () => {
     if (isOver) {
-      // 드롭 대상 컬럼 하이라이트
       switch (id) {
-        case "todo":
-          return "ring-2 ring-gray-400 dark:ring-gray-500 bg-gray-100 dark:bg-gray-600";
-        case "inprogress":
-          return "ring-2 ring-blue-400 dark:ring-blue-500 bg-blue-50 dark:bg-blue-900/30";
-        case "done":
-          return "ring-2 ring-green-400 dark:ring-green-500 bg-green-50 dark:bg-green-900/30";
-        default:
-          return "";
+        case "todo":       return "ring-2 ring-border bg-muted/60";
+        case "inprogress": return "ring-2 ring-main-400 dark:ring-main-500 bg-main-500/5";
+        case "done":       return "ring-2 ring-emerald-400 dark:ring-emerald-500 bg-emerald-50 dark:bg-emerald-900/20";
+        default:           return "";
       }
     }
-    if (isDragging) {
-      // 드래그 중일 때 모든 컬럼 약간 강조
-      return "border-dashed";
-    }
+    if (isDragging) return "border-dashed";
     return "";
   };
 
@@ -63,17 +54,17 @@ const KanbanColumn = ({
     <div
       className={`
         flex flex-col shrink-0 h-full min-h-0
-        w-[calc(100vw-3rem)] min-w-[260px] 
-        sm:w-80 sm:min-w-[280px] 
+        w-[calc(100vw-3rem)] min-w-[260px]
+        sm:w-80 sm:min-w-[280px]
         md:w-[300px] md:min-w-[300px]
-        lg:w-80 lg:min-w-[320px] 
-        bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-500 shadow-sm
+        lg:w-80 lg:min-w-[320px]
+        bg-muted/30 dark:bg-muted/10 rounded-lg border border-border shadow-sm
         transition-all duration-200
         ${getColumnStyle()}
       `}
     >
       {/* 컬럼 헤더 */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-500 rounded-t-lg bg-white dark:bg-gray-600">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border rounded-t-lg bg-card">
         <div className="flex items-center gap-2">
           <span
             className={`w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full ${statusColors.bg}`}
@@ -95,37 +86,11 @@ const KanbanColumn = ({
             </span>
           )}
           {/* 전체 개수 */}
-          <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200">
+          <span className="bg-muted px-2 py-1 rounded-full text-xs font-medium text-muted-foreground">
             {tasks.length}
           </span>
         </div>
       </div>
-
-      {/* 드래그 오버 시 안내 메시지 */}
-      {isOver && (
-        <div
-          className={`
-          mx-3 mt-3 px-3 py-2 rounded-lg text-center text-sm font-medium
-          ${
-            id === "todo"
-              ? "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
-              : ""
-          }
-          ${
-            id === "inprogress"
-              ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-              : ""
-          }
-          ${
-            id === "done"
-              ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
-              : ""
-          }
-        `}
-        >
-          여기에 놓기
-        </div>
-      )}
 
       {/* Task Cards */}
       <SortableContext
