@@ -108,7 +108,6 @@ export async function GET(request: Request) {
     const offset = (page - 1) * limit;
     const orderDirection = sortBy === "newest" ? "desc" : "asc";
 
-    // user_id만 가져오기 (JOIN은 나중에)
     const {
       data: memos,
       error: fetchError,
@@ -130,10 +129,9 @@ export async function GET(request: Request) {
       );
     }
 
-    // user_id들을 수집해서 한 번에 조회
     const userIds = [...new Set(memos?.map((m) => m.user_id) || [])];
 
-    const userMap: Record<string, any> = {};
+    const userMap: Record<string, { user_id: string; user_name: string; email: string }> = {};
     if (userIds.length > 0) {
       const { data: users } = await supabase
         .from("users")
@@ -145,7 +143,6 @@ export async function GET(request: Request) {
       });
     }
 
-    // memos에 author 정보 추가
     const memosWithAuthor = memos?.map((memo) => ({
       ...memo,
       author: userMap[memo.user_id] || {
@@ -168,6 +165,7 @@ export async function GET(request: Request) {
     return errorResponse(error, "메모 조회에 실패했습니다");
   }
 }
+
 /**
  * POST /api/projectMemos
  * 메모 생성
@@ -185,7 +183,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 한국 시간(KST, UTC+9)으로 저장
     const now = new Date();
     const kstTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
 
@@ -198,8 +195,8 @@ export async function POST(request: Request) {
           content: content.trim(),
           created_at: kstTime.toISOString(),
           updated_at: kstTime.toISOString(),
-          is_pinned: false, // 새 메모는 기본적으로 고정되지 않음
-          pinned_at: null, // 고정되지 않으므로 null
+          is_pinned: false,
+          pinned_at: null,
         },
       ])
       .select()
@@ -207,7 +204,6 @@ export async function POST(request: Request) {
 
     if (error) throw error;
 
-    // 작성자 정보 추가
     const { data: author } = await supabase
       .from("users")
       .select("user_id, user_name, email")
@@ -301,10 +297,7 @@ export async function DELETE(request: Request) {
     if (updateError) throw updateError;
 
     return Response.json(
-      {
-        message: "메모가 삭제되었습니다",
-        memo_id: memoId,
-      },
+      { message: "메모가 삭제되었습니다", memo_id: memoId },
       { status: 200 }
     );
   } catch (error) {
@@ -323,8 +316,6 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { is_pinned } = body;
 
-    // console.log("🔧 서버 수신 데이터:", { memoId, body, is_pinned });
-
     if (!memoId) {
       return Response.json({ error: "메모 ID가 필수입니다" }, { status: 400 });
     }
@@ -336,21 +327,15 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const updateData = {
-      is_pinned,
-      pinned_at: is_pinned ? new Date().toISOString() : null,
-    };
-
-    // console.log("💾 DB 업데이트 데이터:", updateData);
-
     const { data, error } = await supabase
       .from("project_memos")
-      .update(updateData)
+      .update({
+        is_pinned,
+        pinned_at: is_pinned ? new Date().toISOString() : null,
+      })
       .eq("memo_id", memoId)
       .select()
       .single();
-
-    // console.log("📊 DB 업데이트 결과:", { data, error });
 
     if (error) throw error;
 

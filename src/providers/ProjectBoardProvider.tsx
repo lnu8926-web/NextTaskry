@@ -17,8 +17,8 @@ const ProjectBoardContext = createContext<ProjectBoardContextType | undefined>(u
 export function ProjectBoardProvider({ children }: { children: ReactNode }) {
   const [filter, setFilter] = useState<FilterProps>({
     view: "all",
-    date: "startedAt",
-    sort: "asc",
+    date: "createdAt",
+    sort: "desc",
   });
   return (
     <ProjectBoardContext.Provider value={{ filter, setFilter }}>

@@ -51,8 +51,10 @@ function sanitizeTaskData<T extends Record<string, any>>(
  * 에러 핸들링 헬퍼
  */
 function handleApiError<T>(operation: string, error: unknown): ApiResponse<T> {
-  const err = error instanceof Error ? error : new Error(String(error));
-  console.error(`${operation} 실패:`, err);
+  const err = error instanceof Error
+    ? error
+    : new Error(typeof error === "object" ? JSON.stringify(error) : String(error));
+  console.error(`${operation} 실패:`, error);
   return { data: null, error: err };
 }
 
