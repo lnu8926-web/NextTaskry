@@ -345,6 +345,11 @@ const MemoView = ({ projectId }: MemoFormProps) => {
         throw new Error(errorData.error || "메모 저장 실패");
       }
 
+      const created = await res.json();
+      setMemos((prev) => {
+        if (prev.some((m) => m.memo_id === created.memo_id)) return prev;
+        return sort === "newest" ? [created, ...prev] : [...prev, created];
+      });
       setNewMemo("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "메모 저장 실패");
@@ -375,7 +380,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
         throw new Error(errorData.error || "메모 삭제 실패");
       }
 
-      // 삭제 성공 시 deleteSuccess 모달 표시
+      setMemos((prev) => prev.filter((m) => m.memo_id !== deletingMemoId));
       closeModal();
       setTimeout(() => {
         openModal("deleteSuccess");
