@@ -38,6 +38,7 @@ export default function ProjectPage() {
 
   const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
   const [currentView, setCurrentView] = useState<NavItem>("kanban");
+  const [showMemoPanel, setShowMemoPanel] = useState(false);
   const [showProjectInfoPanel, setShowProjectInfoPanel] = useState(false);
 
   const userId = session?.user?.user_id;
@@ -288,10 +289,14 @@ export default function ProjectPage() {
   };
 
   const handleViewChange = (view: NavItem) => {
-    if (view === "project") {
+    if (view === "memo") {
+      setShowMemoPanel((prev) => !prev);
+      setShowProjectInfoPanel(false);
+    } else if (view === "project") {
       router.push("/");
     } else {
       setCurrentView(view);
+      setShowMemoPanel(false);
     }
   };
 
@@ -316,7 +321,7 @@ export default function ProjectPage() {
               onCreateTask={handleCreateTask}
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
-              onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
+              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
               project={{
                 project_id: projectId,
                 project_name: projectName,
@@ -341,22 +346,17 @@ export default function ProjectPage() {
               onDeleteTask={handleDeleteTask}
               onSelectTask={() => {}}
               onTaskCreated={handleRefresh}
-              onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
+              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
             />
           )}
 
-          {currentView === "memo" && (
-            <div className="h-full max-w-3xl mx-auto">
-              <MemoView projectId={projectId} />
-            </div>
-          )}
         </main>
 
-        {/* 프로젝트 정보 side panel — 메모 뷰에서는 숨김 */}
+        {/* 프로젝트 정보 side panel */}
         <aside
           className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
-            showProjectInfoPanel && currentView !== "memo"
-              ? "w-[280px] lg:w-[320px] opacity-100"
+            showProjectInfoPanel
+              ? "w-[300px] lg:w-[340px] opacity-100"
               : "w-0 opacity-0"
           }`}
         >
@@ -369,11 +369,22 @@ export default function ProjectPage() {
             onClose={() => setShowProjectInfoPanel(false)}
           />
         </aside>
+
+        {/* 메모 side panel */}
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
+            showMemoPanel
+              ? "w-[300px] lg:w-[360px] opacity-100"
+              : "w-0 opacity-0"
+          }`}
+        >
+          <MemoView projectId={projectId} />
+        </aside>
       </div>
 
       <div className="shrink-0">
         <BottomNavigation
-          activeView={currentView}
+          activeView={showMemoPanel ? "memo" : currentView}
           onViewChange={handleViewChange}
         />
       </div>
