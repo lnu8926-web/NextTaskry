@@ -12,7 +12,7 @@
  * - 키보드 단축키 지원 (Ctrl+Enter)
  */
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { ProjectMemo } from "@/types/projectMemo";
 import { supabase } from "@/lib/supabase/supabase";
 import { useSession } from "next-auth/react";
@@ -20,6 +20,8 @@ import { Icon } from "@/components/shared/Icon";
 import { useModal } from "@/hooks/useModal";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // 메모 최대 길이 제한
 const MEMO_MAX_LENGTH = 5000;
@@ -59,6 +61,12 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   const memoMaxLength = MEMO_MAX_LENGTH;
   const { openModal, closeModal, modalProps } = useModal();
   const [deletingMemoId, setDeletingMemoId] = useState<string | null>(null);
+
+  // === 인라인 편집 상태 ===
+  const [editingMemoId, setEditingMemoId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   /**
    * 필터링된 메모 계산
@@ -412,6 +420,54 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   // 작성자 확인 함수
   const isAuthor = (memoUserId: string) => {
     return session?.user?.user_id === memoUserId;
+  };
+
+  // 인라인 편집 시작
+  const handleStartEdit = (memo: ProjectMemo) => {
+    setEditingMemoId(memo.memo_id);
+    setEditContent(memo.content);
+    setTimeout(() => {
+      if (editTextareaRef.current) {
+        editTextareaRef.current.focus();
+        editTextareaRef.current.style.height = "auto";
+        editTextareaRef.current.style.height = editTextareaRef.current.scrollHeight + "px";
+      }
+    }, 0);
+  };
+
+  // 인라인 편집 취소
+  const handleCancelEdit = () => {
+    setEditingMemoId(null);
+    setEditContent("");
+  };
+
+  // 인라인 편집 저장
+  const handleSaveEdit = async (memoId: string) => {
+    if (!editContent.trim()) return;
+    try {
+      setSavingEdit(true);
+      setError(null);
+      const res = await fetch(`/api/projectMemos?memoId=${memoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editContent.trim() }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "메모 수정 실패");
+      }
+      setMemos((prev) =>
+        prev.map((m) =>
+          m.memo_id === memoId ? { ...m, content: editContent.trim() } : m
+        )
+      );
+      setEditingMemoId(null);
+      setEditContent("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "메모 수정 실패");
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   /**
@@ -770,34 +826,85 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                     </span>
                   </div>
 
-                  {/* 삭제 버튼 */}
-                  {isAuthor(memo.user_id) && (
-                    <button
-                      onClick={() => handleDeleteMemo(memo.memo_id)}
-                      className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                      title="삭제"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                  {/* 편집/삭제 버튼 */}
+                  {isAuthor(memo.user_id) && editingMemoId !== memo.memo_id && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleStartEdit(memo)}
+                        className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:text-main-500 dark:hover:text-main-400 hover:bg-main-50 dark:hover:bg-main-900/20 transition-all"
+                        title="편집"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMemo(memo.memo_id)}
+                        className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                        title="삭제"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   )}
                 </div>
 
-                {/* 내용 */}
-                <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
-                  {highlightSearchTerm(memo.content)}
-                </p>
+                {/* 내용: 편집 모드 */}
+                {editingMemoId === memo.memo_id ? (
+                  <div className="mb-3">
+                    <textarea
+                      ref={editTextareaRef}
+                      value={editContent}
+                      onChange={(e) => {
+                        setEditContent(e.target.value);
+                        e.target.style.height = "auto";
+                        e.target.style.height = e.target.scrollHeight + "px";
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.ctrlKey && e.key === "Enter") handleSaveEdit(memo.memo_id);
+                        if (e.key === "Escape") handleCancelEdit();
+                      }}
+                      maxLength={MEMO_MAX_LENGTH}
+                      disabled={savingEdit}
+                      rows={3}
+                      className="w-full p-2 text-sm border border-main-300 dark:border-main-600 bg-white dark:bg-gray-900 rounded-lg resize-none overflow-hidden text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-main-400 dark:focus:ring-main-500 disabled:opacity-50"
+                    />
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-[11px] text-gray-400">{editContent.length} / {MEMO_MAX_LENGTH} · Ctrl+Enter 저장 · Esc 취소</span>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={handleCancelEdit}
+                          disabled={savingEdit}
+                          className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors disabled:opacity-50"
+                        >
+                          취소
+                        </button>
+                        <button
+                          onClick={() => handleSaveEdit(memo.memo_id)}
+                          disabled={savingEdit || !editContent.trim()}
+                          className="px-2.5 py-1 text-xs font-medium text-white bg-main-500 hover:bg-main-600 rounded-md transition-colors disabled:opacity-50 flex items-center gap-1"
+                        >
+                          {savingEdit ? <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" /> : null}
+                          저장
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : searchTerm ? (
+                  /* 검색 중: 하이라이트 plain text */
+                  <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+                    {highlightSearchTerm(memo.content)}
+                  </p>
+                ) : (
+                  /* 일반 모드: 마크다운 렌더링 */
+                  <div className="prose prose-sm dark:prose-invert max-w-none mb-3 text-gray-800 dark:text-gray-200 leading-relaxed prose-p:my-1 prose-headings:my-1.5 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-code:text-xs prose-code:bg-gray-100 prose-code:dark:bg-gray-700 prose-code:px-1 prose-code:rounded prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:p-2 prose-pre:rounded-lg prose-blockquote:border-l-2 prose-blockquote:border-gray-300 prose-blockquote:dark:border-gray-600 prose-blockquote:pl-3 prose-blockquote:text-gray-600 prose-blockquote:dark:text-gray-400">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {memo.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
 
                 {/* 작성자 */}
                 <div className="flex justify-end">
