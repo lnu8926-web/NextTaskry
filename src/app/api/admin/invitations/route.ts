@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { checkAdminAuth } from "@/lib/auth/adminAuth";
 
 export async function GET() {
   try {
+    const auth = await checkAdminAuth();
+    if (!auth.authorized) return auth.error;
+
 const { data, error } = await supabaseAdmin
   .from("project_invitation_new")
   .select(`
@@ -61,16 +65,18 @@ const formatted = data.map((row) => ({
 
 export async function POST(req: Request) {
   try {
+    const auth = await checkAdminAuth();
+    if (!auth.authorized) return auth.error;
+
     const body = await req.json();
 
-   
     const {
       invitation_type, // "service_only" | "project"
       email,
-      project_id,    //프로젝트 초대일때만사용
-      project_role, //프로젝트 초대일때만사용
-      invited_by, // 관리자 user_id
+      project_id,   // 프로젝트 초대일 때만 사용
+      project_role, // 프로젝트 초대일 때만 사용
     } = body;
+    const invited_by = auth.userId;
 
     //email, 초대타입 필수!
     if (!email || !invitation_type) {

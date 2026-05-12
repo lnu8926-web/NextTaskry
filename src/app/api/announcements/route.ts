@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getUnifiedAuthUser } from "@/lib/auth/unifiedAuth";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { checkAdminAuth } from "@/lib/auth/adminAuth";
 
 // ------------------------------------------------------
 // 공통 에러 핸들러
@@ -23,39 +23,6 @@ async function handleRequest(fn: () => Promise<NextResponse | undefined>) {
           : "서버 오류가 발생했습니다.";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
-}
-
-// ------------------------------------------------------
-// 권한 체크
-// ------------------------------------------------------
-
-export async function checkAdminFnc() {
-  const authUser = await getUnifiedAuthUser();
-
-  if (!authUser.isAuthenticated || !authUser.userId) {
-    return {
-      authorized: false,
-      error: NextResponse.json(
-        { error: "로그인이 필요합니다." },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const isAdmin = authUser.role === "admin";
-  if (!isAdmin) {
-    return {
-      authorized: false,
-      error: NextResponse.json(
-        { error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      ),
-    };
-  }
-
-  const user_id = authUser.userId;
-
-  return { authorized: true, user_id };
 }
 
 // ------------------------------------------------------
@@ -164,22 +131,17 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   return handleRequest(async () => {
     // 로그인, 관리자 여부 확인한 다음
-    const permission = await checkAdminFnc();
-    // 둘 중 하나라도 아니라면 false 또는 에러 즉시 반환
-    if (!permission.authorized) return permission.error;
+    const auth = await checkAdminAuth();
+    if (!auth.authorized) return auth.error;
 
-    // title, content, is_important를 가져온다
     const body = await request.json();
-    // 입력값 검증
-    // 제목, 내용 없거나 제목 255자 초과 시 -> 에러
     validateNoticeInput(body);
 
     const { data, error } = await supabaseAdmin
       .from("notices")
-      // insert()는 기본적으로 배열 형태의 rows를 받는다고 한다
       .insert([
         {
-          user_id: permission.user_id,
+          user_id: auth.userId,
           title: body.title.trim(),
           content: body.content.trim(),
           is_important: body.is_important || false,
@@ -201,9 +163,8 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   return handleRequest(async () => {
     // 로그인, 관리자 여부 확인한 다음
-    const permission = await checkAdminFnc();
-    // 둘 중 하나라도 아니라면 false 또는 에러 즉시 반환
-    if (!permission.authorized) return permission.error;
+    const auth = await checkAdminAuth();
+    if (!auth.authorized) return auth.error;
 
     // /api/notices/:id 방식으로 추출하거나 쿼리스트링에서 가져와서
     // 이 id 기준으로 update가 진행
@@ -243,8 +204,8 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   return handleRequest(async () => {
-    const permission = await checkAdminFnc();
-    if (!permission.authorized) return permission.error;
+    const auth = await checkAdminAuth();
+    if (!auth.authorized) return auth.error;
 
     const announcement_id = getAnnouncementId(request);
 
