@@ -110,7 +110,7 @@ export default function KanbanHeader({
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-foreground truncate">{projectName}</h2>
-            <button onClick={onProjectInfoClick} className={iconBtn} title="프로젝트 정보">
+            <button onClick={onProjectInfoClick} className={iconBtn} title="프로젝트 정보" aria-label="프로젝트 정보">
               <Info className="w-4 h-4" />
             </button>
           </div>
@@ -144,7 +144,7 @@ export default function KanbanHeader({
                 placeholder="작업 검색..."
                 className="w-32 sm:w-48 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
               />
-              <button onClick={closeSearch} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={closeSearch} className="text-muted-foreground hover:text-foreground transition-colors" aria-label="검색 닫기">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -155,7 +155,7 @@ export default function KanbanHeader({
                 <div>{format(new Date(), "M월 d일 (E)", { locale: ko })}</div>
               </div>
               {onSearchChange && (
-                <button onClick={() => setSearchOpen(true)} className={iconBtn} title="검색">
+                <button onClick={() => setSearchOpen(true)} className={iconBtn} title="검색" aria-label="검색">
                   <Search className="w-4 h-4" />
                 </button>
               )}
@@ -165,19 +165,20 @@ export default function KanbanHeader({
           <button
             onClick={handleAddClick}
             className="flex items-center gap-1 px-3 py-2 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors text-sm font-medium"
+            aria-label="새 작업 추가"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">새 작업</span>
           </button>
 
-          <button onClick={onToggleFilter} className={`${iconBtn} relative`} title="필터">
+          <button onClick={onToggleFilter} className={`${iconBtn} relative`} title="필터" aria-label="필터">
             <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
             {hasActiveFilter && (
               <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-main-500 rounded-full" />
             )}
           </button>
 
-          <button onClick={onToggleHelp} className={iconBtn} title={showHelp ? "도움말 닫기" : "도움말 열기"}>
+          <button onClick={onToggleHelp} className={iconBtn} title={showHelp ? "도움말 닫기" : "도움말 열기"} aria-label={showHelp ? "도움말 닫기" : "도움말 열기"}>
             <HelpCircle className={`w-4 h-4 transition-colors ${showHelp ? "text-main-500 dark:text-main-400" : ""}`} />
           </button>
         </div>

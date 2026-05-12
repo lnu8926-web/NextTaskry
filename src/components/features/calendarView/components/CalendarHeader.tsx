@@ -167,6 +167,7 @@ export default function CalendarHeader({
                 onClick={onProjectInfoClick}
                 className="p-1 hover:bg-white/20 rounded-lg transition-colors"
                 title="프로젝트 정보"
+                aria-label="프로젝트 정보"
               >
                 <svg
                   className="w-5 h-5 text-white/80 hover:text-white"
@@ -243,6 +244,7 @@ export default function CalendarHeader({
             <button
               onClick={handleAddTaskClick}
               className="px-3 sm:px-4 py-2 bg-main-400 dark:bg-main-500 text-white rounded-lg hover:bg-main-500 dark:hover:bg-main-400 active:bg-main-600 dark:active:bg-main-600 transition-all text-xs sm:text-sm font-medium shadow-sm"
+              aria-label="새 작업 추가"
             >
               <span className="hidden sm:inline">+ 새 작업</span>
               <span className="sm:hidden">+</span>
@@ -257,6 +259,7 @@ export default function CalendarHeader({
                 showFilter ? "bg-white/20" : ""
               }`}
               title="필터"
+              aria-label="필터"
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5 text-white"
@@ -279,6 +282,7 @@ export default function CalendarHeader({
             onClick={onToggleHelp}
             className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
             title={showHelp ? "도움말 닫기" : "도움말 열기"}
+            aria-label={showHelp ? "도움말 닫기" : "도움말 열기"}
           >
             <svg
               className={`w-4 h-4 text-white transition-transform duration-300 ${

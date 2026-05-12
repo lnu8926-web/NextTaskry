@@ -43,6 +43,7 @@ export function Header() {
               size={20}
               className="w-[42px] h-[42px] rounded-[10px] border border-border"
               onClick={handleLoginModal}
+              aria-label="프로필"
             />
 
             <Link href="/notice">
@@ -51,6 +52,7 @@ export function Header() {
                 icon="speakerphone"
                 size={20}
                 className="w-[42px] h-[42px] rounded-[10px] border border-border"
+                aria-label="공지사항"
               />
             </Link>
 
@@ -61,6 +63,7 @@ export function Header() {
                   icon="crown"
                   size={20}
                   className="w-[42px] h-[42px] rounded-[10px] border border-border"
+                  aria-label="관리자 페이지"
                 />
               </Link>
             )}
@@ -68,6 +71,7 @@ export function Header() {
             <button
               className="w-[42px] h-[42px] rounded-[10px] border border-border bg-card flex items-center justify-center hover:bg-accent/10 transition-colors"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              aria-label={mounted && resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
             >
               {mounted && resolvedTheme === "dark" ? (
                 <Icon type="sun" size={20} className="text-yellow-300" />
