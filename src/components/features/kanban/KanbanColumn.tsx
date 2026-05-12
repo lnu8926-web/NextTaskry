@@ -58,13 +58,13 @@ const KanbanColumn = ({
         sm:w-80 sm:min-w-[280px]
         md:w-[300px] md:min-w-[300px]
         lg:w-80 lg:min-w-[320px]
-        bg-muted/30 dark:bg-muted/10 rounded-lg border border-border shadow-sm
+        bg-card rounded-lg border border-border shadow-sm
         transition-all duration-200
         ${getColumnStyle()}
       `}
     >
       {/* 컬럼 헤더 */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border rounded-t-lg bg-card">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border rounded-t-lg bg-muted/40 dark:bg-muted/20">
         <div className="flex items-center gap-2">
           <span
             className={`w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full ${statusColors.bg}`}

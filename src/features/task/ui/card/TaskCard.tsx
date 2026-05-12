@@ -70,7 +70,7 @@ const TaskCard = ({
       onClick={onClick}
       className={`
         bg-card text-foreground
-        p-4 rounded-[10px] border
+        p-4 rounded-[10px] border shadow-sm
         cursor-grab active:cursor-grabbing
         ${
           isCompleted

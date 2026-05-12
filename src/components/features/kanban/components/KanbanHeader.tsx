@@ -100,7 +100,7 @@ export default function KanbanHeader({
   const iconBtn = "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors";
 
   return (
-    <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-card">
+    <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-main-500/5 dark:bg-main-400/5">
       <div className="flex items-center justify-between gap-4">
         {/* 왼쪽: 프로젝트명 + 기간 */}
         <div className="flex flex-col gap-1 min-w-0">

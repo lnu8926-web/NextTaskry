@@ -423,9 +423,9 @@ function ColumnGrid({
 }) {
   return (
     <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
-      <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden">
+      <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden bg-muted/40 dark:bg-muted/20">
         <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
-          <div className="flex gap-2 sm:gap-3 md:gap-4 h-full justify-start sm:justify-center min-w-fit p-2 sm:p-3 md:p-4">
+          <div className="flex gap-3 sm:gap-4 h-full justify-start sm:justify-center min-w-fit p-3 sm:p-4">
             {KANBAN_COLUMNS.map((column) => (
               <KanbanColumn
                 key={column.id}
