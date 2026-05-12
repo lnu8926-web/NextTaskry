@@ -27,6 +27,7 @@ import KanbanLegend from "./components/KanbanLegend";
 import KanbanFilterComponent, {
   KanbanFilterType,
 } from "./components/KanbanFilter";
+import SidePanel from "@/components/ui/SidePanel";
 import { useKanbanKeyboard } from "@/hooks/kanban/useKanbanKeyboard";
 
 interface KanbanBoardProps {
@@ -66,6 +67,7 @@ const KanbanBoard = ({
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
+  const [addTaskDefaultStatus, setAddTaskDefaultStatus] = useState<TaskStatus | undefined>(undefined);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [showFilter, setShowFilter] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -280,13 +282,19 @@ const KanbanBoard = ({
     }));
   };
 
+  const handleColumnAddClick = useCallback((status: TaskStatus) => {
+    setAddTaskDefaultStatus(status);
+    setShowTaskAddModal(true);
+  }, []);
+
   const handleTaskAddSuccess = useCallback(
     (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
       onCreateTask?.(taskData);
       onTaskCreated?.();
       setShowTaskAddModal(false);
+      setAddTaskDefaultStatus(undefined);
     },
-    [onCreateTask, onTaskCreated, setShowTaskAddModal]
+    [onCreateTask, onTaskCreated]
   );
 
   const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
@@ -352,6 +360,8 @@ const KanbanBoard = ({
             groupedTasks={groupedTasks}
             projectId={projectId}
             onTaskClick={handleTaskClick}
+            onColumnAddClick={handleColumnAddClick}
+            onTitleUpdate={handleUpdateTask}
             isDragging={!!activeTask}
           />
 
@@ -378,8 +388,8 @@ const KanbanBoard = ({
         </div>
       </div>
 
-      {selectedTask && (
-        <Modal isOpen onClose={() => setSelectedTask(null)}>
+      <SidePanel isOpen={!!selectedTask} onClose={() => setSelectedTask(null)}>
+        {selectedTask && (
           <TaskDetail
             task={{
               ...selectedTask,
@@ -391,18 +401,19 @@ const KanbanBoard = ({
             onDelete={handleDeleteTask}
             onClose={() => setSelectedTask(null)}
           />
-        </Modal>
-      )}
+        )}
+      </SidePanel>
 
       {showTaskAddModal && (
-        <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
+        <Modal isOpen onClose={() => { setShowTaskAddModal(false); setAddTaskDefaultStatus(undefined); }}>
           <TaskAdd
             boardId={boardId}
             projectId={projectId}
             projectStartedAt={projectStartedAt}
             projectEndedAt={projectEndedAt}
+            initialStatus={addTaskDefaultStatus}
             onSuccess={handleTaskAddSuccess}
-            onCancel={() => setShowTaskAddModal(false)}
+            onCancel={() => { setShowTaskAddModal(false); setAddTaskDefaultStatus(undefined); }}
           />
         </Modal>
       )}
@@ -414,11 +425,15 @@ function ColumnGrid({
   groupedTasks,
   projectId,
   onTaskClick,
+  onColumnAddClick,
+  onTitleUpdate,
   isDragging,
 }: {
   groupedTasks: Record<TaskStatus, Task[]>;
   projectId: string;
   onTaskClick: (task: Task) => void;
+  onColumnAddClick: (status: TaskStatus) => void;
+  onTitleUpdate: (taskId: string, updates: Partial<Task>) => void;
   isDragging: boolean;
 }) {
   return (
@@ -434,6 +449,8 @@ function ColumnGrid({
                 tasks={groupedTasks[column.id] || []}
                 projectId={projectId}
                 onTaskClick={onTaskClick}
+                onAddClick={() => onColumnAddClick(column.id as TaskStatus)}
+                onTitleUpdate={(taskId, title) => onTitleUpdate(taskId, { title })}
                 isDragging={isDragging}
               />
             ))}

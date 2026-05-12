@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useRef, useCallback } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { Task } from "@/types";
 import { CSS } from "@dnd-kit/utilities";
@@ -11,6 +11,7 @@ interface TaskCardProps {
   projectId: string;
   onClick?: () => void;
   isOverlay?: boolean;
+  onTitleUpdate?: (title: string) => void;
 }
 
 const TaskCard = ({
@@ -18,8 +19,12 @@ const TaskCard = ({
   projectId: _projectId,
   onClick,
   isOverlay = false,
+  onTitleUpdate,
 }: TaskCardProps) => {
   const [isNew, setIsNew] = useState(true);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(task.title);
+  const titleInputRef = useRef<HTMLTextAreaElement>(null);
 
   const isOverdue = useMemo(() => {
     if (!task.ended_at || task.status === "done") return false;
@@ -45,10 +50,50 @@ const TaskCard = ({
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  const handleTitleSave = useCallback(() => {
+    const trimmed = editedTitle.trim();
+    if (trimmed && trimmed !== task.title) {
+      onTitleUpdate?.(trimmed);
+    }
+    setIsEditingTitle(false);
+  }, [editedTitle, task.title, onTitleUpdate]);
+
+  const handleTitleDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isOverlay || !onTitleUpdate) return;
+      e.stopPropagation();
+      setEditedTitle(task.title);
+      setIsEditingTitle(true);
+    },
+    [isOverlay, onTitleUpdate, task.title]
+  );
+
+  const handleTitleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleTitleSave();
+      }
+      if (e.key === "Escape") {
+        setIsEditingTitle(false);
+        setEditedTitle(task.title);
+      }
+    },
+    [handleTitleSave, task.title]
+  );
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useSortable({
       id: task.id,
       animateLayoutChanges: () => false,
+      disabled: isEditingTitle,
     });
 
   const dragStyle = useMemo(
@@ -88,20 +133,36 @@ const TaskCard = ({
       {/* 제목 행 */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-start gap-2 flex-1 min-w-0">
-          {isCompleted && (
+          {isCompleted && !isEditingTitle && (
             <div className="shrink-0 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center mt-0.5">
               <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
             </div>
           )}
-          <h3
-            className={`font-semibold text-sm flex-1 line-clamp-2 leading-snug ${
-              isCompleted
-                ? "text-muted-foreground line-through"
-                : "text-foreground"
-            }`}
-          >
-            {task.title}
-          </h3>
+          {isEditingTitle ? (
+            <textarea
+              ref={titleInputRef}
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              onBlur={handleTitleSave}
+              onKeyDown={handleTitleKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              rows={2}
+              className="w-full text-sm font-semibold text-foreground leading-snug bg-muted/50 border border-main-300 rounded px-1.5 py-0.5 resize-none focus:outline-none focus:ring-1 focus:ring-main-500"
+            />
+          ) : (
+            <h3
+              onDoubleClick={handleTitleDoubleClick}
+              className={`font-semibold text-sm flex-1 line-clamp-2 leading-snug ${
+                onTitleUpdate ? "cursor-text" : ""
+              } ${
+                isCompleted
+                  ? "text-muted-foreground line-through"
+                  : "text-foreground"
+              }`}
+            >
+              {task.title}
+            </h3>
+          )}
         </div>
         {task.priority && <PriorityBadge priority={task.priority} />}
       </div>

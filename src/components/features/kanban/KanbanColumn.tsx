@@ -3,6 +3,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Plus } from "lucide-react";
 
 import { TaskCard } from "@/features/task";
 import { Task, TaskStatus } from "@/types";
@@ -15,7 +16,9 @@ interface KanbanColumnProps {
   tasks: Task[];
   projectId: string;
   onTaskClick: (task: Task) => void;
-  isDragging?: boolean; // 현재 드래그 중인지
+  onAddClick?: () => void;
+  onTitleUpdate?: (taskId: string, title: string) => void;
+  isDragging?: boolean;
 }
 
 const KanbanColumn = ({
@@ -24,6 +27,8 @@ const KanbanColumn = ({
   tasks,
   projectId,
   onTaskClick,
+  onAddClick,
+  onTitleUpdate,
   isDragging = false,
 }: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
@@ -111,6 +116,11 @@ const KanbanColumn = ({
                   task={task}
                   projectId={projectId}
                   onClick={() => onTaskClick(task)}
+                  onTitleUpdate={
+                    onTitleUpdate
+                      ? (title) => onTitleUpdate(task.id, title)
+                      : undefined
+                  }
                 />
               ))
             : !isOver && (
@@ -118,9 +128,19 @@ const KanbanColumn = ({
                   icon="clipboard"
                   title="작업이 없어요"
                   variant="minimal"
-                  className="py-10"
+                  className="py-6"
                 />
               )}
+
+          {onAddClick && (
+            <button
+              onClick={onAddClick}
+              className="w-full mt-1 py-1.5 flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>작업 추가</span>
+            </button>
+          )}
         </div>
       </SortableContext>
     </div>
