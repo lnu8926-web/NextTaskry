@@ -201,108 +201,35 @@ const MemoView = ({ projectId }: MemoFormProps) => {
           filter: `project_id=eq.${projectId}`,
         },
         async (payload) => {
-          console.log("memo realtime payload");
           if (payload.eventType === "INSERT") {
-            const insertNewMemo = payload.new as ProjectMemo;
-
-            const { data: authorData } = await supabase
-              .from("project_memos")
-              .select(
-                `
-                *,
-                author:users!project_memos_user_id_fkey(
-                  user_id,
-                  user_name,
-                  email
-                )
-              `
-              )
-              .eq("memo_id", insertNewMemo.memo_id)
-              .single();
-
-            const memoWithAuthor = authorData || insertNewMemo;
-
+            const newMemo = payload.new as ProjectMemo;
+            // 내가 추가한 건 이미 로컬 state에 있으므로 중복 방지
             setMemos((prev) => {
-              if (prev.some((m) => m.memo_id === memoWithAuthor.memo_id)) {
-                return prev;
-              }
-
-              const updatedMemos = [memoWithAuthor, ...prev];
-
-              const sortedMemos = updatedMemos.sort((a, b) => {
-                // 1. 고정된 메모가 항상 위로
-                if (a.is_pinned && !b.is_pinned) return -1;
-                if (!a.is_pinned && b.is_pinned) return 1;
-
-                // 2. 사용자 설정에 따른 정렬
-                const dateA = new Date(a.created_at).getTime();
-                const dateB = new Date(b.created_at).getTime();
-
-                if (sort === "newest") {
-                  return dateB - dateA;
-                } else {
-                  return dateA - dateB;
-                }
-              });
-
-              return sortedMemos;
+              if (prev.some((m) => m.memo_id === newMemo.memo_id)) return prev;
+              // author는 API로 가져와서 채움
+              fetchMemos(1);
+              return prev;
             });
           } else if (payload.eventType === "UPDATE") {
             const updatedMemo = payload.new as ProjectMemo;
-
             if (updatedMemo.is_deleted) {
-              console.log(updatedMemo.memo_id);
               setMemos((prev) =>
-                prev.filter((memo) => memo.memo_id !== updatedMemo.memo_id)
+                prev.filter((m) => m.memo_id !== updatedMemo.memo_id)
               );
               return;
             }
-
-            const { data: authorData } = await supabase
-              .from("project_memos")
-              .select(
-                `
-                *,
-                author:users!project_memos_user_id_fkey(
-                  user_id,
-                  user_name,
-                  email
-                )
-              `
+            // 기존 author 유지하고 나머지 필드만 갱신
+            setMemos((prev) =>
+              prev.map((m) =>
+                m.memo_id === updatedMemo.memo_id
+                  ? { ...m, ...updatedMemo }
+                  : m
               )
-              .eq("memo_id", updatedMemo.memo_id)
-              .single();
-
-            const memoWithAuthor = authorData || updatedMemo;
-
-            setMemos((prev) => {
-              const updated = prev.map((memo) =>
-                memo.memo_id === memoWithAuthor.memo_id ? memoWithAuthor : memo
-              );
-
-              const sortedMemos = updated.sort((a, b) => {
-                // 1. 고정된 메모가 항상 위로
-                if (a.is_pinned && !b.is_pinned) return -1;
-                if (!a.is_pinned && b.is_pinned) return 1;
-
-                // 2. 사용자 설정에 따른 정렬
-                const dateA = new Date(a.created_at).getTime();
-                const dateB = new Date(b.created_at).getTime();
-
-                if (sort === "newest") {
-                  return dateB - dateA;
-                } else {
-                  return dateA - dateB;
-                }
-              });
-
-              return sortedMemos;
-            });
+            );
           } else if (payload.eventType === "DELETE") {
             const deletedMemo = payload.old as ProjectMemo;
-            console.log(deletedMemo.memo_id);
             setMemos((prev) =>
-              prev.filter((memo) => memo.memo_id !== deletedMemo.memo_id)
+              prev.filter((m) => m.memo_id !== deletedMemo.memo_id)
             );
           }
         }
@@ -310,10 +237,9 @@ const MemoView = ({ projectId }: MemoFormProps) => {
       .subscribe();
 
     return () => {
-      console.log("memo realtime unsubscribe");
       supabase.removeChannel(channel);
     };
-  }, [projectId, sort]);
+  }, [projectId, fetchMemos]);
 
   // 메모 추가
   const handleAddMemo = async () => {
