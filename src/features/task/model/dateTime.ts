@@ -8,6 +8,8 @@ export const dateTimeUtils = {
     if (!isoString) return { date: "", time: "", hasTime: false };
 
     const [datePart, timePart] = isoString.split("T");
+    if (!timePart) return { date: datePart, time: "", hasTime: false };
+
     const [hours, minutes] = timePart.split(":");
 
     return {
