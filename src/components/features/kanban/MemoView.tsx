@@ -513,9 +513,9 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <div className="h-full flex flex-col bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-border overflow-hidden">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 shadow-sm">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border bg-main-200 dark:bg-main-600 shadow-sm">
         <h2 className="text-sm font-bold text-white dark:text-gray-100">
           메모
         </h2>
@@ -541,7 +541,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
 
       {/* 필터 영역 */}
       {showFilter && (
-        <div className="m-2 p-2.5 border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50 rounded-lg space-y-2.5">
+        <div className="m-2 p-2.5 border border-border bg-muted/40 dark:bg-muted/20 rounded-lg space-y-2.5">
           {/* 작성자 & 고정 필터 */}
           <div className="space-y-1">
             <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">
@@ -663,7 +663,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
       )}
 
       {/* 메모 입력 폼 */}
-      <div className="m-2 p-2.5 border-b border-gray-200 dark:border-gray-700">
+      <div className="m-2 p-2.5 border-b border-border">
         <div className="relative">
           <textarea
             value={newMemo}
