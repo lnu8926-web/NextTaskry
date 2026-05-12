@@ -15,6 +15,7 @@ interface KanbanFilterProps {
   showFilter: boolean;
   taskCount: number;
   totalCount: number;
+  onReset?: () => void;
 }
 
 export type { KanbanFilterType };
@@ -25,15 +26,18 @@ export default function KanbanFilter({
   showFilter,
   taskCount,
   totalCount,
+  onReset,
 }: KanbanFilterProps) {
+  const hasActiveFilter =
+    filter.priority !== "all" || filter.assignee !== "all" || filter.date !== "all";
   if (!showFilter) return null;
 
   return (
-    <div className="mt-4 mb-4 px-5 py-4 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+    <div className="mt-4 mb-4 px-5 py-4 border border-border bg-muted/40 rounded-lg">
       <div className="flex flex-col gap-3">
         {/* 우선순위 */}
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium w-16">
+          <span className="text-sm text-foreground font-medium w-16">
             우선순위
           </span>
           <div className="flex gap-2">
@@ -42,7 +46,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.priority === "all"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               전체
@@ -52,7 +56,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.priority === "high"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               높음
@@ -62,7 +66,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.priority === "normal"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               보통
@@ -72,7 +76,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.priority === "low"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               낮음
@@ -82,7 +86,7 @@ export default function KanbanFilter({
 
         {/* 담당자 */}
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium w-16">
+          <span className="text-sm text-foreground font-medium w-16">
             담당자
           </span>
           <div className="flex gap-2">
@@ -91,7 +95,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.assignee === "all"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               전체
@@ -101,7 +105,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.assignee === "me"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               내 작업
@@ -111,7 +115,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.assignee === "assigned"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               할당됨
@@ -121,7 +125,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.assignee === "unassigned"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               미할당
@@ -131,7 +135,7 @@ export default function KanbanFilter({
 
         {/* 기간 */}
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium w-16">
+          <span className="text-sm text-foreground font-medium w-16">
             기간
           </span>
           <div className="flex gap-2">
@@ -140,7 +144,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.date === "all"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               전체
@@ -150,7 +154,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.date === "today"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               오늘
@@ -160,7 +164,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.date === "thisWeek"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               이번주
@@ -170,7 +174,7 @@ export default function KanbanFilter({
               className={`text-sm px-3 py-1.5 rounded transition-all ${
                 filter.date === "overdue"
                   ? "bg-main-500 text-white"
-                  : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  : "bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               지연
@@ -179,10 +183,23 @@ export default function KanbanFilter({
         </div>
 
         {/* 구분선 + 결과 카운트 */}
-        <div className="pt-3 mt-1 border-t border-gray-200 dark:border-gray-600">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="pt-3 mt-1 border-t border-border flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
             {taskCount}개 / 전체 {totalCount}개
+            {taskCount === 0 && hasActiveFilter && (
+              <span className="ml-2 text-main-600 dark:text-main-400">
+                — 조건에 맞는 작업이 없어요
+              </span>
+            )}
           </span>
+          {hasActiveFilter && onReset && (
+            <button
+              onClick={onReset}
+              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+            >
+              초기화
+            </button>
+          )}
         </div>
       </div>
     </div>

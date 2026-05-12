@@ -11,6 +11,7 @@ interface KanbanHeaderProps {
   onToggleFilter: () => void;
   onToggleHelp: () => void;
   showHelp: boolean;
+  hasActiveFilter?: boolean;
   tasksCount: number;
   project?: {
     project_id?: string;
@@ -27,6 +28,7 @@ export default function KanbanHeader({
   onToggleFilter,
   onToggleHelp,
   showHelp,
+  hasActiveFilter = false,
   tasksCount,
   project,
   onProjectInfoClick,
@@ -142,8 +144,11 @@ export default function KanbanHeader({
             <span className="hidden sm:inline">새 작업</span>
           </button>
 
-          <button onClick={onToggleFilter} className={iconBtn} title="필터">
+          <button onClick={onToggleFilter} className={`${iconBtn} relative`} title="필터">
             <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
+            {hasActiveFilter && (
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-main-500 rounded-full" />
+            )}
           </button>
 
           <button onClick={onToggleHelp} className={iconBtn} title={showHelp ? "도움말 닫기" : "도움말 열기"}>

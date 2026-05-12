@@ -276,10 +276,11 @@ const KanbanBoard = ({
   }, []);
 
   const handleFilterChange = (key: keyof KanbanFilterType, value: string) => {
-    setFilter((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setFilter((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleFilterReset = () => {
+    setFilter({ priority: "all", assignee: "all", date: "all" });
   };
 
   const handleColumnAddClick = useCallback((status: TaskStatus) => {
@@ -327,6 +328,11 @@ const KanbanBoard = ({
           onToggleFilter={() => setShowFilter(!showFilter)}
           onToggleHelp={() => setShowHelp(!showHelp)}
           showHelp={showHelp}
+          hasActiveFilter={
+            filter.priority !== "all" ||
+            filter.assignee !== "all" ||
+            filter.date !== "all"
+          }
           tasksCount={tasks.length}
           project={project}
           onProjectInfoClick={onProjectInfoClick}
@@ -337,13 +343,14 @@ const KanbanBoard = ({
 
         {/* 필터 */}
         {showFilter && (
-          <div className="px-2 sm:px-4">
+          <div className="px-2 sm:px-4 animate-in slide-in-from-top-2 duration-150">
             <KanbanFilterComponent
               filter={filter}
               onFilterChange={handleFilterChange}
               showFilter={showFilter}
               taskCount={filteredTasks.length}
               totalCount={tasks.length}
+              onReset={handleFilterReset}
             />
           </div>
         )}
