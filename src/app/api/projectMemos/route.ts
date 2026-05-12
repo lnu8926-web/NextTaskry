@@ -1,6 +1,8 @@
-import { supabase } from "@/lib/supabase/supabase";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUnifiedAuthUser } from "@/lib/auth/unifiedAuth";
 import type { ProjectMemo } from "@/types/projectMemo";
+
+const supabase = supabaseAdmin;
 
 // ============================================
 // 타입
