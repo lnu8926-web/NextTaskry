@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { ProjectMemo } from "@/types/projectMemo";
+import { ProjectMemo, MemoLabelColor } from "@/types/projectMemo";
 import { supabase } from "@/lib/supabase/supabase";
 import { useSession } from "next-auth/react";
 import { Icon } from "@/components/shared/Icon";
@@ -22,12 +22,32 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ThumbsUp, ThumbsDown, Heart, Flame, Eye } from "lucide-react";
 
 // 메모 최대 길이 제한
 const MEMO_MAX_LENGTH = 5000;
 
 // 필터 타입: 전체, 내 메모, 고정된 메모
 type FilterType = "all" | "mine" | "pinned";
+
+// 메모지 색상 팔레트 (Google Keep 스타일)
+const MEMO_COLORS: { value: MemoLabelColor; card: string; dot: string }[] = [
+  { value: "red",    card: "bg-red-50 dark:bg-red-900/30",       dot: "bg-red-400" },
+  { value: "orange", card: "bg-orange-50 dark:bg-orange-900/30", dot: "bg-orange-400" },
+  { value: "yellow", card: "bg-yellow-50 dark:bg-yellow-900/30", dot: "bg-yellow-400" },
+  { value: "green",  card: "bg-green-50 dark:bg-green-900/30",   dot: "bg-green-400" },
+  { value: "blue",   card: "bg-blue-50 dark:bg-blue-900/30",     dot: "bg-blue-400" },
+  { value: "purple", card: "bg-purple-50 dark:bg-purple-900/30", dot: "bg-purple-400" },
+];
+
+const REACTION_SET = [
+  { key: "thumbsUp",   Icon: ThumbsUp,    label: "동의" },
+  { key: "thumbsDown", Icon: ThumbsDown,  label: "재고 필요" },
+  { key: "heart",      Icon: Heart,       label: "마음에 들어" },
+  { key: "flame",      Icon: Flame,       label: "중요" },
+  { key: "eye",        Icon: Eye,         label: "보고 있어" },
+] as const;
+
 // 정렬 타입: 최신순, 오래된순
 type SortType = "newest" | "oldest";
 
@@ -61,6 +81,10 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   const memoMaxLength = MEMO_MAX_LENGTH;
   const { openModal, closeModal, modalProps } = useModal();
   const [deletingMemoId, setDeletingMemoId] = useState<string | null>(null);
+
+  // === 색상 피커 / 이모지 상태 ===
+  const [colorPickerMemoId, setColorPickerMemoId] = useState<string | null>(null);
+  const [emojiPickerMemoId, setEmojiPickerMemoId] = useState<string | null>(null);
 
   // === 인라인 편집 상태 ===
   const [editingMemoId, setEditingMemoId] = useState<string | null>(null);
@@ -351,6 +375,44 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   // 작성자 확인 함수
   const isAuthor = (memoUserId: string) => {
     return session?.user?.user_id === memoUserId;
+  };
+
+  // 메모지 색상 변경
+  const handleColorChange = async (memoId: string, color: MemoLabelColor) => {
+    setColorPickerMemoId(null);
+    setMemos((prev) =>
+      prev.map((m) => (m.memo_id === memoId ? { ...m, label_color: color } : m))
+    );
+    await fetch(`/api/projectMemos?memoId=${memoId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ label_color: color }),
+    });
+  };
+
+  // 이모지 반응 토글
+  const handleReaction = async (memoId: string, emoji: string) => {
+    if (!session?.user?.user_id) return;
+    const userId = session.user.user_id;
+    setMemos((prev) =>
+      prev.map((m) => {
+        if (m.memo_id !== memoId) return m;
+        const reactions = { ...m.reactions };
+        const users = reactions[emoji] ? [...reactions[emoji]] : [];
+        if (users.includes(userId)) {
+          reactions[emoji] = users.filter((id) => id !== userId);
+          if (reactions[emoji].length === 0) delete reactions[emoji];
+        } else {
+          reactions[emoji] = [...users, userId];
+        }
+        return { ...m, reactions };
+      })
+    );
+    await fetch(`/api/projectMemos?memoId=${memoId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emoji }),
+    });
   };
 
   // 인라인 편집 시작
@@ -698,14 +760,18 @@ const MemoView = ({ projectId }: MemoFormProps) => {
           </div>
         ) : (
           <>
-            {filteredMemos.map((memo) => (
+            {filteredMemos.map((memo) => {
+              const colorStyle = MEMO_COLORS.find((c) => c.value === memo.label_color);
+              const cardClass = colorStyle
+                ? `${colorStyle.card} border border-border`
+                : memo.is_pinned
+                ? "bg-main-50 dark:bg-main-900/30 border-2 border-main-200 dark:border-main-700/50"
+                : "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50";
+
+              return (
               <div
                 key={memo.memo_id}
-                className={`group relative rounded-xl p-3 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
-                  memo.is_pinned
-                    ? "bg-main-50 dark:bg-main-900/30 border-2 border-main-200 dark:border-main-700/50"
-                    : "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50"
-                }`}
+                className={`group relative rounded-xl p-3 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${cardClass}`}
               >
                 {/* 상단: 날짜 + 버튼들 */}
                 <div className="flex items-center justify-between mb-3">
@@ -757,9 +823,35 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                     </span>
                   </div>
 
-                  {/* 편집/삭제 버튼 */}
+                  {/* 편집/색상/삭제 버튼 */}
                   {isAuthor(memo.user_id) && editingMemoId !== memo.memo_id && (
                     <div className="flex items-center gap-1">
+                      {/* 색상 피커 */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setColorPickerMemoId(colorPickerMemoId === memo.memo_id ? null : memo.memo_id)}
+                          className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                          title="메모 색상"
+                        >
+                          <div className={`w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-gray-500 ${colorStyle ? colorStyle.dot : "bg-white dark:bg-gray-700"}`} />
+                        </button>
+                        {colorPickerMemoId === memo.memo_id && (
+                          <div className="absolute right-0 top-8 z-30 bg-card border border-border rounded-xl shadow-lg p-2 flex gap-1.5">
+                            {MEMO_COLORS.map((c) => (
+                              <button
+                                key={c.value}
+                                onClick={() => handleColorChange(memo.memo_id, c.value)}
+                                className={`w-5 h-5 rounded-full ${c.dot} hover:scale-125 transition-transform ${memo.label_color === c.value ? "ring-2 ring-offset-1 ring-gray-400" : ""}`}
+                              />
+                            ))}
+                            <button
+                              onClick={() => handleColorChange(memo.memo_id, null)}
+                              className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-600 hover:scale-125 transition-transform flex items-center justify-center text-[10px] text-gray-500"
+                              title="색상 없음"
+                            >✕</button>
+                          </div>
+                        )}
+                      </div>
                       <button
                         onClick={() => handleStartEdit(memo)}
                         className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:text-main-500 dark:hover:text-main-400 hover:bg-main-50 dark:hover:bg-main-900/20 transition-all"
@@ -837,6 +929,53 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                   </div>
                 )}
 
+                {/* 아이콘 반응 */}
+                <div className="flex items-center gap-1 flex-wrap mb-2 min-h-6">
+                  {/* 기존 반응 */}
+                  {REACTION_SET.map(({ key, Icon: ReactionIcon, label }) => {
+                    const users = memo.reactions?.[key] ?? [];
+                    if (users.length === 0) return null;
+                    const active = users.includes(session?.user?.user_id || "");
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleReaction(memo.memo_id, key)}
+                        title={label}
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition-all ${
+                          active
+                            ? "bg-main-500 dark:bg-main-400 border-main-500 dark:border-main-400 text-white"
+                            : "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/50 text-gray-500 dark:text-gray-400 hover:border-main-300"
+                        }`}
+                      >
+                        <ReactionIcon className="w-3 h-3" />
+                        <span className="font-medium">{users.length}</span>
+                      </button>
+                    );
+                  })}
+                  {/* 반응 추가 버튼 */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setEmojiPickerMemoId(emojiPickerMemoId === memo.memo_id ? null : memo.memo_id)}
+                      className="flex items-center justify-center w-6 h-6 rounded-full text-xs text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 border border-dashed border-gray-300 dark:border-gray-600 transition-all"
+                      title="반응 추가"
+                    >+</button>
+                    {emojiPickerMemoId === memo.memo_id && (
+                      <div className="absolute left-0 bottom-8 z-30 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 flex gap-1">
+                        {REACTION_SET.map(({ key, Icon: ReactionIcon, label }) => (
+                          <button
+                            key={key}
+                            onClick={() => { handleReaction(memo.memo_id, key); setEmojiPickerMemoId(null); }}
+                            title={label}
+                            className="p-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:scale-125 hover:bg-muted/40 transition-all"
+                          >
+                            <ReactionIcon className="w-4 h-4" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* 작성자 */}
                 <div className="flex justify-end">
                   <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/80 dark:bg-gray-800/80 supports-backdrop-filter:bg-white/60 supports-backdrop-filter:dark:bg-gray-800/60 supports-backdrop-filter:backdrop-blur-sm rounded-md text-xs text-gray-600 dark:text-gray-400">
@@ -857,7 +996,8 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                   </span>
                 </div>
               </div>
-            ))}
+              );
+            })}
 
             {/* 더보기 버튼 */}
             {hasMore && (

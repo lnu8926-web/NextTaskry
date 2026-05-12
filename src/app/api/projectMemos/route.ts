@@ -309,40 +309,87 @@ export async function DELETE(request: Request) {
 
 /**
  * PATCH /api/projectMemos
- * 메모 고정/해제
+ * 메모 고정/해제, 이모지 반응 토글, 색상 레이블 변경
  */
 export async function PATCH(request: Request) {
   try {
+    const userId = await getAuthUserId();
     const { searchParams } = new URL(request.url);
     const memoId = searchParams.get("memoId");
     const body = await request.json();
-    const { is_pinned } = body;
 
     if (!memoId) {
       return Response.json({ error: "메모 ID가 필수입니다" }, { status: 400 });
     }
 
-    if (typeof is_pinned !== "boolean") {
-      return Response.json(
-        { error: "is_pinned 값이 필요합니다" },
-        { status: 400 }
-      );
+    // 이모지 반응 토글
+    if (body.emoji !== undefined) {
+      const { data: memo, error: fetchError } = await supabase
+        .from("project_memos")
+        .select("reactions")
+        .eq("memo_id", memoId)
+        .single();
+
+      if (fetchError || !memo) {
+        return Response.json({ error: "메모를 찾을 수 없습니다" }, { status: 404 });
+      }
+
+      const reactions: Record<string, string[]> = memo.reactions || {};
+      const emoji: string = body.emoji;
+      const users = reactions[emoji] || [];
+
+      if (users.includes(userId)) {
+        reactions[emoji] = users.filter((id) => id !== userId);
+        if (reactions[emoji].length === 0) delete reactions[emoji];
+      } else {
+        reactions[emoji] = [...users, userId];
+      }
+
+      const { data, error } = await supabase
+        .from("project_memos")
+        .update({ reactions })
+        .eq("memo_id", memoId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return Response.json(data, { status: 200 });
     }
 
-    const { data, error } = await supabase
-      .from("project_memos")
-      .update({
-        is_pinned,
-        pinned_at: is_pinned ? new Date().toISOString() : null,
-      })
-      .eq("memo_id", memoId)
-      .select()
-      .single();
+    // 색상 레이블 변경 (작성자만)
+    if ("label_color" in body) {
+      const memo = await getMemoById(memoId);
+      checkAuthor(memo, userId);
 
-    if (error) throw error;
+      const { data, error } = await supabase
+        .from("project_memos")
+        .update({ label_color: body.label_color ?? null })
+        .eq("memo_id", memoId)
+        .select()
+        .single();
 
-    return Response.json(data, { status: 200 });
+      if (error) throw error;
+      return Response.json(data, { status: 200 });
+    }
+
+    // 고정/해제
+    if (typeof body.is_pinned === "boolean") {
+      const { data, error } = await supabase
+        .from("project_memos")
+        .update({
+          is_pinned: body.is_pinned,
+          pinned_at: body.is_pinned ? new Date().toISOString() : null,
+        })
+        .eq("memo_id", memoId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return Response.json(data, { status: 200 });
+    }
+
+    return Response.json({ error: "변경할 필드가 없습니다" }, { status: 400 });
   } catch (error) {
-    return errorResponse(error, "메모 고정에 실패했습니다");
+    return errorResponse(error, "메모 업데이트에 실패했습니다");
   }
 }

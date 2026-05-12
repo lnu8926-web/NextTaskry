@@ -7,6 +7,15 @@
 
 // 프로젝트 메모 인터페이스
 
+export type MemoLabelColor =
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "blue"
+  | "purple"
+  | null;
+
 export interface ProjectMemo {
   memo_id: string;
   project_id: string;
@@ -18,6 +27,8 @@ export interface ProjectMemo {
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
+  reactions: Record<string, string[]>;
+  label_color: MemoLabelColor;
   author?: {
     user_id: string;
     user_name: string;
