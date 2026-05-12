@@ -110,6 +110,21 @@ export const getTaskStatusDotColor = (status: TaskStatus) => {
   return colors[status] || colors.todo;
 };
 
+// 월간 캘린더 기간 바 색상
+export const getTaskCalendarBarStyle = (
+  status: TaskStatus,
+  overdue: boolean
+): string => {
+  if (overdue)
+    return "bg-red-400 dark:bg-red-500 text-white";
+  const styles: Record<TaskStatus, string> = {
+    todo: "bg-gray-400 dark:bg-gray-500 text-white",
+    inprogress: "bg-blue-400 dark:bg-blue-500 text-white",
+    done: "bg-green-400 dark:bg-green-500 text-white",
+  };
+  return styles[status] ?? styles.todo;
+};
+
 // 캘린더 호버 리스트용 배경색 (칸반보드와 통일)
 export const getTaskStatusBgColor = (status: TaskStatus) => {
   const styles = {

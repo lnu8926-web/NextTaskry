@@ -431,6 +431,7 @@ export default function CalendarView({
                   setShowTaskDetailModal(true);
                   onSelectTask?.(task);
                 }}
+                onUpdateTask={onUpdateTask}
               />
             </div>
           ) : currentView === "day" ? (
