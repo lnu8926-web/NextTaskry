@@ -291,6 +291,7 @@ export default function ProjectPage() {
   const handleViewChange = (view: NavItem) => {
     if (view === "memo") {
       setShowMemoPanel((prev) => !prev);
+      setShowProjectInfoPanel(false);
     } else if (view === "project") {
       router.push("/");
     } else {
@@ -309,11 +310,53 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
-      <div className="flex-1 flex overflow-hidden gap-2 lg:gap-3 min-h-0 p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto w-full">
+      <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3 w-full">
+
+        {/* 메인 콘텐츠 */}
+        <main className="flex-1 overflow-hidden min-h-0">
+          {currentView === "kanban" && (
+            <KanbanBoard
+              boardId={kanbanBoardId}
+              tasks={tasks}
+              onCreateTask={handleCreateTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
+              project={{
+                project_id: projectId,
+                project_name: projectName,
+                started_at: projectStartDate,
+                ended_at: projectEndDate,
+              }}
+            />
+          )}
+
+          {currentView === "calendar" && (
+            <CalendarView
+              tasks={tasks}
+              boardId={kanbanBoardId}
+              project={{
+                project_id: projectId,
+                project_name: projectName,
+                started_at: projectStartDate,
+                ended_at: projectEndDate,
+              }}
+              onCreateTask={handleCreateTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onSelectTask={() => {}}
+              onTaskCreated={handleRefresh}
+              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
+            />
+          )}
+
+        </main>
+
+        {/* 프로젝트 정보 side panel */}
         <aside
           className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
             showProjectInfoPanel
-              ? `w-[240px] lg:w-[280px] ${showMemoPanel ? "xl:w-[260px]" : "xl:w-[300px]"} opacity-100`
+              ? "w-[300px] lg:w-[340px] opacity-100"
               : "w-0 opacity-0"
           }`}
         >
@@ -327,50 +370,11 @@ export default function ProjectPage() {
           />
         </aside>
 
-        <main className="flex flex-col overflow-hidden transition-all duration-300 min-h-0 flex-1 min-w-0">
-          <div className="flex-1 overflow-hidden min-h-0">
-            {currentView === "kanban" && (
-              <KanbanBoard
-                boardId={kanbanBoardId}
-                tasks={tasks}
-                onCreateTask={handleCreateTask}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-                onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
-                project={{
-                  project_id: projectId,
-                  project_name: projectName,
-                  started_at: projectStartDate,
-                  ended_at: projectEndDate,
-                }}
-              />
-            )}
-
-            {currentView === "calendar" && (
-              <CalendarView
-                tasks={tasks}
-                boardId={kanbanBoardId}
-                project={{
-                  project_id: projectId,
-                  project_name: projectName,
-                  started_at: projectStartDate,
-                  ended_at: projectEndDate,
-                }}
-                onCreateTask={handleCreateTask}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-                onSelectTask={() => {}}
-                onTaskCreated={handleRefresh}
-                onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
-              />
-            )}
-          </div>
-        </main>
-
+        {/* 메모 side panel */}
         <aside
           className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
             showMemoPanel
-              ? `w-[240px] lg:w-[280px] ${showProjectInfoPanel ? "xl:w-[260px]" : "xl:w-[300px]"} opacity-100`
+              ? "w-[300px] lg:w-[360px] opacity-100"
               : "w-0 opacity-0"
           }`}
         >

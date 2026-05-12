@@ -179,9 +179,8 @@ export default function ProjectInfoPanel({
   }, [tasks]);
 
   return (
-    <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-      {/* 헤더 - 칸반 헤더와 동일한 색상 */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 flex items-center justify-between">
+    <div className="h-full bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-border overflow-hidden flex flex-col">
+      <div className="px-4 py-3 border-b border-border bg-main-200 dark:bg-main-600 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Info size={18} className="text-white" />
           <h3 className="font-semibold text-white">프로젝트 정보</h3>
@@ -216,7 +215,7 @@ export default function ProjectInfoPanel({
               <span>프로젝트 기간</span>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 space-y-3">
+            <div className="bg-muted/40 dark:bg-muted/20 rounded-lg p-3 space-y-3">
               {/* 날짜 표시 */}
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">
@@ -290,10 +289,10 @@ export default function ProjectInfoPanel({
             <span>작업 현황</span>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 space-y-3">
+          <div className="bg-muted/40 dark:bg-muted/20 rounded-lg p-3 space-y-3">
             {/* 상태별 개수 */}
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2">
+              <div className="bg-card rounded-lg p-2">
                 <div className="flex items-center justify-center gap-1 text-gray-500 dark:text-gray-400 text-xs mb-1">
                   <Circle size={10} />
                   할일
@@ -302,7 +301,7 @@ export default function ProjectInfoPanel({
                   {stats.todo}
                 </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2">
+              <div className="bg-card rounded-lg p-2">
                 <div className="flex items-center justify-center gap-1 text-blue-500 text-xs mb-1">
                   <PlayCircle size={10} />
                   진행중
@@ -311,7 +310,7 @@ export default function ProjectInfoPanel({
                   {stats.inprogress}
                 </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2">
+              <div className="bg-card rounded-lg p-2">
                 <div className="flex items-center justify-center gap-1 text-green-500 text-xs mb-1">
                   <CheckCircle2 size={10} />
                   완료
@@ -391,7 +390,7 @@ export default function ProjectInfoPanel({
               members.map((member) => (
                 <div
                   key={member.user_id}
-                  className="flex items-center gap-3 px-3 py-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+                  className="flex items-center gap-3 px-3 py-2 bg-muted/40 dark:bg-muted/20 rounded-lg"
                 >
                   {/* 아바타 */}
                   <div className="w-8 h-8 rounded-full bg-main-100 dark:bg-main-900/50 flex items-center justify-center text-main-600 dark:text-main-400 font-medium text-sm">
