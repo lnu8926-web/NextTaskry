@@ -141,3 +141,7 @@ vite.config.ts.timestamp-*
 # Markdown documentation files (except README)
 *.md
 !README.md
+
+
+# .fig
+taskry.fig
