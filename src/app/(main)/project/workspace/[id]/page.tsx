@@ -309,12 +309,50 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
-      <div className="flex-1 flex overflow-hidden gap-2 lg:gap-3 min-h-0 p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto w-full">
+      <div className="flex-1 relative overflow-hidden min-h-0 p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto w-full">
+        {/* 메인 콘텐츠 — 항상 전체 너비 */}
+        <main className="h-full overflow-hidden min-h-0">
+          {currentView === "kanban" && (
+            <KanbanBoard
+              boardId={kanbanBoardId}
+              tasks={tasks}
+              onCreateTask={handleCreateTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
+              project={{
+                project_id: projectId,
+                project_name: projectName,
+                started_at: projectStartDate,
+                ended_at: projectEndDate,
+              }}
+            />
+          )}
+
+          {currentView === "calendar" && (
+            <CalendarView
+              tasks={tasks}
+              boardId={kanbanBoardId}
+              project={{
+                project_id: projectId,
+                project_name: projectName,
+                started_at: projectStartDate,
+                ended_at: projectEndDate,
+              }}
+              onCreateTask={handleCreateTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onSelectTask={() => {}}
+              onTaskCreated={handleRefresh}
+              onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
+            />
+          )}
+        </main>
+
+        {/* 왼쪽 오버레이 — 프로젝트 정보 */}
         <aside
-          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
-            showProjectInfoPanel
-              ? `w-[240px] lg:w-[280px] ${showMemoPanel ? "xl:w-[260px]" : "xl:w-[300px]"} opacity-100`
-              : "w-0 opacity-0"
+          className={`absolute top-0 left-0 h-full z-20 flex flex-col transition-transform duration-300 w-[280px] lg:w-[320px] p-3 sm:p-4 lg:p-5 ${
+            showProjectInfoPanel ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <ProjectInfoPanel
@@ -327,51 +365,10 @@ export default function ProjectPage() {
           />
         </aside>
 
-        <main className="flex flex-col overflow-hidden transition-all duration-300 min-h-0 flex-1 min-w-0">
-          <div className="flex-1 overflow-hidden min-h-0">
-            {currentView === "kanban" && (
-              <KanbanBoard
-                boardId={kanbanBoardId}
-                tasks={tasks}
-                onCreateTask={handleCreateTask}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-                onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
-                project={{
-                  project_id: projectId,
-                  project_name: projectName,
-                  started_at: projectStartDate,
-                  ended_at: projectEndDate,
-                }}
-              />
-            )}
-
-            {currentView === "calendar" && (
-              <CalendarView
-                tasks={tasks}
-                boardId={kanbanBoardId}
-                project={{
-                  project_id: projectId,
-                  project_name: projectName,
-                  started_at: projectStartDate,
-                  ended_at: projectEndDate,
-                }}
-                onCreateTask={handleCreateTask}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-                onSelectTask={() => {}}
-                onTaskCreated={handleRefresh}
-                onProjectInfoClick={() => setShowProjectInfoPanel((prev) => !prev)}
-              />
-            )}
-          </div>
-        </main>
-
+        {/* 오른쪽 오버레이 — 메모 */}
         <aside
-          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
-            showMemoPanel
-              ? `w-[240px] lg:w-[280px] ${showProjectInfoPanel ? "xl:w-[260px]" : "xl:w-[300px]"} opacity-100`
-              : "w-0 opacity-0"
+          className={`absolute top-0 right-0 h-full z-20 flex flex-col transition-transform duration-300 w-[280px] lg:w-[360px] p-3 sm:p-4 lg:p-5 ${
+            showMemoPanel ? "translate-x-0" : "translate-x-full"
           }`}
         >
           <MemoView projectId={projectId} />
