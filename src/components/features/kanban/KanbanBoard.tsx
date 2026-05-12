@@ -454,10 +454,10 @@ function ColumnGrid({
   isDragging: boolean;
 }) {
   return (
-    <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
+    <div className="flex-1 min-h-0 flex flex-col px-(--fluid-px-outer) py-(--fluid-py-outer)">
       <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden bg-[#F0F4F5] dark:bg-muted/20">
-        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
-          <div className="flex gap-4 h-full justify-start sm:justify-center min-w-fit p-4">
+        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto scrollbar-gutter-stable">
+          <div className="flex gap-(--fluid-gap-kanban) h-full justify-start sm:justify-center min-w-fit p-(--fluid-gap-kanban) 2xl:max-w-[1680px] 2xl:mx-auto">
             {KANBAN_COLUMNS.map((column) => (
               <KanbanColumn
                 key={column.id}
