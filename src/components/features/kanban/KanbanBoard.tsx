@@ -311,7 +311,7 @@ const KanbanBoard = ({
   return (
     <KanbanLayout projectId={projectId}>
       {/* 전체 컨테이너 - 캘린더와 동일한 구조 */}
-      <div className="h-full bg-card rounded-lg shadow-sm border border-border overflow-hidden flex flex-col">
+      <div className="h-full bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-border overflow-hidden flex flex-col">
         {/* 칸반 헤더 */}
         <KanbanHeader
           projectName={projectName}
@@ -423,9 +423,9 @@ function ColumnGrid({
 }) {
   return (
     <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
-      <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden bg-muted/40 dark:bg-muted/20">
+      <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden bg-[#F0F4F5] dark:bg-muted/20">
         <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
-          <div className="flex gap-3 sm:gap-4 h-full justify-start sm:justify-center min-w-fit p-3 sm:p-4">
+          <div className="flex gap-4 h-full justify-start sm:justify-center min-w-fit p-4">
             {KANBAN_COLUMNS.map((column) => (
               <KanbanColumn
                 key={column.id}

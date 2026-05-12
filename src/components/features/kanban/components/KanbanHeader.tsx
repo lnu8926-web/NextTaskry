@@ -100,12 +100,12 @@ export default function KanbanHeader({
   const iconBtn = "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors";
 
   return (
-    <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-main-500/5 dark:bg-main-400/5">
+    <div className="px-4 sm:px-6 py-3 sm:py-4 min-h-[60px] border-b border-border bg-main-500/5 dark:bg-main-400/5">
       <div className="flex items-center justify-between gap-4">
         {/* 왼쪽: 프로젝트명 + 기간 */}
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-semibold text-foreground truncate">
+            <h2 className="text-lg font-semibold text-foreground truncate">
               {projectName}
             </h2>
             <button onClick={onProjectInfoClick} className={iconBtn} title="프로젝트 정보">

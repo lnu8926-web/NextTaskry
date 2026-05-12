@@ -41,8 +41,8 @@ const KanbanColumn = ({
     if (isOver) {
       switch (id) {
         case "todo":       return "ring-2 ring-border bg-muted/60";
-        case "inprogress": return "ring-2 ring-main-400 dark:ring-main-500 bg-main-500/5";
-        case "done":       return "ring-2 ring-emerald-400 dark:ring-emerald-500 bg-emerald-50 dark:bg-emerald-900/20";
+        case "inprogress": return "ring-2 ring-main-500 dark:ring-main-400 bg-main-500/5";
+        case "done":       return "ring-2 ring-emerald-500 dark:ring-emerald-400 bg-emerald-500/[0.063] dark:bg-emerald-900/20";
         default:           return "";
       }
     }
@@ -64,13 +64,13 @@ const KanbanColumn = ({
       `}
     >
       {/* 컬럼 헤더 */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border rounded-t-lg bg-muted/40 dark:bg-muted/20">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b border-border rounded-t-lg bg-[#F0F4F5] dark:bg-muted/30">
         <div className="flex items-center gap-2">
           <span
-            className={`w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full ${statusColors.bg}`}
+            className={`w-1.5 h-1.5 rounded-full ${statusColors.bg}`}
           />
           <h3
-            className={`font-semibold text-sm sm:text-base ${statusColors.text}`}
+            className={`font-semibold text-sm ${statusColors.text}`}
           >
             {title}
           </h3>
@@ -100,7 +100,7 @@ const KanbanColumn = ({
         <div
           ref={setNodeRef}
           className={`
-            p-2 sm:p-3 flex flex-col gap-2 sm:gap-3 overflow-y-auto flex-1 transition-all duration-200
+            p-3 flex flex-col gap-2.5 overflow-y-auto flex-1 transition-all duration-200
             ${isOver ? "min-h-[100px]" : ""}
           `}
         >
