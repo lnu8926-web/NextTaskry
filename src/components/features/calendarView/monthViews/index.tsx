@@ -10,6 +10,7 @@ import {
   addDays,
   isSameMonth,
 } from "date-fns";
+
 import { Task } from "@/types/kanban";
 import MonthGrid from "./MonthGrid";
 
@@ -21,6 +22,7 @@ interface MonthViewProps {
   onSelectSlot: (date: Date) => void;
   onSelectRange?: (startDate: Date, endDate: Date) => void;
   onSelectEvent: (task: Task) => void;
+  onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
 }
 
 export default function MonthView({
@@ -31,6 +33,7 @@ export default function MonthView({
   onSelectSlot,
   onSelectRange,
   onSelectEvent,
+  onUpdateTask,
 }: MonthViewProps) {
   // 월의 시작일과 끝일
   const monthStart = useMemo(() => startOfMonth(currentDate), [currentDate]);
@@ -67,37 +70,6 @@ export default function MonthView({
     }
     return result;
   }, [calendarDays]);
-
-  // 날짜별 태스크 그룹핑
-  const tasksByDate = useMemo(() => {
-    const grouped: Record<string, Task[]> = {};
-
-    tasks.forEach((task) => {
-      if (!task.started_at && !task.ended_at) return;
-
-      const startDate = task.started_at
-        ? new Date(task.started_at)
-        : new Date(task.ended_at!);
-      const endDate = task.ended_at
-        ? new Date(task.ended_at)
-        : new Date(task.started_at!);
-
-      // 시작일부터 종료일까지 모든 날짜에 태스크 추가
-      let current = new Date(startDate);
-      current.setHours(0, 0, 0, 0);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-
-      while (current <= end) {
-        const dateKey = format(current, "yyyy-MM-dd");
-        if (!grouped[dateKey]) grouped[dateKey] = [];
-        grouped[dateKey].push(task);
-        current = addDays(current, 1);
-      }
-    });
-
-    return grouped;
-  }, [tasks]);
 
   // 프로젝트 범위 체크
   const isOutsideProjectRange = useCallback(
@@ -144,12 +116,13 @@ export default function MonthView({
       {/* 날짜 그리드 */}
       <MonthGrid
         weeks={weeks}
-        tasksByDate={tasksByDate}
+        tasks={tasks}
         isOutsideProjectRange={isOutsideProjectRange}
         isCurrentMonth={isCurrentMonth}
         onSelectSlot={onSelectSlot}
         onSelectRange={onSelectRange}
         onSelectEvent={onSelectEvent}
+        onUpdateTask={onUpdateTask}
       />
     </div>
   );

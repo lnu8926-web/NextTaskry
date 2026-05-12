@@ -11,12 +11,7 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 import { Task } from "@/types/kanban";
 import { showToast } from "@/lib/utils/toast";
 
-import {
-  getTasksByBoardId,
-  createTask,
-  updateTask,
-  deleteTask,
-} from "@/app/api/tasks/tasks";
+import { getTasksByBoardId } from "@/app/api/tasks/tasks";
 
 import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
@@ -224,9 +219,14 @@ export default function ProjectPage() {
 
   const createTaskMutation = useMutation({
     mutationFn: async (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await createTask(taskData);
-      if (error) throw error;
-      return data;
+      const res = await fetch("/api/kanban/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskData),
+      });
+      if (!res.ok) throw new Error("Failed to create task");
+      const json = await res.json();
+      return json.data as Task;
     },
     onSuccess: (data) => {
       if (data) {
@@ -242,8 +242,12 @@ export default function ProjectPage() {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ taskId, updates }: { taskId: string; updates: Partial<Task> }) => {
-      const { error } = await updateTask(taskId, updates);
-      if (error) throw error;
+      const res = await fetch("/api/kanban/tasks", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, ...updates }),
+      });
+      if (!res.ok) throw new Error("Failed to update task");
       return { taskId, updates };
     },
     onSuccess: ({ taskId, updates }) => {
@@ -255,8 +259,8 @@ export default function ProjectPage() {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (taskId: string) => {
-      const { error } = await deleteTask(taskId);
-      if (error) throw error;
+      const res = await fetch(`/api/kanban/tasks?id=${taskId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete task");
       return taskId;
     },
     onSuccess: (taskId) => {
