@@ -806,17 +806,13 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                     {/* 날짜 */}
                     <span className="text-xs text-gray-400 dark:text-gray-400 font-medium">
                       {(() => {
-                        const utcDate = new Date(memo.created_at);
-                        const kstDate = new Date(
-                          utcDate.getTime() - 9 * 60 * 60 * 1000
-                        );
-                        return kstDate.toLocaleString("ko-KR", {
+                   
+                        return new Date(memo.created_at).toLocaleString("ko-KR", {
                           year: "2-digit",
                           month: "2-digit",
                           day: "2-digit",
                           hour: "2-digit",
                           minute: "2-digit",
-                          second: "2-digit", // 초 추가
                           hour12: false,
                         });
                       })()}
