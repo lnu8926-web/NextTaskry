@@ -53,9 +53,10 @@ type SortType = "newest" | "oldest";
 
 interface MemoFormProps {
   projectId: string;
+  onClose?: () => void;
 }
 
-const MemoView = ({ projectId }: MemoFormProps) => {
+const MemoView = ({ projectId, onClose }: MemoFormProps) => {
   // === 기본 상태 관리 ===
   const [memos, setMemos] = useState<ProjectMemo[]>([]); // 서버에서 받은 원본 메모 목록
   const [newMemo, setNewMemo] = useState(""); // 새 메모 입력 내용
@@ -524,6 +525,16 @@ const MemoView = ({ projectId }: MemoFormProps) => {
               }`}
             />
           </button>
+    {onClose && (
+      <button
+        onClick={onClose}
+        className="p-1.5 hover:bg-white/20 rounded-md transition-colors"
+        title="메모 닫기"
+        aria-label="메모 닫기"
+      >
+        <Icon type="x" size={14} className="text-white" />
+      </button>
+    )}
         </div>
       </div>
 

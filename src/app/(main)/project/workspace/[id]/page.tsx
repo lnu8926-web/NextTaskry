@@ -390,7 +390,7 @@ export default function ProjectPage() {
               : "w-0 opacity-0"
           }`}
         >
-          <MemoView projectId={projectId} />
+          <MemoView projectId={projectId} onClose={()=>setShowMemoPanel(false)} />
         </aside>
       </div>
 
