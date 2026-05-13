@@ -74,7 +74,7 @@ const BottomNavigation = ({
   ];
 
   return (
-    <div className="border-t bg-white dark:bg-gray-900 shadow-lg h-16">
+    <div className="border-t bg-card border-border shadow-lg h-16">
       <div className="flex justify-center h-full items-center">
         {navItems.map((item) => {
           const isActive = activeView === item.id;

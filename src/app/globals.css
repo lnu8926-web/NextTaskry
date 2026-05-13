@@ -143,48 +143,43 @@
 }
 
 .dark {
-  --background: #0D2530;
-  --foreground: #E8F5F7;
-  --card: #1A4A5A;
-  --card-foreground: #E8F5F7;
-  --popover: #1A4A5A;
-  --popover-foreground: #E8F5F7;
-  --primary: #E8F5F7;
-  --primary-foreground: #0D2530;
-  --secondary: #9DD8E3;
-  --secondary-foreground: #0D2530;
-  --muted: #2A6070;
-  --muted-foreground: #9DD8E3;
-  --accent: #6DD5E8;
-  --accent-foreground: #0D2530;
-  --destructive: #EF9A9A;
-  --destructive-foreground: #0D2530;
-  --border: #2A6070;
-  --input: #1A4A5A;
-  --ring: #6DD5E8;
-  --chart-1: #3a6fd8;
+  --background: #0F1117;
+  --foreground: #C8D4DC;
+  --card: #161B27;
+  --card-foreground: #C8D4DC;
+  --popover: #1E2333;
+  --popover-foreground: #C8D4DC;
+  --primary: #C8D4DC;
+  --primary-foreground: #0F1117;
+  --secondary: #6BBAC8;
+  --secondary-foreground: #0F1117;
+  --muted: #1E2535;
+  --muted-foreground: #7A8FA0;
+  --accent: #4FACBA;
+  --accent-foreground: #C8D4DC;
+  --destructive: #F87171;
+  --destructive-foreground: #0F1117;
+  --border: #252D40;
+  --input: #1E2535;
+  --ring: #4FACBA;
   --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: #4db89a;
   --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: #c8a030;
   --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: #9b4fd8;
   --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: #d84a3a;
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: #0D2530;
-  --sidebar-foreground: #E8F5F7;
-  --sidebar-primary: #6DD5E8;
-  --sidebar-primary-foreground: #0D2530;
-  --sidebar-accent: #2A6070;
-  --sidebar-accent-foreground: #E8F5F7;
-  --sidebar-border: #2A6070;
-  --sidebar-ring: #6DD5E8;
+  --sidebar: #0B0F1A;
+  --sidebar-foreground: #C8D4DC;
+  --sidebar-primary: #4FACBA;
+  --sidebar-primary-foreground: #0F1117;
+  --sidebar-accent: #1E2535;
+  --sidebar-accent-foreground: #C8D4DC;
+  --sidebar-border: #252D40;
+  --sidebar-ring: #4FACBA;
 
-  --dark-title: #E8F5F7;
-  --dark-body: #E8F5F7;
-  --dark-description: #9DD8E3;
-  --dark-border: #2A6070;
+  --dark-title: #C8D4DC;
+  --dark-body: #A8B8C2;
+  --dark-description: #7A8FA0;
+  --dark-border: #252D40;
 }
 
 @layer base {

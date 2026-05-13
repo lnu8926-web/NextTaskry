@@ -12,12 +12,12 @@ const modalInnerClasses = clsx(
   "relative w-[calc(100%-2rem)] max-w-xl min-h-(--fluid-modal-min-h)",
   "py-(--fluid-modal-py) px-(--fluid-modal-px)",
   "flex flex-col items-center justify-center",
-  "border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm bg-white dark:bg-gray-800"
+  "border border-border rounded-2xl shadow-sm bg-card"
 );
 const modalIconClasses = clsx(
   "size-15 flex items-center justify-center",
   "absolute -top-8 left-1/2 transform -translate-x-1/2",
-  "shadow-lg rounded-full bg-white dark:bg-gray-800"
+  "shadow-lg rounded-full bg-card"
 );
 
 export default function Modal({
@@ -93,7 +93,7 @@ export default function Modal({
           )}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
           >
             <Icon type="x" />
           </button>
@@ -103,10 +103,10 @@ export default function Modal({
               children
             ) : (
               <>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-2xl font-bold text-foreground">
                   {finalTitle}
                 </h2>
-                <p className="text-base font-medium mt-2 text-gray-700 dark:text-gray-300">
+                <p className="text-base font-medium mt-2 text-muted-foreground">
                   {finalDescription}
                 </p>
 

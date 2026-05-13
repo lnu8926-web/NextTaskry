@@ -541,7 +541,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                 className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
                   filter === "all"
                     ? "bg-main-500 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                    : "bg-muted text-muted-foreground border border-border hover:border-main-400"
                 }`}
               >
                 전체
@@ -551,7 +551,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                 className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
                   filter === "mine"
                     ? "bg-main-500 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                    : "bg-muted text-muted-foreground border border-border hover:border-main-400"
                 }`}
               >
                 내 메모
@@ -561,7 +561,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                 className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors flex items-center justify-center gap-0.5 ${
                   filter === "pinned"
                     ? "bg-main-500 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                    : "bg-muted text-muted-foreground border border-border hover:border-main-400"
                 }`}
               >
                 <Icon type="pin" size={9} />
@@ -586,7 +586,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                 placeholder="메모, 작성자..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-6 pr-6 py-1 text-[11px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 input-focus-style"
+                className="w-full pl-6 pr-6 py-1 text-[11px] bg-input border border-border rounded text-foreground placeholder:text-muted-foreground input-focus-style"
               />
               {searchTerm && (
                 <button
@@ -610,7 +610,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                 className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
                   sort === "newest"
                     ? "bg-main-500 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                    : "bg-muted text-muted-foreground border border-border hover:border-main-400"
                 }`}
               >
                 최신순
@@ -620,7 +620,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                 className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
                   sort === "oldest"
                     ? "bg-main-500 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                    : "bg-muted text-muted-foreground border border-border hover:border-main-400"
                 }`}
               >
                 오래된순
@@ -661,7 +661,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
             placeholder="메모를 입력하세요..."
             disabled={loadingMemos}
             rows={3}
-            className="w-full pt-(--fluid-textarea-p) pb-(--fluid-textarea-p) pl-(--fluid-textarea-p) pr-8 sm:pr-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 rounded-xl resize-none text-sm input-focus-style transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+            className="w-full pt-(--fluid-textarea-p) pb-(--fluid-textarea-p) pl-(--fluid-textarea-p) pr-8 sm:pr-10 border border-border bg-input rounded-xl resize-none text-sm input-focus-style transition-all placeholder:text-muted-foreground text-foreground disabled:opacity-50"
           />
           {newMemo && (
             <button
@@ -892,7 +892,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                       maxLength={MEMO_MAX_LENGTH}
                       disabled={savingEdit}
                       rows={3}
-                      className="w-full p-2 text-sm border border-main-300 dark:border-main-600 bg-white dark:bg-gray-900 rounded-lg resize-none overflow-hidden text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-main-400 dark:focus:ring-main-500 disabled:opacity-50"
+                      className="w-full p-2 text-sm border border-main-300 dark:border-main-600 bg-input rounded-lg resize-none overflow-hidden text-foreground focus:outline-none focus:ring-2 focus:ring-main-400 dark:focus:ring-main-500 disabled:opacity-50"
                     />
                     <div className="flex items-center justify-between mt-1.5">
                       <span className="text-[11px] text-gray-400">{editContent.length} / {MEMO_MAX_LENGTH} · Ctrl+Enter 저장 · Esc 취소</span>

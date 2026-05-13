@@ -309,7 +309,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
+    <div className="flex flex-col h-full bg-background pt-16">
       <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3 w-full">
 
         {/* 메인 콘텐츠 */}
