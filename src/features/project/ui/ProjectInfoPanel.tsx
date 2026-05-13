@@ -201,7 +201,7 @@ export default function ProjectInfoPanel({
             {projectName}
           </h4>
           {projectDescription && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {projectDescription}
             </p>
           )}
@@ -210,7 +210,7 @@ export default function ProjectInfoPanel({
         {/* 프로젝트 기간 & 타임라인 */}
         {timeline && (
           <section className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
               <Calendar size={16} />
               <span>프로젝트 기간</span>
             </div>
@@ -218,10 +218,10 @@ export default function ProjectInfoPanel({
             <div className="bg-muted/40 dark:bg-muted/20 rounded-lg p-3 space-y-3">
               {/* 날짜 표시 */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-muted-foreground">
                   {timeline.startStr}
                 </span>
-                <span className="font-medium text-gray-800 dark:text-gray-200">
+                <span className="font-medium text-foreground">
                   {timeline.status === "before" && (
                     <span className="text-blue-500">
                       시작까지 D-{Math.abs(timeline.elapsedDays)}
@@ -241,14 +241,14 @@ export default function ProjectInfoPanel({
                     <span className="text-red-500">종료됨</span>
                   )}
                 </span>
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-muted-foreground">
                   {timeline.endStr}
                 </span>
               </div>
 
               {/* 타임라인 바 */}
               <div className="relative">
-                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-2 bg-border rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all duration-300 ${
                       timeline.status === "ended"
@@ -274,7 +274,7 @@ export default function ProjectInfoPanel({
               </div>
 
               {/* 기간 정보 */}
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex justify-between text-xs text-muted-foreground">
                 <span>총 {timeline.totalDays}일</span>
                 <span>{timeline.progressPercent}% 경과</span>
               </div>
@@ -284,7 +284,7 @@ export default function ProjectInfoPanel({
 
         {/* 작업 현황 */}
         <section className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <CheckCircle2 size={16} />
             <span>작업 현황</span>
           </div>
@@ -293,7 +293,7 @@ export default function ProjectInfoPanel({
             {/* 상태별 개수 */}
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="bg-card rounded-lg p-2">
-                <div className="flex items-center justify-center gap-1 text-gray-500 dark:text-gray-400 text-xs mb-1">
+                <div className="flex items-center justify-center gap-1 text-muted-foreground text-xs mb-1">
                   <Circle size={10} />
                   할일
                 </div>
@@ -323,11 +323,11 @@ export default function ProjectInfoPanel({
 
             {/* 완료율 바 */}
             <div>
-              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
                 <span>완료율</span>
                 <span className="font-medium">{stats.completionRate}%</span>
               </div>
-              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-border rounded-full overflow-hidden">
                 <div
                   className="h-full bg-green-500 transition-all duration-300"
                   style={{ width: `${stats.completionRate}%` }}
@@ -340,7 +340,7 @@ export default function ProjectInfoPanel({
         {/* 주의 사항 */}
         {(stats.overdue > 0 || stats.todayDue > 0 || stats.upcoming > 0) && (
           <section className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
               <AlertTriangle size={16} />
               <span>주의 사항</span>
             </div>
@@ -373,7 +373,7 @@ export default function ProjectInfoPanel({
 
         {/* 팀원 */}
         <section className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <Users size={16} />
             <span>팀원</span>
             <span className="text-gray-400 dark:text-gray-500">
@@ -399,14 +399,14 @@ export default function ProjectInfoPanel({
                   {/* 정보 */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1">
-                      <span className="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">
+                      <span className="font-medium text-foreground text-sm truncate">
                         {member.users.user_name}
                       </span>
                       {member.role === "leader" && (
                         <Crown size={12} className="text-yellow-500" />
                       )}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {member.users.email}
                     </div>
                   </div>

@@ -301,15 +301,24 @@ export default function ProjectPage() {
   };
 
   if (tasksLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-400 dark:text-gray-500 text-lg">불러오는 중...</p>
-      </div>
+     return (
+      <div className="flex flex-col h-full bg-background pt-16">
+        <div className="flex-1 flex gap-3 p-3 overflow-hidden">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="w-80 shrink-0 bg-card rounded-lg border border-border p-4 flex flex-col gap-3">
+              <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="h-20 bg-muted rounded-lg animate-pulse" />
+              ))}
+            </div>
+          ))}
+        </div>
+    </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
+    <div className="flex flex-col h-full bg-background pt-16">
       <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3 w-full">
 
         {/* 메인 콘텐츠 */}

@@ -74,7 +74,7 @@ const BottomNavigation = ({
   ];
 
   return (
-    <div className="border-t bg-white dark:bg-gray-900 shadow-lg h-16">
+    <div className="border-t bg-card border-border shadow-lg h-16">
       <div className="flex justify-center h-full items-center">
         {navItems.map((item) => {
           const isActive = activeView === item.id;
@@ -88,8 +88,8 @@ const BottomNavigation = ({
                 transition-colors duration-200
                 ${
                   isActive
-                    ? "text-main-200 hover:text-main-200/50 dark:text-main-400 dark:hover:text-main-300"
-                    : "text-main-400 hover:text-main-400/50 dark:text-gray-400 dark:hover:text-gray-200"
+                    ? "text-main-600 dark:text-main-400"
+                    : "text-muted-foreground hover:text-foreground"
                 }
               `}
             >
@@ -104,7 +104,7 @@ const BottomNavigation = ({
 
               {/* 하단 보더 */}
               {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-main-200 dark:bg-main-400" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-main-600 dark:bg-main-400" />
               )}
             </button>
           );

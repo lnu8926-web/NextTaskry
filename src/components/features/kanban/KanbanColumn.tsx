@@ -105,7 +105,7 @@ const KanbanColumn = ({
       `}
     >
       {/* 컬럼 헤더 */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b border-border rounded-t-lg bg-[#F0F4F5] dark:bg-muted/30">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b border-border rounded-t-lg bg-muted/40 dark:bg-muted/30">
         <div className="flex items-center gap-2">
           {collapsible && (
             <button
