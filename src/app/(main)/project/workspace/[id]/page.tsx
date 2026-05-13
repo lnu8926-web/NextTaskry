@@ -302,7 +302,7 @@ export default function ProjectPage() {
 
   if (tasksLoading) {
      return (
-      <div className="flex flex-col h-full bg-background pt-16">
+      <div className="flex flex-col h-full bg-background">
         <div className="flex-1 flex gap-3 p-3 overflow-hidden">
           {[1, 2, 3].map((i) => (
             <div key={i} className="w-80 shrink-0 bg-card rounded-lg border border-border p-4 flex flex-col gap-3">
@@ -318,7 +318,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background pt-16">
+    <div className="flex flex-col h-full bg-background">
       <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3 w-full">
 
         {/* 메인 콘텐츠 */}
