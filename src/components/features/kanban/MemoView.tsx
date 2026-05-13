@@ -808,6 +808,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                       {(() => {
                    
                         return new Date(memo.created_at).toLocaleString("ko-KR", {
+                          timeZone: "Asia/Seoul",
                           year: "2-digit",
                           month: "2-digit",
                           day: "2-digit",
