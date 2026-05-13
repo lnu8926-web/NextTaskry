@@ -13,17 +13,19 @@ import { showToast } from "@/lib/utils/toast";
 
 interface CalendarHeaderProps {
   projectName: string;
-  projectStartedAt?: string;
-  projectEndedAt?: string;
   currentView: View;
   currentDate: Date;
   eventsCount: number;
   showHelp: boolean;
+  showMemo?: boolean;
   showFilter?: boolean;
+  projectStartedAt?: string;
+  projectEndedAt?: string;
   onToggleHelp: () => void;
   onToggleFilter?: () => void;
   onAddTask?: () => void;
   onProjectInfoClick?: () => void;
+  onToggleMemo?: () => void;
 }
 
 export default function CalendarHeader({
@@ -33,8 +35,10 @@ export default function CalendarHeader({
   currentView,
   currentDate,
   eventsCount,
+  showMemo,
   showHelp,
   showFilter,
+  onToggleMemo,
   onToggleHelp,
   onToggleFilter,
   onAddTask,

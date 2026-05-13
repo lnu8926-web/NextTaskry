@@ -45,6 +45,7 @@ interface CalendarViewProps {
     started_at?: string;
     ended_at?: string;
   } | null;
+  showMemoPanel?: boolean;
   onCreateTask?: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
@@ -52,6 +53,7 @@ interface CalendarViewProps {
   onDeleteTask?: (taskId: string) => void;
   onSelectTask?: (task: Task) => void;
   onTaskCreated?: () => void;
+  onToggleMemo?: () => void;
   onProjectInfoClick?: () => void;
 }
 
@@ -59,11 +61,13 @@ export default function CalendarView({
   tasks = [],
   boardId,
   project,
+  showMemoPanel,
   onCreateTask,
   onUpdateTask,
   onDeleteTask,
   onSelectTask,
   onTaskCreated,
+  onToggleMemo,
   onProjectInfoClick,
 }: CalendarViewProps) {
   // 프로젝트 정보 추출
@@ -296,8 +300,10 @@ export default function CalendarView({
           currentDate={currentDate}
           eventsCount={filteredTasks.length}
           showHelp={showHelp}
+          showMemo={showMemoPanel}
           showFilter={showFilter}
           onToggleHelp={() => setShowHelp(!showHelp)}
+          onToggleMemo={onToggleMemo}
           onToggleFilter={() => setShowFilter(!showFilter)}
           onProjectInfoClick={onProjectInfoClick}
           onAddTask={() => {

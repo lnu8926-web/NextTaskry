@@ -39,6 +39,8 @@ interface KanbanBoardProps {
     started_at?: string;
     ended_at?: string;
   } | null;
+  showMemoPanel?: boolean;
+  onToggleMemo?: () => void;
   onCreateTask?: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
@@ -59,6 +61,8 @@ const KanbanBoard = ({
   onSelectTask,
   onTaskCreated,
   onProjectInfoClick,
+  showMemoPanel,
+  onToggleMemo,
 }: KanbanBoardProps) => {
   const projectId = project?.project_id || "";
   const projectName = project?.project_name || "이름 없는 프로젝트";
@@ -333,6 +337,7 @@ const KanbanBoard = ({
           onToggleFilter={() => setShowFilter(!showFilter)}
           onToggleHelp={() => setShowHelp(!showHelp)}
           showHelp={showHelp}
+          showMemo={showMemoPanel}
           hasActiveFilter={
             filter.priority !== "all" ||
             filter.assignee !== "all" ||
@@ -340,6 +345,7 @@ const KanbanBoard = ({
           }
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          onToggleMemo={onToggleMemo}
           tasksCount={tasks.length}
           project={project}
           onProjectInfoClick={onProjectInfoClick}
