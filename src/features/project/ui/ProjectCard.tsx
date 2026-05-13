@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { Icon } from "@/components/shared/Icon";
 import { DeleteDialog } from "./DeleteDialog";
 import { deleteProject, deleteProjectMember } from "../model";
@@ -8,7 +10,7 @@ import { showToast } from "@/lib/utils/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import type { Project, ProjectStatus } from "../model";
-import { Pencil } from "lucide-react";
+import { MoreVertical,Pencil } from "lucide-react";
 
 interface ProjectCardProps {
   project: Project;
@@ -38,6 +40,8 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
   const dot = STATUS_DOT[project.status] ?? STATUS_DOT.active;
   const deadline = formatDeadline(project.ended_at);
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   async function handleDelete() {
     await deleteProject(project.project_id);
     await deleteProjectMember(project.project_id);
@@ -50,6 +54,42 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
       onClick={() => router.push(`/project/workspace/${project.project_id}`)}
       className="group relative flex flex-col bg-white dark:bg-card rounded-[14px] border border-[#bde3ec] dark:border-border p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
     >
+     {/* ⋮ 메뉴 버튼 — 항상 표시 */}
+<div
+  className="absolute top-3 right-3"
+  onClick={(e) => e.stopPropagation()}
+>
+  <button
+    onClick={() => setIsMenuOpen((prev) => !prev)}
+    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-foreground hover:bg-muted/50 transition-colors"
+    aria-label="더보기"
+  >
+    <MoreVertical className="w-4 h-4" />
+  </button>
+
+  {isMenuOpen && (
+    <>
+      {/* 외부 클릭 시 닫기 */}
+      <div
+        className="fixed inset-0 z-10"
+        onClick={() => setIsMenuOpen(false)}
+      />
+      <div className="absolute right-0 top-8 z-20 w-28 bg-card border border-border rounded-xl shadow-lg py-1 overflow-hidden">
+        <button
+          onClick={() => { setIsMenuOpen(false); router.push(`/project/update/${project.project_id}`); }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          수정
+        </button>
+        <div className="[&>button]:w-full [&>button]:flex [&>button]:items-center [&>button]:gap-2 [&>button]:px-3 [&>button]:py-2 [&>button]:text-sm [&>button]:text-red-500 [&>button]:hover:bg-red-50 [&>button]:dark:hover:bg-red-900/20 [&>button]:transition-colors">
+          <DeleteDialog onClick={() => { setIsMenuOpen(false); handleDelete(); }} />
+        </div>
+      </div>
+    </>
+  )}
+</div>
+
       {/* 타입 라벨 */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
@@ -66,7 +106,7 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
         </p>
       </div>
 
-      {/* 마감일 + 멤버 수 + 호버 액션 */}
+      {/* 마감일 + 멤버 수 */}
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">
           {deadline ?? "마감일 없음"}
@@ -77,20 +117,7 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
             <Icon type="users" size={12} />
             {memberCount}명
           </span>
-          <div
-            className="flex items-center gap-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => router.push(`/project/update/${project.project_id}`)}
-              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-main-500 hover:bg-main-500/10 transition-colors"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-            <div className="[&>button]:w-7 [&>button]:h-7 [&>button]:rounded-lg">
-              <DeleteDialog onClick={handleDelete} />
-            </div>
-          </div>
+   
         </div>
       </div>
     </div>
