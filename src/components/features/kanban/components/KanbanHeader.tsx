@@ -4,39 +4,43 @@ import { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { showToast } from "@/lib/utils/toast";
-import { Info, SlidersHorizontal, HelpCircle, Plus, Search, X } from "lucide-react";
+import { Info, SlidersHorizontal, HelpCircle, Plus, Search, X, StickyNote } from "lucide-react";
 
 interface KanbanHeaderProps {
   projectName: string;
-  onAddClick: () => void;
-  onToggleFilter: () => void;
-  onToggleHelp: () => void;
-  showHelp: boolean;
-  hasActiveFilter?: boolean;
-  searchQuery?: string;
-  onSearchChange?: (q: string) => void;
-  tasksCount: number;
   project?: {
     project_id?: string;
     project_name: string;
     started_at?: string;
     ended_at?: string;
   } | null;
+  showHelp: boolean;
+  showMemo?: boolean;
+  tasksCount: number;
+  searchQuery?: string;
+  hasActiveFilter?: boolean;
+  onAddClick: () => void;
+  onToggleHelp: () => void;
+  onToggleMemo?: () => void;
+  onToggleFilter: () => void;
   onProjectInfoClick?: () => void;
+  onSearchChange?: (q: string) => void;
 }
 
 export default function KanbanHeader({
+  project,
   projectName,
+  showHelp,
+  showMemo,
+  tasksCount,
+  searchQuery = "",
+  hasActiveFilter = false,
   onAddClick,
   onToggleFilter,
   onToggleHelp,
-  showHelp,
-  hasActiveFilter = false,
-  searchQuery = "",
   onSearchChange,
-  tasksCount,
-  project,
   onProjectInfoClick,
+  onToggleMemo,
 }: KanbanHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -177,6 +181,18 @@ export default function KanbanHeader({
               <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-main-500 rounded-full" />
             )}
           </button>
+
+        {onToggleMemo && (
+          <button
+            onClick={onToggleMemo}
+            className={`${iconBtn} ${showMemo ? "text-main-500 dark:text-main-400 bg-main-500/10" : ""}`}
+            title={showMemo ? "메모 닫기" : "메모 열기"}
+            aria-label={showMemo ? "메모 닫기" : "메모 열기"}
+          >
+            <StickyNote className="w-4 h-4" />
+          </button>
+        )}
+
 
           <button onClick={onToggleHelp} className={iconBtn} title={showHelp ? "도움말 닫기" : "도움말 열기"} aria-label={showHelp ? "도움말 닫기" : "도움말 열기"}>
             <HelpCircle className={`w-4 h-4 transition-colors ${showHelp ? "text-main-500 dark:text-main-400" : ""}`} />

@@ -296,7 +296,6 @@ export default function ProjectPage() {
       router.push("/");
     } else {
       setCurrentView(view);
-      setShowMemoPanel(false);
     }
   };
 
@@ -330,6 +329,8 @@ export default function ProjectPage() {
               onCreateTask={handleCreateTask}
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
+              onToggleMemo={()=>{setShowMemoPanel((prev)=>!prev)}}
+              showMemoPanel={showMemoPanel}
               onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
               project={{
                 project_id: projectId,
@@ -355,6 +356,8 @@ export default function ProjectPage() {
               onDeleteTask={handleDeleteTask}
               onSelectTask={() => {}}
               onTaskCreated={handleRefresh}
+              onToggleMemo={()=>{setShowMemoPanel((prev)=>!prev)}}
+              showMemoPanel={showMemoPanel}
               onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
             />
           )}
@@ -387,7 +390,7 @@ export default function ProjectPage() {
               : "w-0 opacity-0"
           }`}
         >
-          <MemoView projectId={projectId} />
+          <MemoView projectId={projectId} onClose={()=>setShowMemoPanel(false)} />
         </aside>
       </div>
 
