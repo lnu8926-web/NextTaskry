@@ -403,12 +403,7 @@ const KanbanBoard = ({
         </DndContext>
 
         {/* 하단: 통계 + 범례 */}
-        <div className="sm:hidden">
-          <KanbanLegend tasks={tasks} compact />
-        </div>
-        <div className="hidden sm:block">
-          <KanbanLegend tasks={tasks} />
-        </div>
+        <KanbanLegend tasks={tasks} />
       </div>
 
       <SidePanel isOpen={!!selectedTask} onClose={() => setSelectedTask(null)}>
