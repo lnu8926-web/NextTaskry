@@ -284,7 +284,7 @@ export default function CalendarView({
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+      <div className="h-full bg-card rounded-lg shadow-lg border border-border overflow-hidden flex flex-col">
         {/* 캘린더 헤더 */}
         <CalendarHeader
           projectName={projectName}
@@ -327,16 +327,16 @@ export default function CalendarView({
 
         {/* 캘린더 본체 */}
         <div className="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
-          {currentView === "week" ? (
-            // 커스텀 주간 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+          <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden">
+            {/* 네비게이션 툴바 — 뷰와 무관하게 단일 렌더링 */}
+            <CalendarNavigation
+              currentDate={currentDate}
+              currentView={currentView}
+              onNavigate={handleNavigate}
+              onViewChange={setCurrentView}
+            />
+
+            {currentView === "week" ? (
               <WeekView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -377,17 +377,7 @@ export default function CalendarView({
                   onSelectTask?.(task);
                 }}
               />
-            </div>
-          ) : currentView === "month" ? (
-            // 커스텀 월간 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+            ) : currentView === "month" ? (
               <MonthView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -433,17 +423,7 @@ export default function CalendarView({
                 }}
                 onUpdateTask={onUpdateTask}
               />
-            </div>
-          ) : currentView === "day" ? (
-            // 커스텀 일간 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+            ) : currentView === "day" ? (
               <DayView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -483,17 +463,7 @@ export default function CalendarView({
                   onSelectTask?.(task);
                 }}
               />
-            </div>
-          ) : (
-            // 커스텀 일정(Agenda) 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+            ) : (
               <AgendaView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -521,8 +491,8 @@ export default function CalendarView({
                   onSelectTask?.(task);
                 }}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* 하단: 통계 */}

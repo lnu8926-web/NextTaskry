@@ -44,7 +44,6 @@ export default function CalendarHeader({
   onAddTask,
   onProjectInfoClick,
 }: CalendarHeaderProps) {
-  console.log(projectName);
   // 뷰별 날짜 포맷
   const getDateFormat = () => {
     switch (currentView) {
@@ -252,6 +251,20 @@ export default function CalendarHeader({
             >
               <span className="hidden sm:inline">+ 새 작업</span>
               <span className="sm:hidden">+</span>
+            </button>
+          )}
+
+          {/* 메모 버튼 */}
+          {onToggleMemo && (
+            <button
+              onClick={onToggleMemo}
+              className={`p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-colors ${showMemo ? "bg-white/20" : ""}`}
+              title={showMemo ? "메모 닫기" : "메모 열기"}
+              aria-label={showMemo ? "메모 닫기" : "메모 열기"}
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
             </button>
           )}
 
