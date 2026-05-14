@@ -5,6 +5,8 @@ import { Header } from "@/components/layout/Header";
 import Provider from "@/providers/providers";
 import Toaster from "@/components/ui/Toaster";
 import AuthProviders from "@/providers/AuthProviders";
+import { WorkspaceNavProvider } from "@/providers/WorkspaceNavProvider";
+import AppSidebar from "@/components/layout/AppSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +36,16 @@ export default function RootLayout({
       >
         <Provider>
           <AuthProviders>
-            <div className="h-full flex flex-col">
-              <Header />
-              <div className="flex-1 min-w-0 overflow-auto scrollbar-gutter-stable pt-16">{children}</div>
-              <Toaster />
-            </div>
+            <WorkspaceNavProvider>
+              <div className="h-full flex flex-col">
+                <Header />
+                <div className="flex-1 min-w-0 flex overflow-hidden pt-16">
+                  <AppSidebar />
+                  <div className="flex-1 overflow-auto scrollbar-gutter-stable">{children}</div>
+                </div>
+                <Toaster />
+              </div>
+            </WorkspaceNavProvider>
           </AuthProviders>
         </Provider>
       </body>

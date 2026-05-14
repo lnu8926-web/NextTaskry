@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { queryKeys } from "@/lib/constants/queryKeys";
 
 import BottomNavigation from "@/components/layout/BottomNavigation";
+import { useWorkspaceNav } from "@/providers/WorkspaceNavProvider";
 
 import { Task } from "@/types/kanban";
 import { showToast } from "@/lib/utils/toast";
@@ -37,9 +38,9 @@ export default function ProjectPage() {
   const queryClient = useQueryClient();
 
   const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
-  const [currentView, setCurrentView] = useState<NavItem>("kanban");
-  const [showMemoPanel, setShowMemoPanel] = useState(false);
   const [showProjectInfoPanel, setShowProjectInfoPanel] = useState(false);
+
+  const { currentView, showMemoPanel, setView, toggleMemo, closeMemo, setProjectContext, clearWorkspace } = useWorkspaceNav();
 
   const userId = session?.user?.user_id;
   const taskQueryKey = queryKeys.tasks.list(projectId);
@@ -288,14 +289,23 @@ export default function ProjectPage() {
     queryClient.invalidateQueries({ queryKey: taskQueryKey });
   };
 
+  useEffect(() => {
+    if (projectName) setProjectContext(projectName);
+  }, [projectName, setProjectContext]);
+
+  useEffect(() => {
+    return () => clearWorkspace();
+  }, [clearWorkspace]);
+
   const handleViewChange = (view: NavItem) => {
     if (view === "memo") {
-      setShowMemoPanel((prev) => !prev);
+      toggleMemo();
       setShowProjectInfoPanel(false);
     } else if (view === "project") {
       router.push("/");
     } else {
-      setCurrentView(view);
+      setView(view as "kanban" | "calendar");
+      setShowProjectInfoPanel(false);
     }
   };
 
@@ -318,7 +328,7 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3 w-full">
+      <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3">
 
         {/* 메인 콘텐츠 */}
         <main className="flex-1 overflow-hidden min-h-0">
@@ -329,9 +339,9 @@ export default function ProjectPage() {
               onCreateTask={handleCreateTask}
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
-              onToggleMemo={()=>{setShowMemoPanel((prev)=>!prev)}}
+              onToggleMemo={toggleMemo}
               showMemoPanel={showMemoPanel}
-              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
+              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); closeMemo(); }}
               project={{
                 project_id: projectId,
                 project_name: projectName,
@@ -356,12 +366,11 @@ export default function ProjectPage() {
               onDeleteTask={handleDeleteTask}
               onSelectTask={() => {}}
               onTaskCreated={handleRefresh}
-              onToggleMemo={()=>{setShowMemoPanel((prev)=>!prev)}}
+              onToggleMemo={toggleMemo}
               showMemoPanel={showMemoPanel}
-              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
+              onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); closeMemo(); }}
             />
           )}
-
         </main>
 
         {/* 프로젝트 정보 side panel */}
@@ -390,11 +399,11 @@ export default function ProjectPage() {
               : "w-0 opacity-0"
           }`}
         >
-          <MemoView projectId={projectId} onClose={()=>setShowMemoPanel(false)} />
+          <MemoView projectId={projectId} onClose={closeMemo} />
         </aside>
       </div>
 
-      <div className="shrink-0">
+      <div className="shrink-0 md:hidden">
         <BottomNavigation
           activeView={showMemoPanel ? "memo" : currentView}
           onViewChange={handleViewChange}
