@@ -388,7 +388,7 @@ export default function TaskAdd({
       </div>
 
       {/* 액션 버튼 - Sticky Footer */}
-      <div className="task-form-footer flex justify-end gap-3 pt-4 bg-white dark:bg-gray-800">
+      <div className="task-form-footer flex justify-end gap-3 pt-4">
         <Button
           btnType="basic"
           variant="basic"
