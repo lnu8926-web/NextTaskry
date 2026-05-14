@@ -77,7 +77,7 @@ export default function AppSidebar() {
   };
 
   return (
-    <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-border bg-card overflow-y-auto">
+    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-card overflow-y-auto">
       <nav className="p-2 space-y-0.5">
         <p className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">메뉴</p>
 
