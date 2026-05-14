@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 
 // 타입
-import { Task, TaskPriority } from "@/types/kanban";
+import { Task } from "@/types/kanban";
 
 // 컴포넌트
 import Modal from "@/components/ui/Modal";
@@ -15,7 +15,7 @@ import { TaskDetail } from "@/features/task";
 import CalendarHeader from "@/components/features/calendarView/components/CalendarHeader";
 import CalendarHelp from "@/components/features/calendarView/components/CalendarHelp";
 import CalendarStats from "@/components/features/calendarView/components/CalendarStats";
-import CalendarFilter from "@/components/features/calendarView/components/CalendarFilter";
+import WorkspaceFilter, { WorkspaceFilterType } from "@/components/shared/WorkspaceFilter";
 import CalendarNavigation from "@/components/features/calendarView/components/CalendarNavigation";
 import WeekView from "@/components/features/calendarView/weekViews";
 import MonthView from "@/components/features/calendarView/monthViews";
@@ -29,12 +29,6 @@ import { useCalendarKeyboard } from "@/hooks/calendar/useCalendarKeyboard";
 // 유틸
 import { showToast } from "@/lib/utils/toast";
 
-// 필터 인터페이스
-interface CalendarFilter {
-  priority: TaskPriority | "all";
-  assignee: "all" | "assigned" | "unassigned" | "me";
-  date: "all" | "today" | "thisWeek" | "overdue";
-}
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -122,7 +116,7 @@ export default function CalendarView({
 
   // 필터 상태
   const [showFilter, setShowFilter] = useState(false);
-  const [filter, setFilter] = useState<CalendarFilter>({
+  const [filter, setFilter] = useState<WorkspaceFilterType>({
     priority: "all",
     assignee: "all",
     date: "all",
@@ -214,7 +208,7 @@ export default function CalendarView({
    * 필터 변경 핸들러
    */
   const handleFilterChange = useCallback(
-    (newFilter: Partial<CalendarFilter>) => {
+    (newFilter: Partial<WorkspaceFilterType>) => {
       setFilter((prev) => ({ ...prev, ...newFilter }));
     },
     []
@@ -290,7 +284,7 @@ export default function CalendarView({
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+      <div className="h-full bg-card rounded-lg shadow-lg border border-border overflow-hidden flex flex-col">
         {/* 캘린더 헤더 */}
         <CalendarHeader
           projectName={projectName}
@@ -322,7 +316,7 @@ export default function CalendarView({
         {/* 필터 */}
         {showFilter && (
           <div className="px-2 sm:px-4">
-            <CalendarFilter
+            <WorkspaceFilter
               filter={filter}
               onFilterChange={handleFilterChange}
               taskCount={filteredTasks.length}
@@ -333,16 +327,16 @@ export default function CalendarView({
 
         {/* 캘린더 본체 */}
         <div className="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
-          {currentView === "week" ? (
-            // 커스텀 주간 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+          <div className="h-full flex flex-col rounded-lg border border-border overflow-hidden">
+            {/* 네비게이션 툴바 — 뷰와 무관하게 단일 렌더링 */}
+            <CalendarNavigation
+              currentDate={currentDate}
+              currentView={currentView}
+              onNavigate={handleNavigate}
+              onViewChange={setCurrentView}
+            />
+
+            {currentView === "week" ? (
               <WeekView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -383,17 +377,7 @@ export default function CalendarView({
                   onSelectTask?.(task);
                 }}
               />
-            </div>
-          ) : currentView === "month" ? (
-            // 커스텀 월간 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+            ) : currentView === "month" ? (
               <MonthView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -439,17 +423,7 @@ export default function CalendarView({
                 }}
                 onUpdateTask={onUpdateTask}
               />
-            </div>
-          ) : currentView === "day" ? (
-            // 커스텀 일간 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+            ) : currentView === "day" ? (
               <DayView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -489,17 +463,7 @@ export default function CalendarView({
                   onSelectTask?.(task);
                 }}
               />
-            </div>
-          ) : (
-            // 커스텀 일정(Agenda) 뷰
-            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              {/* 네비게이션 툴바 */}
-              <CalendarNavigation
-                currentDate={currentDate}
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                onViewChange={setCurrentView}
-              />
+            ) : (
               <AgendaView
                 tasks={filteredTasks}
                 currentDate={currentDate}
@@ -527,8 +491,8 @@ export default function CalendarView({
                   onSelectTask?.(task);
                 }}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* 하단: 통계 */}

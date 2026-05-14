@@ -15,13 +15,9 @@ import PriorityBadge from "@/features/task/ui/fields/PriorityBadge";
 
 interface KanbanLegendProps {
   tasks?: Task[];
-  compact?: boolean;
 }
 
-export default function KanbanLegend({
-  tasks = [],
-  compact = false,
-}: KanbanLegendProps) {
+export default function KanbanLegend({ tasks = [] }: KanbanLegendProps) {
   // 태스크 통계 계산
   const stats = useMemo(() => {
     const now = new Date();
@@ -72,59 +68,46 @@ export default function KanbanLegend({
   const total = stats.todo + stats.inprogress + stats.done;
   const completionRate = total > 0 ? Math.round((stats.done / total) * 100) : 0;
 
-  if (compact) {
-    // 컴팩트 모드 (모바일용)
-    return (
-      <div className="flex items-center gap-3 px-3 py-2 bg-muted/40 border-t border-border">
-        <div className="flex items-center gap-2 text-xs">
-          {/* 통계 */}
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-            <span className="text-muted-foreground">{stats.todo}</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-            <span className="text-muted-foreground">{stats.inprogress}</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span className="text-muted-foreground">{stats.done}</span>
-          </span>
-          {stats.overdue > 0 && (
-            <span className="flex items-center gap-1 text-red-500">
-              <span className="w-2 h-2 rounded-full bg-red-500"></span>
-              <span>{stats.overdue}</span>
-            </span>
-          )}
-          {stats.urgent > 0 && (
-            <span className="flex items-center gap-1 text-orange-500">
-              <AlertTriangle size={10} />
-              <span>{stats.urgent}</span>
-            </span>
-          )}
-          {/* 구분선 */}
-          <span className="text-gray-300 dark:text-gray-600">|</span>
-          {/* 범례 */}
-          <span className="w-1 h-3 bg-red-500 rounded-sm" title="지연" />
-          <span className="w-1 h-3 bg-green-500 rounded-sm" title="완료" />
-          <span className="text-gray-300 dark:text-gray-600">|</span>
-          {/* 우선순위 */}
-          <span className="text-red-500">▲</span>
-          <span className="text-yellow-500">▲</span>
-          <span className="text-green-500">▲</span>
-        </div>
-        <div className="ml-auto text-xs font-medium text-gray-700 dark:text-gray-300">
-          {completionRate}%
-        </div>
-      </div>
-    );
-  }
-
-  // 기본 모드
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-muted/40 border-t border-border">
-      {/* 왼쪽: 통계 + 범례 */}
-      <div className="flex items-center gap-4 sm:gap-6 text-sm flex-wrap">
+      {/* 모바일 compact 뷰 */}
+      <div className="flex sm:hidden items-center gap-2 text-xs">
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-gray-500" />
+          <span className="text-muted-foreground">{stats.todo}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-blue-500" />
+          <span className="text-muted-foreground">{stats.inprogress}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="text-muted-foreground">{stats.done}</span>
+        </span>
+        {stats.overdue > 0 && (
+          <span className="flex items-center gap-1 text-red-500">
+            <span className="w-2 h-2 rounded-full bg-red-500" />
+            <span>{stats.overdue}</span>
+          </span>
+        )}
+        {stats.urgent > 0 && (
+          <span className="flex items-center gap-1 text-orange-500">
+            <AlertTriangle size={10} />
+            <span>{stats.urgent}</span>
+          </span>
+        )}
+        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <span className="w-1 h-3 bg-red-500 rounded-sm" title="지연" />
+        <span className="w-1 h-3 bg-green-500 rounded-sm" title="완료" />
+        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <span className="text-red-500">▲</span>
+        <span className="text-yellow-500">▲</span>
+        <span className="text-green-500">▲</span>
+        <span className="ml-2 font-medium text-gray-700 dark:text-gray-300">{completionRate}%</span>
+      </div>
+
+      {/* 데스크탑 full 뷰 */}
+      <div className="hidden sm:flex items-center gap-4 sm:gap-6 text-sm flex-wrap">
         {/* 상태별 통계 */}
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-gray-500"></span>
@@ -196,8 +179,8 @@ export default function KanbanLegend({
         </div>
       </div>
 
-      {/* 오른쪽: 진행률 */}
-      <div className="flex items-center gap-3">
+      {/* 데스크탑: 진행률 */}
+      <div className="hidden sm:flex items-center gap-3">
         <div className="hidden sm:block w-24 h-2 bg-border rounded-full overflow-hidden">
           <div
             className="h-full bg-main-500 transition-all duration-300"

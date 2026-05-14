@@ -26,7 +26,7 @@ export default function SidePanel({ isOpen, onClose, children }: SidePanelProps)
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-200 ${
+        className={`fixed inset-x-0 top-16 bottom-0 bg-black/30 z-40 transition-opacity duration-200 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -35,15 +35,17 @@ export default function SidePanel({ isOpen, onClose, children }: SidePanelProps)
       {/* Panel */}
       <div
         className={`
-          fixed right-0 top-0 h-full z-50
+          fixed right-0 top-16 h-[calc(100vh-4rem)] z-50
           w-full sm:w-[480px]
           bg-card border-l border-border shadow-2xl
           transition-transform duration-300 ease-in-out
-          overflow-y-auto
+          flex flex-col overflow-hidden
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
-        {children}
+        <div className="flex-1 min-h-0 p-4 sm:p-6 overflow-hidden">
+          {children}
+        </div>
       </div>
     </>
   );

@@ -23,6 +23,7 @@ import Button from "@/components/ui/Button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ThumbsUp, ThumbsDown, Heart, Flame, Eye } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 
 // 메모 최대 길이 제한
 const MEMO_MAX_LENGTH = 5000;
@@ -835,31 +836,33 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
                   {isAuthor(memo.user_id) && editingMemoId !== memo.memo_id && (
                     <div className="flex items-center gap-1">
                       {/* 색상 피커 */}
-                      <div className="relative">
-                        <button
-                          onClick={() => setColorPickerMemoId(colorPickerMemoId === memo.memo_id ? null : memo.memo_id)}
-                          className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-                          title="메모 색상"
-                        >
-                          <div className={`w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-gray-500 ${colorStyle ? colorStyle.dot : "bg-white dark:bg-gray-700"}`} />
-                        </button>
-                        {colorPickerMemoId === memo.memo_id && (
-                          <div className="absolute right-0 top-8 z-30 bg-card border border-border rounded-xl shadow-lg p-2 flex gap-1.5">
-                            {MEMO_COLORS.map((c) => (
-                              <button
-                                key={c.value}
-                                onClick={() => handleColorChange(memo.memo_id, c.value)}
-                                className={`w-5 h-5 rounded-full ${c.dot} hover:scale-125 transition-transform ${memo.label_color === c.value ? "ring-2 ring-offset-1 ring-gray-400" : ""}`}
-                              />
-                            ))}
+                      <Popover
+                        open={colorPickerMemoId === memo.memo_id}
+                        onOpenChange={(open) => setColorPickerMemoId(open ? memo.memo_id : null)}
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                            title="메모 색상"
+                          >
+                            <div className={`w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-gray-500 ${colorStyle ? colorStyle.dot : "bg-white dark:bg-gray-700"}`} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent align="end" side="bottom" className="z-50 bg-card border border-border rounded-xl shadow-lg p-2 flex gap-1.5 w-auto">
+                          {MEMO_COLORS.map((c) => (
                             <button
-                              onClick={() => handleColorChange(memo.memo_id, null)}
-                              className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-600 hover:scale-125 transition-transform flex items-center justify-center text-[10px] text-gray-500"
-                              title="색상 없음"
-                            >✕</button>
-                          </div>
-                        )}
-                      </div>
+                              key={c.value}
+                              onClick={() => handleColorChange(memo.memo_id, c.value)}
+                              className={`w-5 h-5 rounded-full ${c.dot} hover:scale-125 transition-transform ${memo.label_color === c.value ? "ring-2 ring-offset-1 ring-gray-400" : ""}`}
+                            />
+                          ))}
+                          <button
+                            onClick={() => handleColorChange(memo.memo_id, null as unknown as MemoLabelColor)}
+                            className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-600 hover:scale-125 transition-transform flex items-center justify-center text-[10px] text-gray-500"
+                            title="색상 없음"
+                          >✕</button>
+                        </PopoverContent>
+                      </Popover>
                       <button
                         onClick={() => handleStartEdit(memo)}
                         className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:text-main-500 dark:hover:text-main-400 hover:bg-main-50 dark:hover:bg-main-900/20 transition-all"
@@ -961,27 +964,29 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
                     );
                   })}
                   {/* 반응 추가 버튼 */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setEmojiPickerMemoId(emojiPickerMemoId === memo.memo_id ? null : memo.memo_id)}
-                      className="flex items-center justify-center w-6 h-6 rounded-full text-xs text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 border border-dashed border-gray-300 dark:border-gray-600 transition-all"
-                      title="반응 추가"
-                    >+</button>
-                    {emojiPickerMemoId === memo.memo_id && (
-                      <div className="absolute left-0 bottom-8 z-30 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 flex gap-1">
-                        {REACTION_SET.map(({ key, Icon: ReactionIcon, label }) => (
-                          <button
-                            key={key}
-                            onClick={() => { handleReaction(memo.memo_id, key); setEmojiPickerMemoId(null); }}
-                            title={label}
-                            className="p-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:scale-125 hover:bg-muted/40 transition-all"
-                          >
-                            <ReactionIcon className="w-4 h-4" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <Popover
+                    open={emojiPickerMemoId === memo.memo_id}
+                    onOpenChange={(open) => setEmojiPickerMemoId(open ? memo.memo_id : null)}
+                  >
+                    <PopoverTrigger asChild>
+                      <button
+                        className="flex items-center justify-center w-6 h-6 rounded-full text-xs text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 border border-dashed border-gray-300 dark:border-gray-600 transition-all"
+                        title="반응 추가"
+                      >+</button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" side="top" className="z-50 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 flex gap-1 w-auto">
+                      {REACTION_SET.map(({ key, Icon: ReactionIcon, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => { handleReaction(memo.memo_id, key); setEmojiPickerMemoId(null); }}
+                          title={label}
+                          className="p-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:scale-125 hover:bg-muted/40 transition-all"
+                        >
+                          <ReactionIcon className="w-4 h-4" />
+                        </button>
+                      ))}
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 {/* 작성자 */}

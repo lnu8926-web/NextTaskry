@@ -96,30 +96,11 @@ export default function ProjectBoard() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-[calc(100vh-400px)]">
-        <span className="text-lg text-gray-500">
+      <div className="flex justify-center items-center py-24">
+        <span className="text-lg text-muted-foreground">
           프로젝트를 불러오는 중입니다...
         </span>
       </div>
-      // <div className="pb-10">
-      //   <div className="h-[calc(100vh-400px)] overflow-y-auto">
-      //     <div
-      //         className="
-      //           grid
-      //           grid-cols-1
-      //           sm:grid-cols-1
-      //           md:grid-cols-2
-      //           lg:grid-cols-3
-      //           gap-4"
-      //       >
-      //         {Array.from({length: 12}).map((_, index) => {
-      //           return (
-      //             <ProjectCardSkeleton key={index} />
-      //           );
-      //         })}
-      //       </div>
-      //     </div>
-      //   </div>
     );
   }
 
@@ -132,28 +113,22 @@ export default function ProjectBoard() {
   }
 
   return (
-    <div className="pb-10">
-      <div className="h-[calc(100vh-400px)] overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sortedProjectList.map((project, index) => {
-            return (
-              <ProjectCard
-                key={index}
-                project={project}
-                projectMember={projectMember}
-              />
-            );
-          })}
-        </div>
+    <div className="pb-10 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {sortedProjectList.map((project, index) => (
+          <ProjectCard
+            key={index}
+            project={project}
+            projectMember={projectMember}
+          />
+        ))}
       </div>
-      <div>
-        <CommonPagination
-          currentPage={currentPage}
-          totalPages={totalPage}
-          onPageChange={handlePageChange}
-          buttonStyle="arrow"
-        />
-      </div>
+      <CommonPagination
+        currentPage={currentPage}
+        totalPages={totalPage}
+        onPageChange={handlePageChange}
+        buttonStyle="arrow"
+      />
     </div>
   );
 }

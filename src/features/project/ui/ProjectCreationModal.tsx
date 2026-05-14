@@ -217,41 +217,6 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
             {step === 2 && (
               <div className="space-y-6">
                 <div className="text-center mb-8">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">어떤 프로젝트인가요?</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {PROJECT_TYPES.map(({ value, label, description: desc, icon: Icon }) => (
-                    <button
-                      key={value}
-                      onClick={() => setType(value)}
-                      className={`p-5 rounded-[10px] border transition-all text-left ${
-                        type === value
-                          ? "border-main-500 bg-main-500/10 dark:border-main-400 dark:bg-main-400/10"
-                          : "border-border bg-card hover:border-main-500/50 dark:hover:border-main-400/50"
-                      }`}
-                    >
-                      <Icon className={`w-7 h-7 mb-3 ${type === value ? "text-main-500 dark:text-main-400" : "text-muted-foreground"}`} />
-                      <h3 className="font-medium text-foreground mb-1">{label}</h3>
-                      <p className="text-sm text-muted-foreground leading-snug">{desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {step === 4 && (
-              <div className="flex flex-col items-center text-center py-6 space-y-4">
-                <CheckCircle2 className="w-16 h-16 text-main-500 dark:text-main-400" />
-                <div>
-                  <h2 className="text-xl font-semibold text-foreground mb-1">프로젝트가 생성되었습니다!</h2>
-                  <p className="text-sm text-muted-foreground">칸반보드로 바로 이동할까요?</p>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-6">
-                <div className="text-center mb-8">
                   <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">기간을 정해볼까요?</h2>
                 </div>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -292,6 +257,41 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="flex flex-col items-center text-center py-6 space-y-4">
+                <CheckCircle2 className="w-16 h-16 text-main-500 dark:text-main-400" />
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-1">프로젝트가 생성되었습니다!</h2>
+                  <p className="text-sm text-muted-foreground">칸반보드로 바로 이동할까요?</p>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="text-center mb-8">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">어떤 프로젝트인가요?</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {PROJECT_TYPES.map(({ value, label, description: desc, icon: Icon }) => (
+                    <button
+                      key={value}
+                      onClick={() => setType(value)}
+                      className={`p-5 rounded-[10px] border transition-all text-left ${
+                        type === value
+                          ? "border-main-500 bg-main-500/10 dark:border-main-400 dark:bg-main-400/10"
+                          : "border-border bg-card hover:border-main-500/50 dark:hover:border-main-400/50"
+                      }`}
+                    >
+                      <Icon className={`w-7 h-7 mb-3 ${type === value ? "text-main-500 dark:text-main-400" : "text-muted-foreground"}`} />
+                      <h3 className="font-medium text-foreground mb-1">{label}</h3>
+                      <p className="text-sm text-muted-foreground leading-snug">{desc}</p>
+                    </button>
+                  ))}
+                </div>
 
                 {/* 선택적 추가 정보 */}
                 <div className="pt-2">
@@ -386,7 +386,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                   {step < 3 ? (
                     <button
                       onClick={handleNext}
-                      disabled={step === 2 && !type}
+                      disabled={step === 2 && !canSubmit}
                       className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                     >
                       다음
@@ -394,7 +394,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
                   ) : (
                     <button
                       onClick={handleSubmit}
-                      disabled={!canSubmit || isSubmitting}
+                      disabled={!type || isSubmitting}
                       className="px-8 py-2.5 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                     >
                       {isSubmitting ? "생성 중..." : "생성하기"}

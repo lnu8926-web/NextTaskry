@@ -451,7 +451,7 @@ export default function TaskDetail({
       </div>
 
       {/* Action Buttons - Sticky Footer */}
-      <div className="task-form-footer bg-white dark:bg-gray-800">
+      <div className="task-form-footer">
         <ActionButtons
           hasChanges={hasChanges()}
           isProjectEnded={isProjectEnded}
@@ -508,7 +508,7 @@ function Header({
   const isUpdated = createdAt !== updatedAt;
 
   return (
-    <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="pb-4 border-b border-border">
       <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
         {/* 📅 Task 생성 정보 표시 */}
         <div className="flex items-center gap-2">

@@ -99,14 +99,14 @@ export default function CalendarNavigation({
   const views: View[] = ["month", "week", "day", "agenda"];
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 sm:px-4 py-2 gap-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 sm:px-4 py-2 gap-2 border-b border-border bg-muted/40 rounded-t-lg">
       {/* 상단/왼쪽: 네비게이션 버튼 */}
       <div className="flex items-center justify-between sm:justify-start gap-2">
         {/* 이전/다음 버튼 */}
         <div className="flex items-center">
           <button
             onClick={handlePrev}
-            className="p-1.5 sm:p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
+            className="p-1.5 sm:p-2 text-foreground hover:bg-muted rounded-l-md border border-border bg-card"
             title={CALENDAR_MESSAGES.previous}
           >
             <svg
@@ -125,13 +125,13 @@ export default function CalendarNavigation({
           </button>
           <button
             onClick={handleToday}
-            className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-y border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-foreground bg-card border-y border-border hover:bg-muted transition-colors"
           >
             {CALENDAR_MESSAGES.today}
           </button>
           <button
             onClick={handleNext}
-            className="p-1.5 sm:p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
+            className="p-1.5 sm:p-2 text-foreground hover:bg-muted rounded-r-md border border-border bg-card"
             title={CALENDAR_MESSAGES.next}
           >
             <svg
@@ -151,13 +151,13 @@ export default function CalendarNavigation({
         </div>
 
         {/* 현재 날짜 표시 */}
-        <span className="text-sm sm:text-lg font-semibold text-gray-800 dark:text-gray-100 sm:ml-2">
+        <span className="text-sm sm:text-lg font-semibold text-foreground sm:ml-2">
           {getDateLabel()}
         </span>
       </div>
 
       {/* 하단/오른쪽: 뷰 선택 버튼 */}
-      <div className="flex items-center gap-0.5 sm:gap-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-0.5 self-center sm:self-auto">
+      <div className="flex items-center gap-0.5 sm:gap-1 bg-card border border-border rounded-md p-0.5 self-center sm:self-auto">
         {views.map((view) => (
           <button
             key={view}
@@ -165,7 +165,7 @@ export default function CalendarNavigation({
             className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded transition-colors ${
               currentView === view
                 ? "bg-main-500 text-white"
-                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {VIEW_LABELS[view]}
