@@ -32,4 +32,8 @@ export const queryKeys = {
     role: (projectId: string, userId: string | undefined) =>
       ["workspace-role", projectId, userId] as const,
   },
+  dashboard: {
+    myTasks: (userId: string | undefined) =>
+      ["dashboard", "my-tasks", userId] as const,
+  },
 } as const;

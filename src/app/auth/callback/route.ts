@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/login?error=auth_failed", req.url));
     }
 
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   } catch (error) {
     console.error("Authentication callback error:", error);
     return NextResponse.redirect(new URL("/login?error=server_error", req.url));

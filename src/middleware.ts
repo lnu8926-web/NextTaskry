@@ -58,13 +58,13 @@ export default withAuth(
 
     // 2) 로그인 한 유저 → 로그인 페이지 접근 불가
     if (isAuthenticated && pathname === "/login") {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
     if (pathname.startsWith("/admin")) {
       // 관리자 라우트는 NextAuth role 기반으로만 허용
       if (!hasNextAuthToken || role !== "admin") {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
 
