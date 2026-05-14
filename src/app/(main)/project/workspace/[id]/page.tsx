@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { queryKeys } from "@/lib/constants/queryKeys";
 
 import BottomNavigation from "@/components/layout/BottomNavigation";
+import WorkspaceSidebar from "@/components/layout/WorkspaceSidebar";
 
 import { Task } from "@/types/kanban";
 import { showToast } from "@/lib/utils/toast";
@@ -318,7 +319,14 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3 w-full">
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <WorkspaceSidebar
+          projectName={projectName}
+          currentView={currentView}
+          showMemoPanel={showMemoPanel}
+          onViewChange={handleViewChange}
+        />
+        <div className="flex-1 flex overflow-hidden min-h-0 gap-2 lg:gap-3 p-2 sm:p-3">
 
         {/* 메인 콘텐츠 */}
         <main className="flex-1 overflow-hidden min-h-0">
@@ -392,9 +400,10 @@ export default function ProjectPage() {
         >
           <MemoView projectId={projectId} onClose={()=>setShowMemoPanel(false)} />
         </aside>
+        </div>
       </div>
 
-      <div className="shrink-0">
+      <div className="shrink-0 md:hidden">
         <BottomNavigation
           activeView={showMemoPanel ? "memo" : currentView}
           onViewChange={handleViewChange}
