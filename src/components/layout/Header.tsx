@@ -46,7 +46,7 @@ export function Header() {
               aria-label="프로필"
             />
 
-            <Link href="/notice">
+            <Link href="/notice" className="md:hidden">
               <Button
                 btnType="icon"
                 icon="speakerphone"
@@ -57,7 +57,7 @@ export function Header() {
             </Link>
 
             {session?.user?.role === "admin" && (
-              <Link href="/admin?tabs=users">
+              <Link href="/admin?tabs=users" className="md:hidden">
                 <Button
                   btnType="icon"
                   icon="crown"

@@ -60,6 +60,7 @@ const KanbanBoard = ({
   onSelectTask,
   onTaskCreated,
   onProjectInfoClick,
+  onPanelOpen,
   showMemoPanel,
   onToggleMemo,
 }: KanbanBoardProps) => {
