@@ -15,7 +15,7 @@ export default function AdminPageWrapper({
   action,
 }: pageWrapperProps) {
   return (
-    <section className="p-6 rounded-xl bg-[#FAFAFA] border border-border dark:bg-[#171415]">
+    <section className="max-w-4xl mx-auto w-full p-6 rounded-xl bg-muted/30 border border-border">
       <div className="py-8 px-5 bg-background border border-border rounded-xl ">
         <div className="flex items-center justify-between gap-2 mb-6">
           <div className="flex items-center gap-2">
