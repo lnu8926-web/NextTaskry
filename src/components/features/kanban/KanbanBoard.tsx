@@ -49,6 +49,7 @@ interface KanbanBoardProps {
   onSelectTask?: (task: Task) => void;
   onTaskCreated?: () => void;
   onProjectInfoClick?: () => void;
+  onPanelOpen?: () => void;
 }
 
 const KanbanBoard = ({
@@ -324,6 +325,7 @@ const KanbanBoard = ({
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     onSelectTask?.(task);
+    onPanelOpen?.();
   };
 
   return (
