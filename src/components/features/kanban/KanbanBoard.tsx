@@ -49,6 +49,7 @@ interface KanbanBoardProps {
   onSelectTask?: (task: Task) => void;
   onTaskCreated?: () => void;
   onProjectInfoClick?: () => void;
+  onPanelOpen?: () => void;
 }
 
 const KanbanBoard = ({
@@ -63,6 +64,7 @@ const KanbanBoard = ({
   onProjectInfoClick,
   showMemoPanel,
   onToggleMemo,
+  onPanelOpen,
 }: KanbanBoardProps) => {
   const projectId = project?.project_id || "";
   const projectName = project?.project_name || "이름 없는 프로젝트";
@@ -324,6 +326,7 @@ const KanbanBoard = ({
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     onSelectTask?.(task);
+    onPanelOpen?.();
   };
 
   return (
