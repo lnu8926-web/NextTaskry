@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 
 // 타입
-import { Task, TaskPriority } from "@/types/kanban";
+import { Task } from "@/types/kanban";
 
 // 컴포넌트
 import Modal from "@/components/ui/Modal";
@@ -15,7 +15,7 @@ import { TaskDetail } from "@/features/task";
 import CalendarHeader from "@/components/features/calendarView/components/CalendarHeader";
 import CalendarHelp from "@/components/features/calendarView/components/CalendarHelp";
 import CalendarStats from "@/components/features/calendarView/components/CalendarStats";
-import CalendarFilter from "@/components/features/calendarView/components/CalendarFilter";
+import WorkspaceFilter, { WorkspaceFilterType } from "@/components/shared/WorkspaceFilter";
 import CalendarNavigation from "@/components/features/calendarView/components/CalendarNavigation";
 import WeekView from "@/components/features/calendarView/weekViews";
 import MonthView from "@/components/features/calendarView/monthViews";
@@ -29,12 +29,6 @@ import { useCalendarKeyboard } from "@/hooks/calendar/useCalendarKeyboard";
 // 유틸
 import { showToast } from "@/lib/utils/toast";
 
-// 필터 인터페이스
-interface CalendarFilter {
-  priority: TaskPriority | "all";
-  assignee: "all" | "assigned" | "unassigned" | "me";
-  date: "all" | "today" | "thisWeek" | "overdue";
-}
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -122,7 +116,7 @@ export default function CalendarView({
 
   // 필터 상태
   const [showFilter, setShowFilter] = useState(false);
-  const [filter, setFilter] = useState<CalendarFilter>({
+  const [filter, setFilter] = useState<WorkspaceFilterType>({
     priority: "all",
     assignee: "all",
     date: "all",
@@ -214,7 +208,7 @@ export default function CalendarView({
    * 필터 변경 핸들러
    */
   const handleFilterChange = useCallback(
-    (newFilter: Partial<CalendarFilter>) => {
+    (newFilter: Partial<WorkspaceFilterType>) => {
       setFilter((prev) => ({ ...prev, ...newFilter }));
     },
     []
@@ -322,7 +316,7 @@ export default function CalendarView({
         {/* 필터 */}
         {showFilter && (
           <div className="px-2 sm:px-4">
-            <CalendarFilter
+            <WorkspaceFilter
               filter={filter}
               onFilterChange={handleFilterChange}
               taskCount={filteredTasks.length}

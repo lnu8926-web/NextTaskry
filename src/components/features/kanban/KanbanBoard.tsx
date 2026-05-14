@@ -24,9 +24,7 @@ import { showToast } from "@/lib/utils/toast";
 import KanbanHeader from "./components/KanbanHeader";
 import KanbanHelp from "./components/KanbanHelp";
 import KanbanLegend from "./components/KanbanLegend";
-import KanbanFilterComponent, {
-  KanbanFilterType,
-} from "./components/KanbanFilter";
+import WorkspaceFilter, {WorkspaceFilterType} from "@/components/shared/WorkspaceFilter";
 import SidePanel from "@/components/ui/SidePanel";
 import { useKanbanKeyboard } from "@/hooks/kanban/useKanbanKeyboard";
 
@@ -78,7 +76,7 @@ const KanbanBoard = ({
   const [showFilter, setShowFilter] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filter, setFilter] = useState<KanbanFilterType>({
+  const [filter, setFilter] = useState<WorkspaceFilterType>({
     priority: "all",
     assignee: "all",
     date: "all",
@@ -286,9 +284,9 @@ const KanbanBoard = ({
     setActiveTask(null);
   }, []);
 
-  const handleFilterChange = (key: keyof KanbanFilterType, value: string) => {
-    setFilter((prev) => ({ ...prev, [key]: value }));
-  };
+ const handleFilterChange = (updates: Partial<WorkspaceFilterType>) => {
+  setFilter((prev) => ({ ...prev, ...updates }));
+};
 
   const handleFilterReset = () => {
     setFilter({ priority: "all", assignee: "all", date: "all" });
@@ -363,10 +361,9 @@ const KanbanBoard = ({
         {/* 필터 */}
         {showFilter && (
           <div className="px-2 sm:px-4 animate-in slide-in-from-top-2 duration-150">
-            <KanbanFilterComponent
+            <WorkspaceFilter  
               filter={filter}
               onFilterChange={handleFilterChange}
-              showFilter={showFilter}
               taskCount={filteredTasks.length}
               totalCount={tasks.length}
               onReset={handleFilterReset}
@@ -504,11 +501,11 @@ function FilterChips({
   onFilterChange,
   onReset,
 }: {
-  filter: KanbanFilterType;
-  onFilterChange: (key: keyof KanbanFilterType, value: string) => void;
+  filter: WorkspaceFilterType;
+  onFilterChange: (updates: Partial<WorkspaceFilterType>) => void;
   onReset: () => void;
 }) {
-  const chips = (Object.keys(filter) as (keyof KanbanFilterType)[]).filter(
+  const chips = (Object.keys(filter) as (keyof WorkspaceFilterType)[]).filter(
     (key) => filter[key] !== "all"
   );
 
@@ -524,7 +521,7 @@ function FilterChips({
           <span className="font-medium">{FILTER_NAMES[key]}:</span>
           <span>{FILTER_LABELS[key]?.[filter[key]] ?? filter[key]}</span>
           <button
-            onClick={() => onFilterChange(key, "all")}
+            onClick={() => onFilterChange({ [key]: "all" })}
             className="ml-0.5 hover:text-main-900 dark:hover:text-main-100 transition-colors"
           >
             ×
