@@ -62,7 +62,6 @@ const KanbanBoard = ({
   onProjectInfoClick,
   showMemoPanel,
   onToggleMemo,
-  onPanelOpen,
 }: KanbanBoardProps) => {
   const projectId = project?.project_id || "";
   const projectName = project?.project_name || "이름 없는 프로젝트";

@@ -330,10 +330,7 @@ export default function ProjectPage() {
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
               onToggleMemo={()=>{setShowMemoPanel((prev)=>!prev)}}
-                onPanelOpen={() => {
-                setShowMemoPanel(false);
-                setShowProjectInfoPanel(false);
-              }}
+              showMemoPanel={showMemoPanel}
               onProjectInfoClick={() => { setShowProjectInfoPanel((prev) => !prev); setShowMemoPanel(false); }}
               project={{
                 project_id: projectId,
