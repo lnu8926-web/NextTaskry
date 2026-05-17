@@ -11,20 +11,46 @@
 **Taskry**는 복잡한 절차 없이 누구나 쉽게 업무 흐름을 관리할 수 있는 웹 기반 협업 도구입니다.  
 직관적인 UI와 실시간 동기화를 통해 팀의 생산성을 극대화합니다.
 
-업데이트일: 2026-05-10
+업데이트일: 2026-05-17
 
 ## 📸 Screen Shots
 
-|                              메인 대시보드                               |                                  칸반보드                                  |                                 캘린더                                  |
+<!-- |                              메인 대시보드                               |                                  칸반보드                                  |                                 캘린더                                  |
 | :----------------------------------------------------------------------: | :------------------------------------------------------------------------: | :---------------------------------------------------------------------: |
-| <img src="assets/readme/dashboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/kanbanboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/calendar.png" width="300" alt="Main Dashboard"> |
+| <img src="assets/readme/dashboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/kanbanboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/calendar.png" width="300" alt="Main Dashboard"> | -->
 
 ## 💡 주요 기능 (Key Features)
 
 - **📊 업무 진행 현황의 시각화**
 
   - 업무 상태(To Do, In Progress, Done)를 단계별로 구분하여 시각적으로 표현합니다.
-  - 드래그 앤 드롭 등을 통해 상태를 손쉽게 변경할 수 있습니다. (사용 라이브러리: @dnd-kit)
+  - 드래그 앤 드롭으로 상태를 손쉽게 변경할 수 있습니다. (사용 라이브러리: @dnd-kit)
+
+- **🗂️ 대시보드**
+
+  - 진행 중인 프로젝트 현황과 주요 지표를 한눈에 확인할 수 있습니다.
+
+- **📅 유연하고 확장 가능한 일정 관리**
+
+  - 월/주/일/어젠다 4가지 뷰로 일정을 확인할 수 있습니다.
+  - 일정 추가/수정/삭제(CRUD), 팀원 지정, 중요도 설정, 검색 및 필터링을 지원합니다.
+
+- **📝 프로젝트 메모**
+
+  - 워크스페이스별 메모를 작성하고 고정/해제, 이모지 반응, 색상 레이블로 관리할 수 있습니다.
+
+- **📢 공지사항**
+
+  - Lexical 리치 텍스트 에디터와 GitHub Flavored Markdown을 지원합니다.
+  - 중요도 플래그, 페이지네이션 기능이 포함됩니다.
+
+- **🔐 팀원 초대 및 권한 관리**
+
+  - 워크스페이스에 팀원을 초대하고 역할(Role)을 지정할 수 있습니다.
+
+- **🌙 다크모드**
+
+  - 라이트/다크 테마를 헤더에서 즉시 전환할 수 있습니다. (next-themes)
 
 - **🎨 직관적이고 간결한 UX**
 
@@ -36,24 +62,30 @@
   - 팀원의 작업 내역과 상태 변경이 실시간으로 보드에 반영됩니다.
   - Supabase를 활용하여 데이터의 정합성을 유지합니다.
 
-- **📅 유연하고 확장 가능한 일정 관리**
-  - 일정 추가/수정/삭제(CRUD) 기능.
-  - 팀원 지정, 중요도 설정, 검색 및 필터링을 통해 원하는 정보를 빠르게 찾을 수 있습니다.
+- **🛡️ 관리자 패널**
+
+  - 사용자 역할 관리, 전체 프로젝트 조회, 공지사항 관리 기능을 제공합니다.
 
 ## 🛠️ 기술 스택 (Tech Stack)
 
-|      분류       | 기술                     |   버전    | 비고                          |
-| :-------------: | :----------------------- | :-------: | :---------------------------- |
-|  **Framework**  | **Next.js** (App Router) | `16.0.1`  | React 기반 풀스택 프레임워크  |
-|   **Runtime**   | **React**                | `19.2.0`  | 최신 React 19 사용            |
-|  **Language**   | **TypeScript**           |   `^5`    | 안정적인 타입 시스템          |
-|   **Styling**   | **Tailwind CSS**         |   `^4`    | 유틸리티 퍼스트 CSS           |
-|     **DnD**     | **@dnd-kit**             | `^6.3.1`  | 드래그 앤 드롭 기능           |
-|  **Auth / DB**  | **Supabase**             | `^2.81.1` | Google OAuth 및 PostgreSQL DB |
-|   **Editor**    | **Lexical**              | `^0.38.2` | 리치 텍스트 에디터            |
-|    **Date**     | **date-fns**             | `^4.1.0`  | 날짜 유틸리티                 |
-|   **Linting**   | ESLint                   |     -     | 코드 품질 관리                |
-| **Package Mgr** | npm                      |     -     | 패키지 관리                   |
+|      분류       | 기술                         |    버전    | 비고                              |
+| :-------------: | :--------------------------- | :--------: | :-------------------------------- |
+|  **Framework**  | **Next.js** (App Router)     | `16.0.1`   | React 기반 풀스택 프레임워크      |
+|   **Runtime**   | **React**                    | `19.2.0`   | 최신 React 19 사용                |
+|  **Language**   | **TypeScript**               |   `^5`     | 안정적인 타입 시스템              |
+|   **Styling**   | **Tailwind CSS**             |   `^4`     | 유틸리티 퍼스트 CSS               |
+|     **DnD**     | **@dnd-kit**                 | `^6.3.1`   | 드래그 앤 드롭 기능               |
+|  **Auth / DB**  | **Supabase**                 | `^2.81.1`  | Google·GitHub OAuth, PostgreSQL   |
+|    **Auth**     | **NextAuth**                 | `^4`       | 세션 관리, Google·GitHub OAuth    |
+|  **Fetching**   | **TanStack Query**           | `^5`       | 서버 상태 관리 및 데이터 페칭     |
+|   **Editor**    | **Lexical**                  | `^0.38.2`  | 리치 텍스트 에디터                |
+|  **Calendar**   | **react-big-calendar**       | `^1.19.4`  | 월/주/일/어젠다 캘린더 뷰         |
+|  **Markdown**   | **react-markdown + remark-gfm** | `^10.1.0` | GitHub Flavored Markdown 렌더링  |
+|    **Toast**    | **react-hot-toast**          | `^2.6.0`   | 토스트 알림                       |
+|  **Theming**    | **next-themes**              |   `^0`     | 다크/라이트 모드 전환             |
+|    **Date**     | **date-fns**                 | `^4.1.0`   | 날짜 유틸리티                     |
+|   **Linting**   | ESLint                       |     -      | 코드 품질 관리                    |
+| **Package Mgr** | npm                          |     -      | 패키지 관리                       |
 
 ## 📦 시작 가이드 (Getting Started)
 
@@ -73,6 +105,8 @@ NEXTAUTH_URL=your_url
 NEXTAUTH_SECRET=your_secret
 GOOGLE_CLIENT_ID=your_client_id
 GOOGLE_CLIENT_SECRET=your_client_secret
+GITHUB_CLIENT_ID=your_client_id
+GITHUB_CLIENT_SECRET=your_client_secret
 
 # Database URLs
 DATABASE_URL=your_database_url
@@ -87,7 +121,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ### 3. 인증 운영 방식
 
 - 현재 인증은 NextAuth와 Supabase Auth를 병행 운영합니다.
-- 로그인 페이지에서 NextAuth Google 또는 Supabase Google 로그인으로 진입할 수 있습니다.
+- 로그인 페이지에서 **Google** 또는 **GitHub** 소셜 로그인으로 진입할 수 있습니다.
 - 보호 라우트는 NextAuth 토큰과 Supabase 세션을 함께 확인합니다.
 - 서버 API는 통합 인증 유틸을 통해 사용자 컨텍스트를 추출합니다.
 - 관리자 API는 role === "admin" 기준으로만 허용합니다.

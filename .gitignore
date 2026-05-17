@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 # Markdown documentation files (except README)
 *.md
 !README.md
+# Supabase seed scripts (contain service role key)
+supabase/run-seed*.mjs
+supabase/seed.sql

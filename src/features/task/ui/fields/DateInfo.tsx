@@ -1,7 +1,6 @@
 // components/features/task/fields/DateInfo.tsx
 
 import { Icon } from "@/components/shared/Icon";
-import Badge from "@/components/ui/Badge";
 
 interface DateInfoProps {
   startedAt?: string;
@@ -104,7 +103,9 @@ const DateInfo = ({
 
       dateText =
         year === currentYear ? `${month}.${day}` : `${year}.${month}.${day}`;
-    } else if (isEndDate && daysDiff >= -7 && daysDiff <= 3) {
+    } else if (isEndDate && daysDiff < 0) {
+      dateText = `${Math.abs(daysDiff)}일 지연`;
+    } else if (isEndDate && daysDiff <= 3) {
       if (daysDiff === 0) {
         // 오늘 마감 - 시간 체크
         if (useTime && timeString) {
@@ -119,8 +120,6 @@ const DateInfo = ({
         }
       } else if (daysDiff === 1) dateText = "내일 마감";
       else if (daysDiff === 2) dateText = "모레 마감";
-      else if (daysDiff === -1) dateText = "어제 (지연)";
-      else if (daysDiff < 0) dateText = `${Math.abs(daysDiff)}일 지연`;
       else dateText = `D-${daysDiff}`;
     } else {
       if (daysDiff === 0) dateText = "오늘";
@@ -212,15 +211,6 @@ const DateInfo = ({
         )}
       </div>
 
-      {/* 뱃지 */}
-      {!isCompleted && endDateStatus && (
-        <div className="flex gap-1 items-center shrink-0 ml-2">
-          {endDateStatus.isOverdue && <Badge type="overDue" />}
-          {endDateStatus.isUrgent && !endDateStatus.isOverdue && (
-            <Badge type="dueSoon" />
-          )}
-        </div>
-      )}
     </div>
   );
 };

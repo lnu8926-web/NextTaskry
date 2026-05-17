@@ -1,33 +1,43 @@
-// Mock 프로젝트 데이터
-
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-}
+import { Project } from "@/types/project";
 
 export const mockProjects: Project[] = [
   {
-    id: "project-1",
-    name: "웹 서비스 리뉴얼",
+    project_id: "project-001",
+    user_id: "user-001",
+    project_name: "웹 서비스 리뉴얼",
     description: "메인 서비스 UI/UX 개선 및 성능 최적화",
-    created_at: "2025-11-01T00:00:00Z",
-    updated_at: "2025-11-13T00:00:00Z",
+    type: "웹",
+    status: "active",
+    tech_stack: "Next.js, TypeScript, Tailwind CSS",
+    started_at: "2026-03-01",
+    ended_at: "2026-06-30",
+    created_at: "2026-02-20T09:00:00Z",
+    updated_at: "2026-05-10T09:00:00Z",
   },
   {
-    id: "project-2",
-    name: "모바일 앱 개발",
+    project_id: "project-002",
+    user_id: "user-002",
+    project_name: "모바일 앱 개발",
     description: "iOS/Android 크로스 플랫폼 앱 개발",
-    created_at: "2025-11-05T00:00:00Z",
-    updated_at: "2025-11-13T00:00:00Z",
+    type: "모바일",
+    status: "active",
+    tech_stack: "React Native, Expo, TypeScript",
+    started_at: "2026-04-01",
+    ended_at: "2026-08-31",
+    created_at: "2026-03-15T09:00:00Z",
+    updated_at: "2026-05-12T09:00:00Z",
   },
   {
-    id: "project-3",
-    name: "백엔드 API 개선",
-    description: "REST API 성능 개선 및 문서화",
-    created_at: "2025-11-10T00:00:00Z",
-    updated_at: "2025-11-13T00:00:00Z",
+    project_id: "project-003",
+    user_id: "user-003",
+    project_name: "백엔드 API 개선",
+    description: "REST API 성능 개선 및 Swagger 문서화",
+    type: "백엔드",
+    status: "completed",
+    tech_stack: "Node.js, PostgreSQL, Supabase",
+    started_at: "2026-01-15",
+    ended_at: "2026-04-30",
+    created_at: "2026-01-10T09:00:00Z",
+    updated_at: "2026-04-30T17:00:00Z",
   },
 ];
