@@ -1,15 +1,18 @@
 import { UserInfoRow } from "@/types/adminUser";
+import { mockUsers } from "@/app/data/mockUsers";
 
-
-//users 목록 조회
-export async function fetchAdminUsers(): Promise<UserInfoRow[]>{
-  const res =  await fetch("/api/admin/users")
+export async function fetchAdminUsers(): Promise<UserInfoRow[]> {
+  try {
+    const res = await fetch("/api/admin/users");
     if (!res.ok) throw new Error("Fetch failed");
-
-  const data = await res.json()
-  return data
-
+    return await res.json();
+  } catch (error) {
+    console.warn("관리자 유저 API 실패, 목데이터 사용:", error);
+    return mockUsers.map((u) => ({
+      email: u.email,
+      user_name: u.user_name,
+      global_role: u.global_role,
+      user_id: u.user_id,
+    }));
+  }
 }
-
-
-

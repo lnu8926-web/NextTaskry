@@ -1,4 +1,8 @@
 import { handleError } from "@/lib/utils/apiError";
+import { mockProjects } from "@/app/data/mockProjects";
+import { mockProjectMembers } from "@/app/data/mockProjectMembers";
+
+const ITEMS_PER_PAGE = 12;
 
 interface ResultProps {
   message: string;
@@ -39,7 +43,15 @@ export async function getProject(page: number = 0): Promise<ResultProps> {
 
     return data;
   } catch (err) {
-    handleError("getProject", err);
+    console.warn("getProject API 실패, 목데이터 사용:", err);
+    const start = Math.max(0, (page - 1) * ITEMS_PER_PAGE);
+    const sliced = mockProjects.slice(start, start + ITEMS_PER_PAGE).map((p) => ({
+      ...p,
+      project_members: [
+        { count: mockProjectMembers.filter((m) => m.project_id === p.project_id).length },
+      ],
+    }));
+    return { message: "mock", params: {}, data: sliced, totalCount: mockProjects.length, timestamp: new Date() };
   }
 }
 
@@ -63,7 +75,17 @@ export async function getProjectByIds(ids: string, page:number = 0): Promise<Res
 
     return data;
   } catch (err) {
-    handleError("getProjectByIds", err);
+    console.warn("getProjectByIds API 실패, 목데이터 사용:", err);
+    const idList = ids.split(",");
+    const filtered = mockProjects
+      .filter((p) => idList.includes(p.project_id))
+      .map((p) => ({
+        ...p,
+        project_members: [
+          { count: mockProjectMembers.filter((m) => m.project_id === p.project_id).length },
+        ],
+      }));
+    return { message: "mock", params: {}, data: filtered, totalCount: filtered.length, timestamp: new Date() };
   }
 }
 
@@ -154,7 +176,9 @@ export async function getProjectMemberByUser(id?: string): Promise<ResultProps> 
 
     return data;
   } catch (err) {
-    handleError("getProjectMemberByUser", err);
+    console.warn("getProjectMemberByUser API 실패, 목데이터 사용:", err);
+    const filtered = mockProjectMembers.filter((m) => m.user_id === id);
+    return { message: "mock", params: {}, data: filtered, totalCount: filtered.length, timestamp: new Date() };
   }
 }
 

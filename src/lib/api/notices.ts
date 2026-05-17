@@ -1,6 +1,7 @@
 import { NoticeResponse } from "@/types/notice";
 import { Notice } from "@/types/notice";
 import { NOTICE_CONSTANS, NOTICE_MESSAGES } from "../constants/notices";
+import { mockNotices } from "@/app/data/mockNotices";
 
 export const ITEM_PER_PAGE = NOTICE_CONSTANS.ITEMS_PER_PAGE;
 
@@ -54,8 +55,12 @@ export async function getNotices(
       totalCount: result.totalCount || 0,
     };
   } catch (error) {
-    console.error("공지사항 조회 오류:", error);
-    throw error;
+    console.warn("공지사항 API 실패, 목데이터 사용:", error);
+    const start = (page - 1) * limit;
+    return {
+      data: mockNotices.slice(start, start + limit),
+      totalCount: mockNotices.length,
+    };
   }
 }
 
@@ -117,8 +122,8 @@ export async function getNoticeById(
     const result = await handleApiResponse<{ data: Notice }>(response);
     return result.data || null;
   } catch (error) {
-    console.error("공지사항 조회 오류:", error);
-    throw error;
+    console.warn("공지사항 상세 API 실패, 목데이터 사용:", error);
+    return mockNotices.find((n) => n.announcement_id === String(id)) ?? null;
   }
 }
 

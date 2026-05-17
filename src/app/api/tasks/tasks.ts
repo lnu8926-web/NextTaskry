@@ -93,7 +93,7 @@ export async function createTask(
 
 /**
  * 특정 프로젝트의 모든 Task 조회
- * ✅ JOIN을 사용해 한 번의 쿼리로 처리
+ * ✅ /api/kanban/tasks 서버 라우트를 통해 supabaseAdmin으로 RLS 우회
  */
 export async function getTasksByBoardId(
   projectId: string
@@ -103,29 +103,11 @@ export async function getTasksByBoardId(
       throw new Error("프로젝트 ID가 필요합니다.");
     }
 
-    const { data, error } = await supabase
-      .from("tasks")
-      .select(
-        `
-        *,
-        kanban_boards!inner(project_id)
-      `
-      )
-      .eq("kanban_boards.project_id", projectId)
-      .order("created_at", { ascending: false });
+    const res = await fetch(`/api/kanban/tasks?boardId=${projectId}`);
+    if (!res.ok) throw new Error(`태스크 조회 실패: ${res.status}`);
 
-    if (error) throw error;
-
-    // project_id를 Task 객체에 포함시키기
-    const tasksWithProjectId = (data || []).map((task: any) => {
-      const { kanban_boards, ...taskData } = task;
-      return {
-        ...taskData,
-        project_id: kanban_boards.project_id,
-      };
-    });
-
-    return { data: tasksWithProjectId as Task[], error: null };
+    const json = await res.json();
+    return { data: (json.data ?? []) as Task[], error: null };
   } catch (error) {
     return handleApiError("Task 조회", error);
   }

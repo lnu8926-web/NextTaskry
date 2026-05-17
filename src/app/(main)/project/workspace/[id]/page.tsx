@@ -71,17 +71,12 @@ export default function ProjectPage() {
     queryKey: queryKeys.workspace.role(projectId, userId),
     queryFn: async () => {
       if (!userId || !projectId) return null;
-      const { data, error } = await supabase
-        .from("project_members")
-        .select("role")
-        .eq("project_id", projectId)
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (error) {
-        console.error("프로젝트 멤버 역할 조회 오류:", error);
-        return null;
-      }
-      return (data?.role as ProjectRole) ?? null;
+      const res = await fetch(`/api/projectMembers?id=${projectId}&userId=${userId}`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      const members = Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
+      const me = members.find((m: { user_id: string; role: string }) => m.user_id === userId);
+      return (me?.role as ProjectRole) ?? null;
     },
     enabled: !!projectId && !!userId,
     staleTime: 1000 * 60 * 5,
