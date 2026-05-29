@@ -16,7 +16,6 @@ import {
 import { ko } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/supabase";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import { Task, TaskPriority } from "@/types";
 import Badge from "@/components/ui/Badge";
@@ -65,28 +64,10 @@ export default function DashboardPage() {
   const { data: myTasks = [], isLoading: tasksLoading } = useQuery<TaskWithProject[]>({
     queryKey: queryKeys.dashboard.myTasks(userId),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select(`
-          *,
-          kanban_boards!inner(
-            project_id,
-            projects!inner(project_name)
-          )
-        `)
-        .eq("assigned_user_id", userId)
-        .order("ended_at", { ascending: true, nullsFirst: false });
-
-      if (error) throw error;
-
-      return (data || []).map((row: any) => {
-        const { kanban_boards, ...task } = row;
-        return {
-          ...task,
-          project_id: kanban_boards.project_id,
-          project_name: kanban_boards.projects.project_name,
-        } as TaskWithProject;
-      });
+      const res = await fetch(`/api/dashboard/tasks?userId=${userId}`);
+      if (!res.ok) throw new Error("태스크 조회 실패");
+      const json = await res.json();
+      return (json.data || []) as TaskWithProject[];
     },
     enabled: !!userId,
     staleTime: 1000 * 60 * 2,
@@ -96,38 +77,10 @@ export default function DashboardPage() {
   const { data: projects = [], isLoading: projectsLoading } = useQuery<ProjectWithProgress[]>({
     queryKey: ["dashboard", "projects", userId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_members")
-        .select(`
-          project_id,
-          projects!inner(
-            project_id,
-            project_name,
-            status,
-            kanban_boards(
-              tasks(status)
-            )
-          )
-        `)
-        .eq("user_id", userId)
-        .limit(5);
-
-      if (error) throw error;
-
-      return (data || []).map((row: any) => {
-        const proj = row.projects;
-        const allTasks = (proj.kanban_boards || []).flatMap((b: any) => b.tasks || []);
-        const total = allTasks.length;
-        const done = allTasks.filter((t: any) => t.status === "done").length;
-        return {
-          project_id: proj.project_id,
-          project_name: proj.project_name,
-          status: proj.status,
-          total,
-          done,
-          rate: total > 0 ? Math.round((done / total) * 100) : 0,
-        } as ProjectWithProgress;
-      });
+      const res = await fetch(`/api/dashboard/projects?userId=${userId}`);
+      if (!res.ok) throw new Error("프로젝트 조회 실패");
+      const json = await res.json();
+      return (json.data || []) as ProjectWithProgress[];
     },
     enabled: !!userId,
     staleTime: 1000 * 60 * 3,
@@ -167,7 +120,7 @@ export default function DashboardPage() {
             !isBefore(new Date(t.ended_at), today) &&
             isBefore(new Date(t.ended_at), sevenDaysLater)
         )
-        .slice(0, 7),
+        .slice(0, 5),
     [myTasks, today, sevenDaysLater]
   );
 
