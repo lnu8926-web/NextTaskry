@@ -225,7 +225,7 @@ export default function DashboardPage() {
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <SectionLabel>참여 프로젝트</SectionLabel>
-            <Link href="/" className="text-xs text-muted-foreground hover:text-main-600 dark:hover:text-main-400 flex items-center gap-0.5 transition-colors">
+            <Link href="/project/dashboard" className="text-xs text-muted-foreground hover:text-main-600 dark:hover:text-main-400 flex items-center gap-0.5 transition-colors">
               전체보기 <ChevronRight size={13} />
             </Link>
           </div>

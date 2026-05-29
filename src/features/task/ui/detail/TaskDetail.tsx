@@ -131,13 +131,7 @@ export default function TaskDetail({
     };
 
     fetchMember(); // 비동기 함수 실행
-  }, [
-    task.project_id,
-    task.id,
-    task.assigned_user_id,
-    task.title,
-    task.kanban_board_id,
-  ]); // 의존성 배열: 이 값들이 변경되면 재실행
+  }, [task.project_id]);
 
   /**
    * 🔄 assignee 정보 보강 useEffect
@@ -298,7 +292,7 @@ export default function TaskDetail({
       delete (filteredUpdates as any).created_at;
       delete (filteredUpdates as any).kanban_boards;
 
-      if (onUpdate) await onUpdate(task.id, filteredUpdates);
+      if (onUpdate) onUpdate(task.id, filteredUpdates);
       showToast("작업이 저장되었습니다.", "success");
 
       setTimeout(() => {
@@ -317,7 +311,7 @@ export default function TaskDetail({
   // 작업 삭제 실행
   const confirmDelete = async () => {
     try {
-      if(onDelete) await onDelete(task.id);
+      if (onDelete) onDelete(task.id);
 
       // 삭제 성공 모달 표시
       openModal(

@@ -1,7 +1,7 @@
 // components/project/ProjectList.tsx
 "use client";
 
-import { Project } from "@/app/data/mockProjects";
+import { Project } from "@/types/project";
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 
@@ -43,15 +43,15 @@ const ProjectList = ({ projects, onSelectProject }: ProjectListProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project) => (
             <div
-              key={project.id}
-              onClick={() => onSelectProject(project.id)}
+              key={project.project_id}
+              onClick={() => onSelectProject(project.project_id)}
               className="border border-gray-200 rounded-lg p-5 cursor-pointer hover:border-main-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Icon type="board" size={24} color="#60A5FA" />
                   <h3 className="font-bold text-lg text-gray-800">
-                    {project.name}
+                    {project.project_name}
                   </h3>
                 </div>
                 <Icon type="chevronRight" size={20} color="#9CA3AF" />

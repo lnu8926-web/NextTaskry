@@ -144,3 +144,4 @@ vite.config.ts.timestamp-*
 # Supabase seed scripts (contain service role key)
 supabase/run-seed*.mjs
 supabase/seed.sql
+.vercel

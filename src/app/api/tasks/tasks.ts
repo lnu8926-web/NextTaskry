@@ -103,7 +103,7 @@ export async function getTasksByBoardId(
       throw new Error("프로젝트 ID가 필요합니다.");
     }
 
-    const res = await fetch(`/api/kanban/tasks?boardId=${projectId}`);
+    const res = await fetch(`/api/kanban/tasks?projectId=${projectId}`);
     if (!res.ok) throw new Error(`태스크 조회 실패: ${res.status}`);
 
     const json = await res.json();

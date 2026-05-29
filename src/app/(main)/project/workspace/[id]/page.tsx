@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
@@ -30,6 +30,27 @@ const ProjectInfoPanel = dynamic(
 );
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
+
+async function enrichTaskWithAssignee(taskRaw: Task): Promise<Task> {
+  if (!taskRaw.assigned_user_id) return taskRaw;
+
+  const { data: userData } = await supabase
+    .from("users")
+    .select("user_id, user_name, email")
+    .eq("user_id", taskRaw.assigned_user_id)
+    .single();
+
+  if (!userData) return taskRaw;
+
+  return {
+    ...taskRaw,
+    assignee: {
+      user_id: userData.user_id,
+      name: userData.user_name,
+      email: userData.email,
+    },
+  };
+}
 
 export default function ProjectPage() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -137,67 +158,19 @@ export default function ProjectPage() {
         },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            const newTaskRaw = payload.new as Task;
-
-            const enrichTask = async () => {
-              let assignee = null;
-
-              if (newTaskRaw.assigned_user_id) {
-                const { data: userData } = await supabase
-                  .from("users")
-                  .select("user_id, user_name, email")
-                  .eq("user_id", newTaskRaw.assigned_user_id)
-                  .single();
-
-                if (userData) {
-                  assignee = {
-                    user_id: userData.user_id,
-                    name: userData.user_name,
-                    email: userData.email,
-                  };
-                }
-              }
-
-              const enrichedTask = { ...newTaskRaw, assignee } as Task;
-
+            enrichTaskWithAssignee(payload.new as Task).then((enrichedTask) => {
               queryClient.setQueryData(taskQueryKey, (prev: Task[]) => {
                 if (!prev) return [enrichedTask];
                 if (prev.some((t) => t.id === enrichedTask.id)) return prev;
                 return [...prev, enrichedTask];
               });
-            };
-
-            enrichTask();
+            });
           } else if (payload.eventType === "UPDATE") {
-            const updatedTaskRaw = payload.new as Task;
-
-            const enrichUpdateTask = async () => {
-              let assignee = null;
-
-              if (updatedTaskRaw.assigned_user_id) {
-                const { data: userData } = await supabase
-                  .from("users")
-                  .select("user_id, user_name, email")
-                  .eq("user_id", updatedTaskRaw.assigned_user_id)
-                  .single();
-
-                if (userData) {
-                  assignee = {
-                    user_id: userData.user_id,
-                    name: userData.user_name,
-                    email: userData.email,
-                  };
-                }
-              }
-
-              const enrichedTask = { ...updatedTaskRaw, assignee } as Task;
-
+            enrichTaskWithAssignee(payload.new as Task).then((enrichedTask) => {
               queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
                 (prev || []).map((t) => (t.id === enrichedTask.id ? enrichedTask : t))
               );
-            };
-
-            enrichUpdateTask();
+            });
           } else if (payload.eventType === "DELETE") {
             const deletedTask = payload.old as Task;
             queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
@@ -268,17 +241,28 @@ export default function ProjectPage() {
     onError: () => showToast("작업 삭제 실패", "error"),
   });
 
-  const handleCreateTask = (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
-    createTaskMutation.mutate(taskData);
-  };
+  const handleCreateTask = useCallback(
+    (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
+      if (createTaskMutation.isPending) return;
+      createTaskMutation.mutate(taskData);
+    },
+    [createTaskMutation]
+  );
 
-  const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
-    updateTaskMutation.mutate({ taskId, updates });
-  };
+  const handleUpdateTask = useCallback(
+    (taskId: string, updates: Partial<Task>) => {
+      updateTaskMutation.mutate({ taskId, updates });
+    },
+    [updateTaskMutation]
+  );
 
-  const handleDeleteTask = (taskId: string) => {
-    deleteTaskMutation.mutate(taskId);
-  };
+  const handleDeleteTask = useCallback(
+    (taskId: string) => {
+      if (deleteTaskMutation.isPending) return;
+      deleteTaskMutation.mutate(taskId);
+    },
+    [deleteTaskMutation]
+  );
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: taskQueryKey });
@@ -305,7 +289,7 @@ export default function ProjectPage() {
   };
 
   if (tasksLoading) {
-     return (
+    return (
       <div className="flex flex-col h-full bg-background">
         <div className="flex-1 flex gap-3 p-3 overflow-hidden">
           {[1, 2, 3].map((i) => (
@@ -317,7 +301,7 @@ export default function ProjectPage() {
             </div>
           ))}
         </div>
-    </div>
+      </div>
     );
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { getUnifiedAuthUser } from "@/lib/auth/unifiedAuth";
 
 const DB_TASK_FIELDS = [
   "kanban_board_id",
@@ -28,27 +29,33 @@ function sanitize(data: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
+async function requireAuth() {
+  const auth = await getUnifiedAuthUser();
+  if (!auth.isAuthenticated || !auth.userId) {
+    return { auth: null, res: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+  return { auth, res: null };
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const boardId = request.nextUrl.searchParams.get("boardId");
-    if (!boardId) {
-      return NextResponse.json({ error: "boardId is required" }, { status: 400 });
+    const { auth, res } = await requireAuth();
+    if (!auth) return res!;
+
+    const projectId = request.nextUrl.searchParams.get("projectId");
+    if (!projectId) {
+      return NextResponse.json({ error: "projectId is required" }, { status: 400 });
     }
 
     const { data, error } = await supabaseAdmin
       .from("tasks")
-      .select("*, kanban_boards!inner(project_id)")
-      .eq("kanban_boards.project_id", boardId)
+      .select("*")
+      .eq("project_id", projectId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
 
-    const tasks = (data || []).map((task: Record<string, unknown>) => {
-      const { kanban_boards, ...rest } = task as Record<string, unknown> & { kanban_boards: { project_id: string } };
-      return { ...rest, project_id: kanban_boards.project_id };
-    });
-
-    return NextResponse.json({ data: tasks });
+    return NextResponse.json({ data: data || [] });
   } catch (error) {
     console.error("GET /api/kanban/tasks error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -57,6 +64,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { auth, res } = await requireAuth();
+    if (!auth) return res!;
+
     const body = await request.json();
     const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = body;
     const clean = sanitize(rest);
@@ -81,6 +91,9 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const { auth, res } = await requireAuth();
+    if (!auth) return res!;
+
     const body = await request.json();
     const { id, ...updates } = body;
 
@@ -110,6 +123,9 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const { auth, res } = await requireAuth();
+    if (!auth) return res!;
+
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {
       return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
