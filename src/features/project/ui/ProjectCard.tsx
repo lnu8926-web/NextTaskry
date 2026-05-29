@@ -41,6 +41,7 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
   const deadline = formatDeadline(project.ended_at);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   async function handleDelete() {
     await deleteProject(project.project_id);
@@ -82,21 +83,21 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
           <Pencil className="w-3.5 h-3.5" />
           수정
         </button>
-        <DeleteDialog
-          onClick={handleDelete}
-          trigger={
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-            >
-              <Icon type="trash" size={14} />
-              삭제
-            </button>
-          }
-        />
+        <button
+          onClick={() => { setIsMenuOpen(false); setIsDeleteOpen(true); }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+        >
+          <Icon type="trash" size={14} />
+          삭제
+        </button>
       </div>
     </>
   )}
+  <DeleteDialog
+    onClick={handleDelete}
+    open={isDeleteOpen}
+    onOpenChange={setIsDeleteOpen}
+  />
 </div>
 
       {/* 타입 라벨 */}
