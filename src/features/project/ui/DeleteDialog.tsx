@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Button from "@/components/ui/Button";
 import {
   Dialog,
@@ -15,9 +16,10 @@ import { useState } from "react";
 
 interface DeleteDialogProps {
   onClick: () => void;
+  trigger?: React.ReactNode;
 }
 
-export function DeleteDialog({ onClick }: DeleteDialogProps) {
+export function DeleteDialog({ onClick, trigger }: DeleteDialogProps) {
   const [open, setOpen] = useState(false);
   const handleDelete = () => {
     onClick();
@@ -28,7 +30,7 @@ export function DeleteDialog({ onClick }: DeleteDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <form>
         <DialogTrigger asChild>
-          <Button btnType="icon" icon="trash" size={16} variant="warning" />
+          {trigger ?? <Button btnType="icon" icon="trash" size={16} variant="warning" />}
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>

@@ -82,9 +82,18 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
           <Pencil className="w-3.5 h-3.5" />
           수정
         </button>
-        <div className="[&>button]:w-full [&>button]:flex [&>button]:items-center [&>button]:gap-2 [&>button]:px-3 [&>button]:py-2 [&>button]:text-sm [&>button]:text-red-500 [&>button]:hover:bg-red-50 [&>button]:dark:hover:bg-red-900/20 [&>button]:transition-colors">
-          <DeleteDialog onClick={() => { setIsMenuOpen(false); handleDelete(); }} />
-        </div>
+        <DeleteDialog
+          onClick={handleDelete}
+          trigger={
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            >
+              <Icon type="trash" size={14} />
+              삭제
+            </button>
+          }
+        />
       </div>
     </>
   )}
