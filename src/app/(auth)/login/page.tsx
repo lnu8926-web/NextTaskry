@@ -60,6 +60,25 @@ function LoginContent() {
         >
           GitHub로 시작하기
         </Button>
+
+        <div className="flex items-center gap-3 w-full max-w-[220px]">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground">또는</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
+        <Button
+          btnType="basic"
+          icon="eye"
+          variant="basic"
+          size={18}
+          onClick={() => signIn("guest", { callbackUrl: "/dashboard" })}
+        >
+          게스트로 둘러보기
+        </Button>
+        <p className="text-xs text-muted-foreground text-center">
+          로그인 없이 서비스를 체험할 수 있습니다
+        </p>
       </div>
     </Container>
   );

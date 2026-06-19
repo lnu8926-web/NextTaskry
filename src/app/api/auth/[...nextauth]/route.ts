@@ -1,7 +1,11 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { supabaseAdmin } from "@/lib/supabase/server";
+
+const GUEST_EMAIL = "guest@taskry.demo";
+const GUEST_NAME = "게스트";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,6 +16,19 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+    CredentialsProvider({
+      id: "guest",
+      name: "Guest",
+      credentials: {},
+      async authorize() {
+        return {
+          id: GUEST_EMAIL,
+          email: GUEST_EMAIL,
+          name: GUEST_NAME,
+          image: null,
+        };
+      },
     }),
   ],
   session: {
