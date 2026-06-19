@@ -145,3 +145,10 @@ vite.config.ts.timestamp-*
 supabase/run-seed*.mjs
 supabase/seed.sql
 .vercel
+
+# Storybook build output
+storybook-static/
+
+# Claude / MCP local config
+.claude/
+.mcp.json
