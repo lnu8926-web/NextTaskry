@@ -284,7 +284,7 @@ export default function CalendarView({
 
   return (
     <>
-      <div className="h-full bg-card rounded-lg shadow-lg border border-border overflow-hidden flex flex-col">
+      <div className="h-full bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-border overflow-hidden flex flex-col">
         {/* 캘린더 헤더 */}
         <CalendarHeader
           projectName={projectName}

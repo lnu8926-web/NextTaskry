@@ -11,7 +11,7 @@
 
 import toast from "react-hot-toast";
 import { Icon } from "@/components/shared/Icon";
-import { bgColorOpacity } from "@/app/sample/color/page";
+import { bgColorOpacity } from "@/lib/constants/colors";
 import {
   TOAST_COLORS,
   BASE_TOAST_STYLE,

@@ -1,4 +1,4 @@
-import { bgColorOpacity } from "@/app/sample/color/page";
+import { bgColorOpacity } from "@/lib/constants/colors";
 
 interface BadgeConfig {
   title: string;

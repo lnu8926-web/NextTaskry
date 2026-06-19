@@ -1,4 +1,4 @@
-import { bgColorOpacity } from "@/app/sample/color/page";
+import { bgColorOpacity } from "@/lib/constants/colors";
 import Button from "@/components/ui/Button";
 import Container from "@/components/shared/Container";
 

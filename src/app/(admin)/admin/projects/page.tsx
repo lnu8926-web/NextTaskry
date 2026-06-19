@@ -1,7 +1,7 @@
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
-import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
+import { primaryBgColor, primaryBorderColor } from "@/lib/constants/colors";
 import { Icon } from "@/components/shared/Icon";
 import { mockProjects } from "@/app/data/mockProjects";
 import { mockProjectMembers } from "@/app/data/mockProjectMembers";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/shared/Icon";
-import { primaryBorderColor, primaryBgColor } from "@/app/sample/color/page";
+import { primaryBorderColor, primaryBgColor } from "@/lib/constants/colors";
 import { useState } from "react";
 
 type DropdownType = "view" | "theme";

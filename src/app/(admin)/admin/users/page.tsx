@@ -1,7 +1,7 @@
 "use client";
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
-import { primaryBgColor } from "@/app/sample/color/page";
+import { primaryBgColor } from "@/lib/constants/colors";
 import { useEffect, useState } from "react";
 import { fetchAdminUsers } from "@/lib/api/adminUsers";
 import { UserInfoRow } from "@/types/adminUser";
