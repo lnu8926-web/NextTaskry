@@ -104,25 +104,21 @@ export default function CalendarHeader({
     let badgeColor: string;
 
     if (today < startDate) {
-      // 시작 전
       status = "before";
       badgeText = `시작 D-${daysToStart}`;
-      badgeColor = "bg-blue-500 text-white";
+      badgeColor = "bg-main-500/10 text-main-600 dark:bg-main-400/10 dark:text-main-300";
     } else if (today > endDate) {
-      // 종료
       status = "ended";
       badgeText = "종료";
-      badgeColor = "bg-red-500 text-white";
+      badgeColor = "bg-red-500/10 text-red-600 dark:bg-red-400/10 dark:text-red-400";
     } else if (remainingDays <= 3) {
-      // 마감 임박 (3일 이하)
       status = "warning";
       badgeText = `D-${remainingDays} ⚠️`;
-      badgeColor = "bg-orange-500 text-white";
+      badgeColor = "bg-amber-500/10 text-amber-600 dark:bg-amber-400/10 dark:text-amber-400";
     } else {
-      // 진행 중
       status = "active";
       badgeText = `D-${remainingDays}`;
-      badgeColor = "bg-white/20 text-white";
+      badgeColor = "bg-main-500/10 text-main-600 dark:bg-main-400/10 dark:text-main-300";
     }
 
     return {
@@ -156,24 +152,24 @@ export default function CalendarHeader({
   };
 
   return (
-    <div className="px-3 sm:px-6 py-3 sm:py-4 mb-2 sm:mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 shadow-sm">
+    <div className="px-4 sm:px-6 py-3 sm:py-4 min-h-[60px] border-b border-border bg-main-500/5 dark:bg-main-400/5">
       <div className="flex items-center justify-between">
         {/* 왼쪽: 제목 + 프로젝트 정보 버튼 + 기간 */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg sm:text-xl font-bold text-white dark:text-gray-100">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">
               {projectName || "캘린더"}
             </h2>
             {/* 프로젝트 정보 버튼 */}
             {onProjectInfoClick && (
               <button
                 onClick={onProjectInfoClick}
-                className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+                className="p-1 hover:bg-muted/40 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
                 title="프로젝트 정보"
                 aria-label="프로젝트 정보"
               >
                 <svg
-                  className="w-5 h-5 text-white/80 hover:text-white"
+                  className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -190,13 +186,10 @@ export default function CalendarHeader({
           </div>
           {/* 프로젝트 기간 & 상태 뱃지 (KanbanHeader와 동일) */}
           {projectPeriod && (
-            <div className="flex items-center gap-2 text-xs text-white/80 dark:text-gray-200">
-              <span>|</span>
-              <span>
-                {projectPeriod.startStr} ~ {projectPeriod.endStr}
-              </span>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{projectPeriod.startStr} ~ {projectPeriod.endStr}</span>
               <span
-                className={`px-2 py-0.5 rounded-full font-medium ${projectPeriod.badgeColor}`}
+                className={`px-2 py-0.5 rounded-full font-medium text-xs ${projectPeriod.badgeColor}`}
               >
                 {projectPeriod.badgeText}
               </span>
@@ -204,24 +197,9 @@ export default function CalendarHeader({
           )}
           {/* 종료된 프로젝트 안내 문구 */}
           {projectPeriod?.status === "ended" && (
-            <div className="flex items-center gap-1.5 text-xs bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-200 px-2.5 py-1 rounded-md border border-sky-300 dark:border-sky-700">
-              <svg
-                className="w-4 h-4 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span className="font-medium">
-                이 프로젝트는 종료되었습니다. 일정 추가/수정이 제한됩니다.
-              </span>
-            </div>
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              종료된 프로젝트입니다. 일정 추가/수정이 제한됩니다.
+            </p>
           )}
         </div>
 
@@ -229,24 +207,22 @@ export default function CalendarHeader({
         <div className="flex items-center gap-2 sm:gap-3">
           {/* 현재 뷰 표시 */}
           <div className="hidden sm:flex items-center gap-2">
-            <div className="px-2 py-1 bg-white/20 rounded-full text-xs text-white font-medium">
+            <div className="px-2 py-1 bg-main-500/10 rounded-full text-xs text-main-600 dark:text-main-400 font-medium">
               {getViewLabel()}
             </div>
           </div>
 
           {/* 일정 개수 및 날짜 */}
-          <div className="text-sm font-medium text-white/90 dark:text-gray-200 text-right">
-            <div>{eventsCount}개 일정</div>
-            <div className="text-xs text-white/70 dark:text-gray-300">
-              {getDateFormat()}
-            </div>
+          <div className="text-sm text-right text-muted-foreground">
+            <div className="font-medium text-foreground">{eventsCount}개 일정</div>
+            <div className="text-xs">{getDateFormat()}</div>
           </div>
 
-          {/* 새 작업 버튼 (KanbanHeader와 동일) */}
+          {/* 새 작업 버튼 */}
           {onAddTask && (
             <button
               onClick={handleAddTaskClick}
-              className="px-3 sm:px-4 py-2 bg-main-400 dark:bg-main-500 text-white rounded-lg hover:bg-main-500 dark:hover:bg-main-400 active:bg-main-600 dark:active:bg-main-600 transition-all text-xs sm:text-sm font-medium shadow-sm"
+              className="flex items-center gap-1 px-3 py-2 bg-main-500 dark:bg-main-400 text-white rounded-[10px] hover:bg-main-600 dark:hover:bg-main-500 transition-colors text-sm font-medium"
               aria-label="새 작업 추가"
             >
               <span className="hidden sm:inline">+ 새 작업</span>
@@ -258,11 +234,11 @@ export default function CalendarHeader({
           {onToggleMemo && (
             <button
               onClick={onToggleMemo}
-              className={`p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-colors ${showMemo ? "bg-white/20" : ""}`}
+              className={`p-1.5 sm:p-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/40 ${showMemo ? "bg-muted/40 text-foreground" : ""}`}
               title={showMemo ? "메모 닫기" : "메모 열기"}
               aria-label={showMemo ? "메모 닫기" : "메모 열기"}
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
@@ -272,14 +248,14 @@ export default function CalendarHeader({
           {onToggleFilter && (
             <button
               onClick={onToggleFilter}
-              className={`p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-colors ${
-                showFilter ? "bg-white/20" : ""
+              className={`p-1.5 sm:p-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/40 ${
+                showFilter ? "bg-muted/40 text-foreground" : ""
               }`}
               title="필터"
               aria-label="필터"
             >
               <svg
-                className="w-4 h-4 sm:w-5 sm:h-5 text-white"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -297,14 +273,12 @@ export default function CalendarHeader({
           {/* 도움말 버튼 */}
           <button
             onClick={onToggleHelp}
-            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+            className="p-1.5 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/40"
             title={showHelp ? "도움말 닫기" : "도움말 열기"}
             aria-label={showHelp ? "도움말 닫기" : "도움말 열기"}
           >
             <svg
-              className={`w-4 h-4 text-white transition-transform duration-300 ${
-                showHelp ? "scale-110" : ""
-              }`}
+              className={`w-4 h-4 transition-transform duration-300 ${showHelp ? "scale-110" : ""}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

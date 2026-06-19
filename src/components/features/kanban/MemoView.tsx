@@ -505,37 +505,35 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
   return (
     <div className="h-full flex flex-col bg-card rounded-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-border overflow-hidden">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border bg-main-200 dark:bg-main-600 shadow-sm">
-        <h2 className="text-sm font-bold text-white dark:text-gray-100">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border bg-main-500/5 dark:bg-main-400/5">
+        <h2 className="text-sm font-bold text-foreground">
           메모
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-white/90 dark:text-gray-200">
+          <span className="text-xs font-medium text-muted-foreground">
             {filteredMemos.length}개
           </span>
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="p-1.5 hover:bg-white/20 rounded-md transition-colors"
+            className={`p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/40 ${showFilter ? "bg-muted/40 text-foreground" : ""}`}
             title={showFilter ? "필터 닫기" : "필터 열기"}
           >
             <Icon
               type="filter"
               size={14}
-              className={`text-white transition-transform duration-300 ${
-                showFilter ? "scale-110" : ""
-              }`}
+              className={`transition-transform duration-300 ${showFilter ? "scale-110" : ""}`}
             />
           </button>
-    {onClose && (
-      <button
-        onClick={onClose}
-        className="p-1.5 hover:bg-white/20 rounded-md transition-colors"
-        title="메모 닫기"
-        aria-label="메모 닫기"
-      >
-        <Icon type="x" size={14} className="text-white" />
-      </button>
-    )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-muted/40 rounded-md transition-colors text-muted-foreground hover:text-foreground"
+              title="메모 닫기"
+              aria-label="메모 닫기"
+            >
+              <Icon type="x" size={14} />
+            </button>
+          )}
         </div>
       </div>
 
