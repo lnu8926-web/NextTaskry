@@ -10,7 +10,6 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
 import { useSession } from "next-auth/react";
 import { useProjectBoard } from "@/providers/ProjectBoardProvider";
-import Container from "@/components/shared/Container";
 import ProjectBoardEmpty from "./ProjectBoardEmpty";
 import ProjectCard from "./ProjectCard";
 import CommonPagination from "@/components/ui/CommonPagination";
@@ -105,11 +104,7 @@ export default function ProjectBoard() {
   }
 
   if (sortedProjectList.length === 0) {
-    return (
-      <Container className="pt-0">
-        <ProjectBoardEmpty />
-      </Container>
-    );
+    return <ProjectBoardEmpty />;
   }
 
   return (

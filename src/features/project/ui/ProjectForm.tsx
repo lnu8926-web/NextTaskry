@@ -23,7 +23,6 @@ import { queryKeys } from "@/lib/constants/queryKeys";
 import { ComboBox, type Item, getAvatarColor } from "./ComboBox";
 import ProjectDateCard from "./ProjectDateCard";
 import { RoleSelect } from "./RoleSelect";
-import Container from "@/components/shared/Container";
 import { cn } from "@/lib/utils/utils";
 
 interface ProjectProps {
@@ -255,27 +254,25 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
   });
 
   return (
-    <Container>
-      <div className="w-full max-w-2xl mx-auto px-4 py-8">
+    <div className="w-full">
+      {/* 페이지 타이틀 */}
+      <div className="mb-6">
+        <h1 className="text-lg font-semibold text-foreground">
+          {projectId ? "프로젝트 수정" : "새 프로젝트"}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          {projectId ? "프로젝트 정보를 수정합니다." : "팀과 함께할 새 프로젝트를 만들어보세요."}
+        </p>
+      </div>
 
-        {/* 페이지 타이틀 */}
-        <div className="mb-6">
-          <h1 className="text-lg font-semibold text-foreground">
-            {projectId ? "프로젝트 수정" : "새 프로젝트"}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {projectId ? "프로젝트 정보를 수정합니다." : "팀과 함께할 새 프로젝트를 만들어보세요."}
-          </p>
-        </div>
+      {/* Card */}
+      <div className="w-full bg-white dark:bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
 
-        {/* 카드 (Body + Footer 통합) */}
-        <div className="bg-white dark:bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+        {/* Card Body — 2-column grid */}
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
 
-        {/* Card Body */}
-        <div className="p-6 space-y-5">
-
-          {/* 프로젝트 명 */}
-          <div className="space-y-1.5">
+          {/* 프로젝트 명 — full width */}
+          <div className="space-y-1.5 md:col-span-2">
             <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">프로젝트 명</Label>
             <Input
               id="projectName"
@@ -287,46 +284,51 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
             />
           </div>
 
-          {/* 분류 / 상태 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">분류</Label>
-              <TypeSelect
-                value={projectData.type}
-                onValueChange={(value) => handleSelectChange("type", value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">상태</Label>
-              <StatusSelect
-                value={projectData.status}
-                onValueChange={(value) => handleSelectChange("status", value)}
-              />
-            </div>
-          </div>
-
-          {/* 시작일 / 종료일 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">시작일</Label>
-              <Calendar22
-                value={projectData.startedAt}
-                onValueChange={(value) => handleDateChange("startedAt", value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">종료일</Label>
-              <Calendar22
-                value={projectData.endedAt}
-                onValueChange={(value) => handleDateChange("endedAt", value)}
-              />
-            </div>
-          </div>
-
-          {projectId && <ProjectDateCard projectData={projectData} />}
-
-          {/* 기술 스택 */}
+          {/* 분류 */}
           <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">분류</Label>
+            <TypeSelect
+              value={projectData.type}
+              onValueChange={(value) => handleSelectChange("type", value)}
+            />
+          </div>
+
+          {/* 상태 */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">상태</Label>
+            <StatusSelect
+              value={projectData.status}
+              onValueChange={(value) => handleSelectChange("status", value)}
+            />
+          </div>
+
+          {/* 시작일 */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">시작일</Label>
+            <Calendar22
+              value={projectData.startedAt}
+              onValueChange={(value) => handleDateChange("startedAt", value)}
+            />
+          </div>
+
+          {/* 종료일 */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">종료일</Label>
+            <Calendar22
+              value={projectData.endedAt}
+              onValueChange={(value) => handleDateChange("endedAt", value)}
+            />
+          </div>
+
+          {/* 날짜 카드 — full width, 수정 모드에서만 */}
+          {projectId && (
+            <div className="md:col-span-2">
+              <ProjectDateCard projectData={projectData} />
+            </div>
+          )}
+
+          {/* 기술 스택 — full width */}
+          <div className="space-y-1.5 md:col-span-2">
             <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">기술 스택</Label>
             <Input
               id="techStack"
@@ -338,8 +340,8 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
             />
           </div>
 
-          {/* 프로젝트 설명 */}
-          <div className="space-y-1.5">
+          {/* 설명 — full width */}
+          <div className="space-y-1.5 md:col-span-2">
             <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">설명</Label>
             <Textarea
               id="description"
@@ -350,8 +352,8 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
             />
           </div>
 
-          {/* 프로젝트 구성원 */}
-          <div className="space-y-3">
+          {/* 구성원 — full width */}
+          <div className="space-y-3 md:col-span-2">
             <div className="flex items-center gap-2">
               <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">구성원</Label>
               {projectMember.length > 0 && (
@@ -382,7 +384,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
                         {initial}
                       </div>
                       <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-snug">{member.userName}</span>
+                        <span className="text-sm font-medium text-foreground leading-snug">{member.userName}</span>
                         <span className="text-xs text-muted-foreground truncate">{member.email}</span>
                       </div>
                       <RoleSelect
@@ -433,8 +435,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
           </button>
         </div>{/* /Card Footer */}
 
-        </div>{/* /Card */}
-      </div>
-    </Container>
+      </div>{/* /Card */}
+    </div>
   );
 }

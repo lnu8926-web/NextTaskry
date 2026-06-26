@@ -5,7 +5,7 @@
 import { supabase } from "@/lib/supabase/supabase";
 import { useEffect, useState } from "react";
 import InviteDecisionModal_V2 from "@/components/features/invite/InviteDecisionModal_V2";
-import Container from "@/components/shared/Container";
+import PageContainer from "@/components/shared/PageContainer";
 import { ProjectBoard } from "@/features/project";
 
 const Home = () => {
@@ -38,9 +38,9 @@ const Home = () => {
 
   return (
     <div className="min-h-full flex flex-col">
-      <Container className="h-full">
+      <PageContainer className="flex-1">
         <ProjectBoard />
-      </Container>
+      </PageContainer>
 
 
        {/* 초대 모달 표시 */}
