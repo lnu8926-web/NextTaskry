@@ -1,6 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
+import { X } from "lucide-react";
 import { Calendar22 } from "./Calendar";
 import { StatusSelect } from "./StatusSelect";
 import { TypeSelect } from "./TypeSelect";
@@ -20,10 +21,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants/queryKeys";
-import { ComboBox, type Item } from "./ComboBox";
+import { ComboBox, type Item, getAvatarColor } from "./ComboBox";
 import ProjectDateCard from "./ProjectDateCard";
 import { RoleSelect } from "./RoleSelect";
 import Container from "@/components/shared/Container";
+import { cn } from "@/lib/utils/utils";
 
 interface ProjectProps {
   projectName: string;
@@ -255,142 +257,173 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
 
   return (
     <Container>
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
-        <div className="text-2xl font-bold mb-8">
-          {projectId ? "프로젝트 수정" : "프로젝트 생성"}
-        </div>
-        <div className="py-3">
-          <Label className="mb-4 font-bold text-lg">프로젝트 명</Label>
-          <Input
-            id="projectName"
-            name="projectName"
-            type="text"
-            placeholder="프로젝트 명을 입력해주세요"
-            value={projectData.projectName}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex py-3 grid grid-cols-2 gap-4">
-          <div>
-            <Label className="mb-4 font-bold text-lg">프로젝트 분류</Label>
-            <TypeSelect
-              value={projectData.type}
-              onValueChange={(value) => {
-                handleSelectChange("type", value);
-              }}
-            />
-          </div>
-          <div>
-            <Label className="mb-4 font-bold text-lg">프로젝트 상태</Label>
-            <StatusSelect
-              value={projectData.status}
-              onValueChange={(value) => {
-                handleSelectChange("status", value);
-              }}
-            />
-          </div>
-        </div>
-        <div className="flex py-3 grid grid-cols-2 gap-4">
-          <div>
-            <Label className="mb-4 font-bold text-lg">프로젝트 시작일</Label>
-            <Calendar22
-              value={projectData.startedAt}
-              onValueChange={(value) => {
-                handleDateChange("startedAt", value);
-              }}
-            />
-          </div>
-          <div>
-            <Label className="mb-4 font-bold text-lg">프로젝트 종료일</Label>
-            <Calendar22
-              value={projectData.endedAt}
-              onValueChange={(value) => {
-                handleDateChange("endedAt", value);
-              }}
-            />
-          </div>
+      <div className="w-full max-w-4xl mx-auto px-6 py-8 pb-24">
+
+        {/* 페이지 타이틀 */}
+        <div className="mb-8">
+          <h1 className="text-xl font-semibold text-foreground">
+            {projectId ? "프로젝트 수정" : "새 프로젝트"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {projectId ? "프로젝트 정보를 수정합니다." : "팀과 함께할 새 프로젝트를 만들어보세요."}
+          </p>
         </div>
 
-        {projectId && <ProjectDateCard projectData={projectData} />}
+        <div className="space-y-6">
 
-        <div className="py-3">
-          <Label className="mb-4 font-bold text-lg">프로젝트 기술 스택</Label>
-          <Input
-            id="techStack"
-            name="techStack"
-            type="text"
-            placeholder="쉼표(,)를 구분해 입력해주세요 예) React, TypeScript"
-            value={projectData.techStack}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="py-3">
-          <Label className="mb-4 font-bold text-lg">프로젝트 설명</Label>
-          <Textarea
-            id="description"
-            name="description"
-            placeholder="프로젝트 설명을 입력해주세요. (최대 300자)"
-            value={projectData.description}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="py-3">
-          <Label className="mb-4 font-bold text-lg">프로젝트 구성원</Label>
-          <div className="pb-4">
+          {/* 프로젝트 명 */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-foreground">프로젝트 명</Label>
+            <Input
+              id="projectName"
+              name="projectName"
+              type="text"
+              placeholder="프로젝트 명을 입력해주세요"
+              value={projectData.projectName}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* 분류 / 상태 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-foreground">분류</Label>
+              <TypeSelect
+                value={projectData.type}
+                onValueChange={(value) => handleSelectChange("type", value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-foreground">상태</Label>
+              <StatusSelect
+                value={projectData.status}
+                onValueChange={(value) => handleSelectChange("status", value)}
+              />
+            </div>
+          </div>
+
+          {/* 시작일 / 종료일 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-foreground">시작일</Label>
+              <Calendar22
+                value={projectData.startedAt}
+                onValueChange={(value) => handleDateChange("startedAt", value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-foreground">종료일</Label>
+              <Calendar22
+                value={projectData.endedAt}
+                onValueChange={(value) => handleDateChange("endedAt", value)}
+              />
+            </div>
+          </div>
+
+          {projectId && <ProjectDateCard projectData={projectData} />}
+
+          {/* 기술 스택 */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-foreground">기술 스택</Label>
+            <Input
+              id="techStack"
+              name="techStack"
+              type="text"
+              placeholder="예) React, TypeScript, Supabase"
+              value={projectData.techStack}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* 프로젝트 설명 */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-foreground">설명</Label>
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="프로젝트 목표와 주요 내용을 입력해주세요. (최대 300자)"
+              value={projectData.description}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* 프로젝트 구성원 */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium text-foreground">구성원</Label>
+              {projectMember.length > 0 && (
+                <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-medium text-muted-foreground">
+                  {projectMember.length}
+                </span>
+              )}
+            </div>
+
             <ComboBox
               items={userList}
               value={user}
               setValue={setUser}
               onChange={handleAddProjectMember}
             />
-          </div>
-        </div>
 
-        {projectMember.length > 0 && (
-          <div className="flex flex-col gap-2 pb-2">
-            {projectMember.map((member, index) => {
-              const initial = member.userName?.charAt(0) ?? "?"
-              return (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-muted/30"
-                >
-                  <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
-                    {initial}
-                  </div>
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="font-semibold text-sm leading-tight">{member.userName}</span>
-                    <span className="text-xs text-muted-foreground truncate">{member.email}</span>
-                  </div>
-                  <RoleSelect
-                    value={member.role}
-                    onValueChange={(value) => handleRoleSelectChange(index, value)}
-                  />
-                  <Button
-                    btnType="icon"
-                    icon="trash"
-                    size={15}
-                    className="shrink-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 border-transparent bg-transparent"
-                    onClick={() => handleDeleteProjectMember(member.userId)}
-                  />
-                </div>
-              )
-            })}
+            {projectMember.length > 0 && (
+              <div className="rounded-xl border border-border overflow-hidden divide-y divide-border">
+                {projectMember.map((member, index) => {
+                  const initial = member.userName?.charAt(0)?.toUpperCase() ?? "?"
+                  const avatarColor = getAvatarColor(member.userName)
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 px-4 py-3 bg-background hover:bg-muted/40 transition-colors duration-100"
+                    >
+                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0", avatarColor)}>
+                        {initial}
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-sm font-medium text-foreground leading-snug">{member.userName}</span>
+                        <span className="text-xs text-muted-foreground truncate">{member.email}</span>
+                      </div>
+                      <RoleSelect
+                        value={member.role}
+                        onValueChange={(value) => handleRoleSelectChange(index, value)}
+                      />
+                      <button
+                        type="button"
+                        aria-label={`${member.userName} 제거`}
+                        onClick={() => handleDeleteProjectMember(member.userId)}
+                        className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
-        )}
 
-        <div className="py-2 justify-self-center absolute bottom-5 left-1/2 transform -translate-x-1/2">
-          <Button
-            icon="edit"
-            variant="primary"
-            size={16}
-            className="hover:cursor-pointer mr-2 text-white"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "저장 중..." : projectId ? "수정 완료" : "프로젝트 생성"}
-          </Button>
         </div>
+      </div>
+
+      {/* 하단 고정 액션 바 */}
+      <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-background/80 backdrop-blur-sm border-t border-border">
+        <Button
+          icon={isSubmitting ? undefined : "edit"}
+          variant="primary"
+          size={16}
+          className="w-full h-10 rounded-lg text-sm font-semibold text-white hover:cursor-pointer"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              저장 중...
+            </span>
+          ) : projectId ? "수정 완료" : "프로젝트 생성"}
+        </Button>
       </div>
     </Container>
   );
