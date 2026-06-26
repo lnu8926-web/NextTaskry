@@ -1,7 +1,6 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { Icon } from "@/components/shared/Icon";
 import { Calendar22 } from "./Calendar";
 import { StatusSelect } from "./StatusSelect";
 import { TypeSelect } from "./TypeSelect";
@@ -347,52 +346,38 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
           </div>
         </div>
 
-        {projectMember.map((member, index) => {
-          return (
-            <div className="flex pb-6" key={index}>
-              <div className="flex items-center w-full">
-                <div className="border-1 rounded-full p-3 mr-5 border-gray-100 dark:border-gray-500">
-                  <Icon
-                    type="userCircle"
-                    className="
-                      text-gray-700
-                      dark:text-gray-200"
+        {projectMember.length > 0 && (
+          <div className="flex flex-col gap-2 pb-2">
+            {projectMember.map((member, index) => {
+              const initial = member.userName?.charAt(0) ?? "?"
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-muted/30"
+                >
+                  <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
+                    {initial}
+                  </div>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="font-semibold text-sm leading-tight">{member.userName}</span>
+                    <span className="text-xs text-muted-foreground truncate">{member.email}</span>
+                  </div>
+                  <RoleSelect
+                    value={member.role}
+                    onValueChange={(value) => handleRoleSelectChange(index, value)}
+                  />
+                  <Button
+                    btnType="icon"
+                    icon="trash"
+                    size={15}
+                    className="shrink-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 border-transparent bg-transparent"
+                    onClick={() => handleDeleteProjectMember(member.userId)}
                   />
                 </div>
-                <div>
-                  <div>{member.userName}</div>
-                  <div className="flex justify-center items-center">
-                    <div className="mr-2">{member.email} -</div>
-                    <div>
-                      <RoleSelect
-                        value={member.role}
-                        onValueChange={(value) =>
-                          handleRoleSelectChange(index, value)
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Button
-                  btnType="icon"
-                  icon="trash"
-                  size={16}
-                  className="
-                    hover:bg-red-100/40
-                    hover:border-red-100/40
-                    text-red-100
-                    dark:text-red-100/80!
-                    dark:bg-gray-700!
-                    dark:border-gray-500!
-                    dark:hover:bg-gray-100/40!"
-                  onClick={() => handleDeleteProjectMember(member.userId)}
-                />
-              </div>
-            </div>
-          );
-        })}
+              )
+            })}
+          </div>
+        )}
 
         <div className="py-2 justify-self-center absolute bottom-5 left-1/2 transform -translate-x-1/2">
           <Button
