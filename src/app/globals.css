@@ -183,10 +183,6 @@
 }
 
 @layer base {
-  html {
-    /* Windows 고정 스크롤바(15-17px)로 인한 레이아웃 밀림 방지 */
-    scrollbar-gutter: stable;
-  }
   *, *::before, *::after {
     /* OS별 box model 차이 통일 */
     box-sizing: border-box;
