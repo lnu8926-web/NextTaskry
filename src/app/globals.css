@@ -74,7 +74,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #EEF7F9;
+  --background: #F4F6F8;
   --foreground: #1A4A5A;
   --card: #FFFFFF;
   --card-foreground: #1A4A5A;
@@ -103,7 +103,7 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: #c8a030;
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #EEF7F9;
+  --sidebar: #E8F4F7;
   --sidebar-foreground: #1A4A5A;
   --sidebar-primary: #1A4A5A;
   --sidebar-primary-foreground: #FFFFFF;

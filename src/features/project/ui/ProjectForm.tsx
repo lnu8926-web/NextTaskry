@@ -257,19 +257,20 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
 
   return (
     <Container>
-      <div className="w-full max-w-4xl mx-auto px-6 py-8 pb-24">
+      <div className="w-full max-w-2xl mx-auto px-4 py-6 pb-24">
 
         {/* 페이지 타이틀 */}
-        <div className="mb-8">
-          <h1 className="text-xl font-semibold text-foreground">
+        <div className="mb-5">
+          <h1 className="text-lg font-semibold text-foreground">
             {projectId ? "프로젝트 수정" : "새 프로젝트"}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-0.5">
             {projectId ? "프로젝트 정보를 수정합니다." : "팀과 함께할 새 프로젝트를 만들어보세요."}
           </p>
         </div>
 
-        <div className="space-y-6">
+        {/* 흰색 카드 컨테이너 */}
+        <div className="bg-white dark:bg-card border border-border rounded-2xl shadow-sm p-6 space-y-5">
 
           {/* 프로젝트 명 */}
           <div className="space-y-1.5">
@@ -405,7 +406,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
       </div>
 
       {/* 하단 고정 액션 바 */}
-      <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-background/80 backdrop-blur-sm border-t border-border">
+      <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-white/90 dark:bg-card/90 backdrop-blur-sm border-t border-border">
         <Button
           icon={isSubmitting ? undefined : "edit"}
           variant="primary"

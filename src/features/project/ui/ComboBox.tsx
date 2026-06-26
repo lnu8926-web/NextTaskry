@@ -67,7 +67,7 @@ export function ComboBox({
           aria-haspopup="listbox"
           className={cn(
             "w-full flex items-center gap-2.5 h-10 px-3 rounded-lg",
-            "border border-input bg-background text-sm text-left",
+            "border border-input bg-white dark:bg-input/30 text-sm text-left",
             "transition-all duration-150 outline-none",
             "hover:border-neutral-400 dark:hover:border-neutral-500",
             "focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-ring",
