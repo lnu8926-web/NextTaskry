@@ -37,7 +37,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="min-h-full flex flex-col">
       <Container className="h-full">
         <ProjectBoard />
       </Container>

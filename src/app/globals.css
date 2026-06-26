@@ -200,9 +200,9 @@
 }
 
 /* 스크롤바 공간 예약 — Mac/Windows 레이아웃 일치 */
-.scrollbar-gutter-stable {
+/* .scrollbar-gutter-stable {
   scrollbar-gutter: stable;
-}
+} */
 
 /* ==========================================================================
    React Calendar (react-calendar)

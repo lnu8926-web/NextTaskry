@@ -41,7 +41,7 @@ export default function RootLayout({
                 <Header />
                 <div className="flex-1 min-w-0 flex overflow-hidden pt-16">
                   <AppSidebar />
-                  <div className="flex-1 overflow-auto scrollbar-gutter-stable">{children}</div>
+                  <div className="flex-1 overflow-auto min-w-0">{children}</div>
                 </div>
                 <Toaster />
               </div>
