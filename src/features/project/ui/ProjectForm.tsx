@@ -1,6 +1,5 @@
 "use client";
 
-import Button from "@/components/ui/Button";
 import { X } from "lucide-react";
 import { Calendar22 } from "./Calendar";
 import { StatusSelect } from "./StatusSelect";
@@ -257,10 +256,10 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
 
   return (
     <Container>
-      <div className="w-full max-w-2xl mx-auto px-4 py-6 pb-24">
+      <div className="w-full max-w-2xl mx-auto px-4 py-8">
 
         {/* 페이지 타이틀 */}
-        <div className="mb-5">
+        <div className="mb-6">
           <h1 className="text-lg font-semibold text-foreground">
             {projectId ? "프로젝트 수정" : "새 프로젝트"}
           </h1>
@@ -269,8 +268,11 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
           </p>
         </div>
 
-        {/* 흰색 카드 컨테이너 */}
-        <div className="bg-white dark:bg-card border border-border rounded-2xl shadow-sm p-6 space-y-5">
+        {/* 카드 (Body + Footer 통합) */}
+        <div className="bg-white dark:bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+
+        {/* Card Body */}
+        <div className="p-6 space-y-5">
 
           {/* 프로젝트 명 */}
           <div className="space-y-1.5">
@@ -374,7 +376,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
                   return (
                     <div
                       key={index}
-                      className="flex items-center gap-3 px-4 py-3 bg-background hover:bg-muted/40 transition-colors duration-100"
+                      className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-neutral-50 dark:bg-card dark:hover:bg-muted/30 transition-colors duration-100"
                     >
                       <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0", avatarColor)}>
                         {initial}
@@ -402,29 +404,36 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
             )}
           </div>
 
-        </div>
-      </div>
+        </div>{/* /Card Body */}
 
-      {/* 하단 고정 액션 바 */}
-      <div className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-white/90 dark:bg-card/90 backdrop-blur-sm border-t border-border">
-        <Button
-          icon={isSubmitting ? undefined : "edit"}
-          variant="primary"
-          size={16}
-          className="w-full h-10 rounded-lg text-sm font-semibold text-white hover:cursor-pointer"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              저장 중...
-            </span>
-          ) : projectId ? "수정 완료" : "프로젝트 생성"}
-        </Button>
+        {/* Card Footer */}
+        <div className="border-t border-border bg-neutral-50/60 dark:bg-muted/10 px-6 py-4 flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex items-center justify-center h-11 px-5 rounded-xl text-sm font-medium text-neutral-600 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-border hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring/40 cursor-pointer"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl text-sm font-semibold text-white bg-main-500 hover:bg-main-600 dark:bg-main-600 dark:hover:bg-main-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring/40 cursor-pointer"
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                저장 중...
+              </>
+            ) : projectId ? "수정 완료" : "프로젝트 생성"}
+          </button>
+        </div>{/* /Card Footer */}
+
+        </div>{/* /Card */}
       </div>
     </Container>
   );
