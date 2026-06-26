@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "seed:demo": "node scripts/seed-demo-data.cjs",
+    "seed:guest": "node scripts/seed-guest-data.cjs",
     "storybook": "storybook dev -p 6007",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN"
