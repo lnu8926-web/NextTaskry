@@ -595,7 +595,7 @@ function TitleField({
           if (e.key === "Escape") onCancel();
         }}
         autoFocus
-        className="text-2xl font-bold text-gray-800 dark:text-gray-200 w-full border-b-2 border-main-300 dark:border-main-600 focus:outline-none pb-2 bg-transparent"
+        className="text-2xl font-bold text-foreground w-full border-b-2 border-main-300 dark:border-main-600 focus:outline-none pb-2 bg-transparent"
       />
     );
   }
@@ -603,7 +603,7 @@ function TitleField({
   return (
     <h2
       onClick={onEdit}
-      className="text-2xl font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:text-main-500 dark:hover:text-main-400 transition-colors flex items-center gap-2"
+      className="text-2xl font-bold text-foreground cursor-pointer hover:text-main-500 dark:hover:text-main-400 transition-colors flex items-center gap-2"
     >
       <Icon
         type="edit"

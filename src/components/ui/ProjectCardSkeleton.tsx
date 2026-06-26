@@ -2,25 +2,28 @@ import { Skeleton } from "@/components/ui/shadcn/Skeleton";
 
 export default function ProjectCardSkeleton() {
   return (
-    <div className="border rounded-lg py-6 px-4 space-y-2">
-      {/* 제목 */}
-      <Skeleton className="h-6 w-[70%]" />
+    <div className="relative flex flex-col rounded-xl border border-border p-6">
+      {/* ⋮ 메뉴 버튼 자리 */}
+      <Skeleton className="absolute top-3 right-3 h-7 w-7 rounded-lg" />
 
-      {/* 설명 */}
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-[85%]" />
+      {/* status dot + type 라벨 */}
+      <div className="flex items-center gap-2 mb-4">
+        <Skeleton className="h-1.5 w-1.5 rounded-full shrink-0" />
+        <Skeleton className="h-3 w-12" />
+      </div>
 
-      {/* 하단: 팀원 수 + 아이콘들 */}
-      <div className="flex flex-col items-end justify-end gap-3 pt-2">
-        {/* 4 팀원 */}
-        <Skeleton className="h-5 w-16" />
+      {/* 프로젝트명 */}
+      <Skeleton className="h-[22px] w-3/4 mb-2" />
 
-        {/* 취소, 삭제 아이콘 */}
-        <div className="flex gap-2">
-          <Skeleton className="h-8 w-8 rounded-full" />
-          <Skeleton className="h-8 w-8 rounded-full" />
-        </div>
+      {/* 설명 2줄 */}
+      <Skeleton className="h-4 w-full mb-1" />
+      <Skeleton className="h-4 w-2/3 mb-5" />
+
+      {/* 마감일 + 멤버 수 */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-3 w-12" />
       </div>
     </div>
   );
-};
+}

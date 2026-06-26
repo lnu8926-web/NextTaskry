@@ -14,7 +14,7 @@ export function SectionHeader({
 
   return (
     <header className={allClasses}>
-      <h2 className="text-xl font-black mb-2">{title}</h2>
+      <h2 className="text-xl font-bold mb-2">{title}</h2>
       {description && (
         <p
           className="text-base font-medium"

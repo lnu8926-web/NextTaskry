@@ -283,8 +283,8 @@ export default function TaskAdd({
   return (
     <div className="task-form-layout">
       {/* 헤더 - 고정 */}
-      <div className="pb-4 mb-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+      <div className="pb-4 mb-4 border-b border-border shrink-0">
+        <h2 className="text-xl font-bold text-foreground">
           새 작업 추가
         </h2>
       </div>

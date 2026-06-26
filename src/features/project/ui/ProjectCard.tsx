@@ -53,7 +53,7 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
   return (
     <div
       onClick={() => router.push(`/project/workspace/${project.project_id}`)}
-      className="group relative flex flex-col bg-white dark:bg-card rounded-[14px] border border-[#bde3ec] dark:border-border p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+      className="group relative flex flex-col bg-white dark:bg-card rounded-xl border border-border p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
     >
      {/* ⋮ 메뉴 버튼 — 항상 표시 */}
 <div
@@ -101,33 +101,32 @@ export default function ProjectCard({ project, projectMember }: ProjectCardProps
 </div>
 
       {/* 타입 라벨 */}
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 min-w-0">
         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
-        {project.type || "기타"}
+        <span className="truncate">{project.type || "기타"}</span>
       </div>
 
       {/* 제목 + 설명 */}
       <div className="flex-1 min-h-0 mb-5">
-        <h3 className="font-semibold text-[18px] text-foreground line-clamp-1 mb-2">
+        <h3 className="font-semibold text-[18px] text-foreground line-clamp-1 break-keep mb-2">
           {project.project_name}
         </h3>
-        <p className="text-sm text-gray-400 dark:text-gray-500 line-clamp-2 leading-relaxed">
+        <p className="text-sm text-gray-400 dark:text-gray-500 line-clamp-2 break-keep leading-relaxed">
           {project.description || "설명이 없습니다."}
         </p>
       </div>
 
       {/* 마감일 + 멤버 수 */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        <span className="text-xs text-muted-foreground whitespace-nowrap truncate">
           {deadline ?? "마감일 없음"}
         </span>
 
-        <div className="flex items-center gap-1">
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
             <Icon type="users" size={12} />
             {memberCount}명
           </span>
-   
         </div>
       </div>
     </div>
