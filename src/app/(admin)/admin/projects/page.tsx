@@ -1,29 +1,18 @@
 import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBgColor, primaryBorderColor } from "@/lib/constants/colors";
 import { Icon } from "@/components/shared/Icon";
-import { mockProjects } from "@/app/data/mockProjects";
-import { mockProjectMembers } from "@/app/data/mockProjectMembers";
-import { mockTasks } from "@/app/data/mockTasks";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
-function getProgress(projectId: string): number {
-  const tasks = mockTasks.filter((t) => t.project_id === projectId);
-  if (tasks.length === 0) return 0;
-  const done = tasks.filter((t) => t.status === "done").length;
-  return Math.round((done / tasks.length) * 100);
-}
-
-function getLeaderName(projectId: string): string {
-  const leader = mockProjectMembers.find(
-    (m) => m.project_id === projectId && m.role === "leader"
-  );
-  return leader?.users.user_name ?? "-";
-}
-
-function getMemberCount(projectId: string): number {
-  return mockProjectMembers.filter((m) => m.project_id === projectId).length;
-}
+type ProjectRow = {
+  project_id: string;
+  project_name: string;
+  type: string | null;
+  status: string;
+  tech_stack: string | null;
+  project_members: { role: string; users: { user_name: string }[] }[];
+  tasks: { status: string }[];
+};
 
 const STATUS_BADGE: Record<string, "dueSoon" | "inProgress" | "done"> = {
   active: "inProgress",
@@ -31,7 +20,30 @@ const STATUS_BADGE: Record<string, "dueSoon" | "inProgress" | "done"> = {
   archived: "dueSoon",
 };
 
-export default function AdminProjectsPage() {
+async function fetchProjects(): Promise<ProjectRow[]> {
+  const { data, error } = await supabaseAdmin
+    .from("projects")
+    .select(`
+      project_id,
+      project_name,
+      type,
+      status,
+      tech_stack,
+      project_members ( role, users ( user_name ) ),
+      tasks ( status )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Admin projects fetch error:", error);
+    return [];
+  }
+  return (data ?? []) as unknown as ProjectRow[];
+}
+
+export default async function AdminProjectsPage() {
+  const projects = await fetchProjects();
+
   return (
     <AdminPageWrapper
       title="프로젝트 관리"
@@ -50,10 +62,19 @@ export default function AdminProjectsPage() {
         </div>
       }
     >
-      {mockProjects.map((project) => {
-        const progress = getProgress(project.project_id);
-        const leaderName = getLeaderName(project.project_id);
-        const memberCount = getMemberCount(project.project_id);
+      {projects.length === 0 && (
+        <p className="text-sm text-muted-foreground py-10 text-center">
+          프로젝트가 없습니다.
+        </p>
+      )}
+
+      {projects.map((project) => {
+        const leader = project.project_members.find((m) => m.role === "leader");
+        const leaderName = leader?.users?.[0]?.user_name ?? "-";
+        const memberCount = project.project_members.length;
+        const taskTotal = project.tasks.length;
+        const taskDone = project.tasks.filter((t) => t.status === "done").length;
+        const progress = taskTotal > 0 ? Math.round((taskDone / taskTotal) * 100) : 0;
         const badgeType = STATUS_BADGE[project.status] ?? "dueSoon";
 
         return (
@@ -76,7 +97,6 @@ export default function AdminProjectsPage() {
                   )}
                 </ul>
               </div>
-              <Button btnType="icon" icon="trash" size={16} variant="basic" />
             </div>
             <div
               role="progressbar"
