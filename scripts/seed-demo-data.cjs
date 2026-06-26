@@ -38,7 +38,7 @@ function pickUserByEmail(userMap, email) {
 const DEMO_USERS = [
   {
     email: "demo.admin@taskry.dev",
-    user_name: "Demo Admin",
+    user_name: "김태현",
     profile_image: "https://avatars.githubusercontent.com/u/60370886",
     global_role: "admin",
     auth_provider: "github",
@@ -46,7 +46,7 @@ const DEMO_USERS = [
   },
   {
     email: "demo.pm@taskry.dev",
-    user_name: "Demo PM",
+    user_name: "최민준",
     profile_image: "https://avatars.githubusercontent.com/u/10000000",
     global_role: "user",
     auth_provider: "google",
@@ -54,7 +54,7 @@ const DEMO_USERS = [
   },
   {
     email: "demo.dev1@taskry.dev",
-    user_name: "Demo Dev One",
+    user_name: "이재원",
     profile_image: "https://avatars.githubusercontent.com/u/10000003",
     global_role: "user",
     auth_provider: "github",
@@ -62,7 +62,7 @@ const DEMO_USERS = [
   },
   {
     email: "demo.dev2@taskry.dev",
-    user_name: "Demo Dev Two",
+    user_name: "박소연",
     profile_image: "https://avatars.githubusercontent.com/u/10000004",
     global_role: "user",
     auth_provider: "google",
