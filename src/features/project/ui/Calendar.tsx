@@ -5,6 +5,7 @@ import { ChevronDownIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/shadcn/Button"
 import { Calendar } from "@/components/ui/shadcn/Calendar"
+import { cn } from "@/lib/utils/utils"
 
 import {
   Popover,
@@ -42,10 +43,20 @@ export function Calendar22({
           <Button
             variant="outline"
             id="date"
-            className="justify-between font-normal"
+            className={cn(
+              "w-full justify-between font-normal text-sm px-3.5 py-2.5 h-auto",
+              "bg-white dark:bg-input/30",
+              "border-slate-200 dark:border-border",
+              "shadow-sm",
+              "hover:border-slate-300 hover:shadow-md hover:bg-white",
+              "focus-visible:border-sky-500 focus-visible:ring-2 focus-visible:ring-sky-100 dark:focus-visible:ring-sky-900/30",
+              "transition-[border-color,box-shadow] duration-150",
+              !value && "text-slate-400 dark:text-muted-foreground",
+              value && "text-foreground",
+            )}
           >
             {value ? format(value, "yyyy년 MM월 dd일") : placeholder}
-            <ChevronDownIcon />
+            <ChevronDownIcon className="size-4 opacity-50 shrink-0" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto overflow-hidden p-0" align="start">

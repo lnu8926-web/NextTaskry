@@ -66,12 +66,14 @@ export function ComboBox({
           aria-expanded={open}
           aria-haspopup="listbox"
           className={cn(
-            "w-full flex items-center gap-2.5 h-10 px-3 rounded-lg",
-            "border border-input bg-white dark:bg-input/30 text-sm text-left",
-            "transition-all duration-150 outline-none",
-            "hover:border-neutral-400 dark:hover:border-neutral-500",
-            "focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-ring",
-            open && "ring-2 ring-ring/30 border-ring"
+            "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg",
+            "border bg-white dark:bg-input/30 text-sm text-left",
+            "border-slate-200 dark:border-border",
+            "shadow-sm",
+            "transition-[border-color,box-shadow] duration-150 outline-none",
+            "hover:border-slate-300 hover:shadow-md",
+            "focus-visible:border-sky-500 focus-visible:ring-2 focus-visible:ring-sky-100 dark:focus-visible:ring-sky-900/30",
+            open && "border-sky-500 ring-2 ring-sky-100 dark:ring-sky-900/30"
           )}
         >
           <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />

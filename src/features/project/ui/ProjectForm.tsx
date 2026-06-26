@@ -276,7 +276,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
 
           {/* 프로젝트 명 */}
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground">프로젝트 명</Label>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">프로젝트 명</Label>
             <Input
               id="projectName"
               name="projectName"
@@ -290,14 +290,14 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
           {/* 분류 / 상태 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-foreground">분류</Label>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">분류</Label>
               <TypeSelect
                 value={projectData.type}
                 onValueChange={(value) => handleSelectChange("type", value)}
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-foreground">상태</Label>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">상태</Label>
               <StatusSelect
                 value={projectData.status}
                 onValueChange={(value) => handleSelectChange("status", value)}
@@ -308,14 +308,14 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
           {/* 시작일 / 종료일 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-foreground">시작일</Label>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">시작일</Label>
               <Calendar22
                 value={projectData.startedAt}
                 onValueChange={(value) => handleDateChange("startedAt", value)}
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-foreground">종료일</Label>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">종료일</Label>
               <Calendar22
                 value={projectData.endedAt}
                 onValueChange={(value) => handleDateChange("endedAt", value)}
@@ -327,7 +327,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
 
           {/* 기술 스택 */}
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground">기술 스택</Label>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">기술 스택</Label>
             <Input
               id="techStack"
               name="techStack"
@@ -340,7 +340,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
 
           {/* 프로젝트 설명 */}
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground">설명</Label>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">설명</Label>
             <Textarea
               id="description"
               name="description"
@@ -353,7 +353,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
           {/* 프로젝트 구성원 */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Label className="text-sm font-medium text-foreground">구성원</Label>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">구성원</Label>
               {projectMember.length > 0 && (
                 <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-medium text-muted-foreground">
                   {projectMember.length}
@@ -382,7 +382,7 @@ export default function ProjectForm({ projectId = "" }: ProjectFormProps) {
                         {initial}
                       </div>
                       <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-medium text-foreground leading-snug">{member.userName}</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-snug">{member.userName}</span>
                         <span className="text-xs text-muted-foreground truncate">{member.email}</span>
                       </div>
                       <RoleSelect
