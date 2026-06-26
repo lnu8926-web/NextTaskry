@@ -130,7 +130,9 @@ export const Colored: Story = {
   render: () => <IconGrid size={24} color="var(--color-main-500)" />,
 };
 
-export const SingleIcon: Story = {
+type SingleIconArgs = { type: IconKey; size: number; color?: string };
+
+export const SingleIcon: StoryObj<SingleIconArgs> = {
   name: "단일 아이콘 — Controls",
   render: (args) => (
     <div className="flex items-center justify-center p-10">
