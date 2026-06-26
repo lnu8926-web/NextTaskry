@@ -1,126 +1,40 @@
 import { ProjectMemberWithUser } from "@/types/projectMember";
 
+const GUEST = {
+  user_id: "c4c7ec7c-9e82-4126-8419-d9e13cd001bb",
+  user_name: "게스트",
+  email: "guest@taskry.demo",
+  profile_image: "https://api.dicebear.com/9.x/avataaars/svg?seed=guest",
+};
+
 export const mockProjectMembers: ProjectMemberWithUser[] = [
-  // ─── project-001 ──────────────────────────────────────
+  // ─── [GUEST] TaskFlow 리디자인 ────────────────────────
   {
-    member_id: "member-001",
-    project_id: "project-001",
-    user_id: "user-001",
+    member_id: "pm-guest-taskflow",
+    project_id: "d12d6c50-d77b-453b-b0ce-59fbdbc953a5",
+    user_id: GUEST.user_id,
     role: "leader",
-    joined_at: "2026-02-20T09:00:00Z",
-    users: {
-      user_id: "user-001",
-      user_name: "이남은",
-      email: "namune.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000001",
-    },
-  },
-  {
-    member_id: "member-002",
-    project_id: "project-001",
-    user_id: "user-002",
-    role: "member",
-    joined_at: "2026-02-21T09:00:00Z",
-    users: {
-      user_id: "user-002",
-      user_name: "김민중",
-      email: "minjung.kim@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000002",
-    },
-  },
-  {
-    member_id: "member-003",
-    project_id: "project-001",
-    user_id: "user-003",
-    role: "member",
-    joined_at: "2026-02-21T10:00:00Z",
-    users: {
-      user_id: "user-003",
-      user_name: "이원찬",
-      email: "wonchan.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000003",
-    },
+    joined_at: "2026-06-26T03:35:26Z",
+    users: GUEST,
   },
 
-  // ─── project-002 ──────────────────────────────────────
+  // ─── [GUEST] 쇼핑몰 백엔드 개편 ──────────────────────
   {
-    member_id: "member-004",
-    project_id: "project-002",
-    user_id: "user-002",
-    role: "leader",
-    joined_at: "2026-03-15T09:00:00Z",
-    users: {
-      user_id: "user-002",
-      user_name: "김민중",
-      email: "minjung.kim@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000002",
-    },
-  },
-  {
-    member_id: "member-005",
-    project_id: "project-002",
-    user_id: "user-003",
+    member_id: "pm-guest-shopping",
+    project_id: "ffb9dc8c-a01d-42a0-9a1c-826959a4c511",
+    user_id: GUEST.user_id,
     role: "member",
-    joined_at: "2026-03-16T09:00:00Z",
-    users: {
-      user_id: "user-003",
-      user_name: "이원찬",
-      email: "wonchan.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000003",
-    },
-  },
-  {
-    member_id: "member-006",
-    project_id: "project-002",
-    user_id: "user-004",
-    role: "member",
-    joined_at: "2026-03-16T10:00:00Z",
-    users: {
-      user_id: "user-004",
-      user_name: "이현수",
-      email: "hyunsu.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000004",
-    },
+    joined_at: "2026-06-26T03:35:27Z",
+    users: GUEST,
   },
 
-  // ─── project-003 ──────────────────────────────────────
+  // ─── [GUEST] Q2 마케팅 캠페인 ────────────────────────
   {
-    member_id: "member-007",
-    project_id: "project-003",
-    user_id: "user-003",
-    role: "leader",
-    joined_at: "2026-01-10T09:00:00Z",
-    users: {
-      user_id: "user-003",
-      user_name: "이원찬",
-      email: "wonchan.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000003",
-    },
-  },
-  {
-    member_id: "member-008",
-    project_id: "project-003",
-    user_id: "user-001",
+    member_id: "pm-guest-marketing",
+    project_id: "deb83065-5c87-4394-bd19-8f6385537242",
+    user_id: GUEST.user_id,
     role: "member",
-    joined_at: "2026-01-11T09:00:00Z",
-    users: {
-      user_id: "user-001",
-      user_name: "이남은",
-      email: "namune.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000001",
-    },
-  },
-  {
-    member_id: "member-009",
-    project_id: "project-003",
-    user_id: "user-004",
-    role: "member",
-    joined_at: "2026-01-11T10:00:00Z",
-    users: {
-      user_id: "user-004",
-      user_name: "이현수",
-      email: "hyunsu.lee@taskry.dev",
-      profile_image: "https://avatars.githubusercontent.com/u/10000004",
-    },
+    joined_at: "2026-06-26T03:35:27Z",
+    users: GUEST,
   },
 ];

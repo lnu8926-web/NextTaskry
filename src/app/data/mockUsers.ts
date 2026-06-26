@@ -89,4 +89,15 @@ export const mockUsers: User[] = [
     created_at: "2026-02-10T09:00:00Z",
     updated_at: "2026-02-10T09:00:00Z",
   },
+  {
+    user_id: "c4c7ec7c-9e82-4126-8419-d9e13cd001bb",
+    email: "guest@taskry.demo",
+    user_name: "게스트",
+    profile_image: "https://api.dicebear.com/9.x/avataaars/svg?seed=guest",
+    global_role: "user",
+    auth_provider: "credentials",
+    is_active: true,
+    created_at: "2026-06-26T00:00:00Z",
+    updated_at: "2026-06-26T00:00:00Z",
+  },
 ];
