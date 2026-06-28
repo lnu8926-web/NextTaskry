@@ -1,5 +1,29 @@
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUnifiedAuthUser } from "@/lib/auth/unifiedAuth";
+import { NextResponse } from "next/server";
+
+async function requireProjectOwner(projectId: string, userId: string) {
+  const { data: project, error } = await supabaseAdmin
+    .from("projects")
+    .select("user_id")
+    .eq("project_id", projectId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error checking project owner:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (!project) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  if (project.user_id !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  return null;
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -83,12 +107,19 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   const auth = await getUnifiedAuthUser();
-  if (!auth.isAuthenticated) {
+  if (!auth.isAuthenticated || !auth.userId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  if (!id) {
+    return Response.json({ error: "Project ID is required" }, { status: 400 });
+  }
+
+  const authError = await requireProjectOwner(id, auth.userId);
+  if (authError) return authError;
+
   const body = await request.json();
   const { projectName, type, status, startedAt, endedAt, techStack, description } = body;
 
@@ -120,12 +151,18 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   const auth = await getUnifiedAuthUser();
-  if (!auth.isAuthenticated) {
+  if (!auth.isAuthenticated || !auth.userId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  if (!id) {
+    return Response.json({ error: "Project ID is required" }, { status: 400 });
+  }
+
+  const authError = await requireProjectOwner(id, auth.userId);
+  if (authError) return authError;
 
   const { error } = await supabaseAdmin
     .from("projects")

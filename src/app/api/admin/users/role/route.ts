@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server"; // service role
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export async function PATCH(req: Request) {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   try {
     const { user_id, newRole } = await req.json();
 
