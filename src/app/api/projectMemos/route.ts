@@ -99,6 +99,9 @@ export async function GET(request: Request) {
     const sortBy = (searchParams.get("sortBy") || "newest") as
       | "newest"
       | "oldest";
+    const userId = searchParams.get("userId");
+    const search = searchParams.get("search")?.trim() || "";
+    const pinnedOnly = searchParams.get("pinned_only") === "true";
 
     if (!projectId) {
       return Response.json(
@@ -110,15 +113,39 @@ export async function GET(request: Request) {
     const offset = (page - 1) * limit;
     const orderDirection = sortBy === "newest" ? "desc" : "asc";
 
+    const safeSearch = search.replace(/[,%()]/g, " ");
+    let matchingAuthorIds: string[] = [];
+    if (safeSearch) {
+      const { data: matchingUsers } = await supabase
+        .from("users")
+        .select("user_id")
+        .or(`user_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
+      matchingAuthorIds = matchingUsers?.map((user) => user.user_id) || [];
+    }
+
+    let memoQuery = supabase
+      .from("project_memos")
+      .select("*", { count: "exact" })
+      .eq("project_id", projectId)
+      .eq("is_deleted", false);
+
+    if (userId) memoQuery = memoQuery.eq("user_id", userId);
+    if (pinnedOnly) memoQuery = memoQuery.eq("is_pinned", true);
+    if (safeSearch) {
+      const authorFilter =
+        matchingAuthorIds.length > 0
+          ? `,user_id.in.(${matchingAuthorIds.join(",")})`
+          : "";
+      memoQuery = memoQuery.or(
+        `content.ilike.%${safeSearch}%${authorFilter}`
+      );
+    }
+
     const {
       data: memos,
       error: fetchError,
       count,
-    } = await supabase
-      .from("project_memos")
-      .select("*", { count: "exact" })
-      .eq("project_id", projectId)
-      .eq("is_deleted", false)
+    } = await memoQuery
       .order("is_pinned", { ascending: false })
       .order("created_at", { ascending: orderDirection === "asc" })
       .range(offset, offset + limit - 1);
@@ -160,6 +187,7 @@ export async function GET(request: Request) {
         total: count || 0,
         page,
         limit,
+        hasMore: page * limit < (count || 0),
       },
       { status: 200 }
     );

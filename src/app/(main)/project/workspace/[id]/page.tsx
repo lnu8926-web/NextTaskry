@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
@@ -36,7 +36,7 @@ async function enrichTaskWithAssignee(taskRaw: Task): Promise<Task> {
 
   const { data: userData } = await supabase
     .from("users")
-    .select("user_id, user_name, email")
+    .select("user_id, user_name, email, avatar_url")
     .eq("user_id", taskRaw.assigned_user_id)
     .single();
 
@@ -48,6 +48,7 @@ async function enrichTaskWithAssignee(taskRaw: Task): Promise<Task> {
       user_id: userData.user_id,
       name: userData.user_name,
       email: userData.email,
+      avatar_url: userData.avatar_url,
     },
   };
 }
@@ -64,7 +65,7 @@ export default function ProjectPage() {
   const { currentView, showMemoPanel, setView, toggleMemo, closeMemo, setProjectContext, clearWorkspace } = useWorkspaceNav();
 
   const userId = session?.user?.user_id;
-  const taskQueryKey = queryKeys.tasks.list(projectId);
+  const taskQueryKey = useMemo(() => queryKeys.tasks.list(projectId), [projectId]);
 
   const { data: projectInfo } = useQuery({
     queryKey: queryKeys.workspace.info(projectId),
@@ -217,11 +218,22 @@ export default function ProjectPage() {
         body: JSON.stringify({ id: taskId, ...updates }),
       });
       if (!res.ok) throw new Error("Failed to update task");
-      return { taskId, updates };
+      const json = await res.json();
+      return json.data as Task;
     },
-    onSuccess: ({ taskId, updates }) => {
+    onSuccess: (updatedTask) => {
       queryClient.setQueryData(taskQueryKey, (prev: Task[]) =>
-        (prev || []).map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+        (prev || []).map((t) =>
+          t.id === updatedTask.id
+            ? {
+                ...updatedTask,
+                assignee:
+                  updatedTask.assigned_user_id === t.assigned_user_id
+                    ? t.assignee
+                    : undefined,
+              }
+            : t
+        )
       );
     },
   });

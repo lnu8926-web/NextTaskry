@@ -57,6 +57,23 @@ interface MemoFormProps {
   onClose?: () => void;
 }
 
+async function enrichMemoWithAuthor(memo: ProjectMemo): Promise<ProjectMemo> {
+  const { data: author } = await supabase
+    .from("users")
+    .select("user_id, user_name, email")
+    .eq("user_id", memo.user_id)
+    .single();
+
+  return {
+    ...memo,
+    author: author || {
+      user_id: memo.user_id,
+      user_name: "알 수 없음",
+      email: "",
+    },
+  };
+}
+
 const MemoView = ({ projectId, onClose }: MemoFormProps) => {
   // === 기본 상태 관리 ===
   const [memos, setMemos] = useState<ProjectMemo[]>([]); // 서버에서 받은 원본 메모 목록
@@ -174,7 +191,15 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
         const newMemos = data.data || [];
 
         if (append) {
-          setMemos((prev) => [...prev, ...newMemos]);
+          setMemos((prev) => {
+            const existingIds = new Set(prev.map((memo) => memo.memo_id));
+            return [
+              ...prev,
+              ...newMemos.filter(
+                (memo: ProjectMemo) => !existingIds.has(memo.memo_id)
+              ),
+            ];
+          });
         } else {
           setMemos(newMemos);
         }
@@ -190,20 +215,12 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
     [projectId, filter, session?.user?.user_id, sort, searchTerm]
   );
 
-  // 초기 로드
+  // 프로젝트/필터/검색어/정렬 변경 시 첫 페이지 재조회
   useEffect(() => {
     if (projectId) {
-      fetchMemos();
-    }
-  }, [projectId, fetchMemos]);
-
-  // 필터링 및 검색어 변경 시 재조회
-  useEffect(() => {
-    if (projectId) {
-      setCurrentPage(1);
       fetchMemos(1);
     }
-  }, [searchTerm, filter, sort, projectId, fetchMemos]);
+  }, [projectId, fetchMemos]);
 
   /**
    * Supabase Realtime 구독 설정
@@ -229,13 +246,12 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
         async (payload) => {
           if (payload.eventType === "INSERT") {
             const newMemo = payload.new as ProjectMemo;
-            // 내가 추가한 건 이미 로컬 state에 있으므로 중복 방지
-            setMemos((prev) => {
-              if (prev.some((m) => m.memo_id === newMemo.memo_id)) return prev;
-              // author는 API로 가져와서 채움
-              fetchMemos(1);
-              return prev;
-            });
+            const enrichedMemo = await enrichMemoWithAuthor(newMemo);
+            setMemos((prev) =>
+              prev.some((m) => m.memo_id === enrichedMemo.memo_id)
+                ? prev
+                : [...prev, enrichedMemo]
+            );
           } else if (payload.eventType === "UPDATE") {
             const updatedMemo = payload.new as ProjectMemo;
             if (updatedMemo.is_deleted) {
@@ -265,7 +281,7 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [projectId, fetchMemos]);
+  }, [projectId]);
 
   // 메모 추가
   const handleAddMemo = async () => {
@@ -382,20 +398,35 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
   // 메모지 색상 변경
   const handleColorChange = async (memoId: string, color: MemoLabelColor) => {
     setColorPickerMemoId(null);
+    const previousColor =
+      memos.find((memo) => memo.memo_id === memoId)?.label_color ?? null;
     setMemos((prev) =>
       prev.map((m) => (m.memo_id === memoId ? { ...m, label_color: color } : m))
     );
-    await fetch(`/api/projectMemos?memoId=${memoId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ label_color: color }),
-    });
+    try {
+      const res = await fetch(`/api/projectMemos?memoId=${memoId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label_color: color }),
+      });
+      if (!res.ok) throw new Error("메모 색상 변경 실패");
+    } catch (err) {
+      setMemos((prev) =>
+        prev.map((m) =>
+          m.memo_id === memoId ? { ...m, label_color: previousColor } : m
+        )
+      );
+      setError(err instanceof Error ? err.message : "메모 색상 변경 실패");
+    }
   };
 
   // 이모지 반응 토글
   const handleReaction = async (memoId: string, emoji: string) => {
     if (!session?.user?.user_id) return;
     const userId = session.user.user_id;
+    const previousReactions = {
+      ...(memos.find((memo) => memo.memo_id === memoId)?.reactions || {}),
+    };
     setMemos((prev) =>
       prev.map((m) => {
         if (m.memo_id !== memoId) return m;
@@ -410,11 +441,21 @@ const MemoView = ({ projectId, onClose }: MemoFormProps) => {
         return { ...m, reactions };
       })
     );
-    await fetch(`/api/projectMemos?memoId=${memoId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ emoji }),
-    });
+    try {
+      const res = await fetch(`/api/projectMemos?memoId=${memoId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emoji }),
+      });
+      if (!res.ok) throw new Error("메모 반응 변경 실패");
+    } catch (err) {
+      setMemos((prev) =>
+        prev.map((m) =>
+          m.memo_id === memoId ? { ...m, reactions: previousReactions } : m
+        )
+      );
+      setError(err instanceof Error ? err.message : "메모 반응 변경 실패");
+    }
   };
 
   // 인라인 편집 시작
