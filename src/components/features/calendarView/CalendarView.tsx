@@ -70,15 +70,6 @@ export default function CalendarView({
   const projectStartedAt = project?.started_at;
   const projectEndedAt = project?.ended_at;
 
-  console.log("CalendarView - Project Info:", {
-    project,
-    projectName,
-    projectStartedAt,
-    projectEndedAt,
-    boardId,
-    projectId,
-  });
-
   // 상태 관리
   const {
     showTaskAddModal,
@@ -219,16 +210,8 @@ export default function CalendarView({
    */
   const handleNavigate = useCallback(
     (newDate: Date) => {
-      console.log(
-        "handleNavigate:",
-        newDate,
-        currentView,
-        projectStartedAt,
-        projectEndedAt
-      );
       // 프로젝트 기간이 설정되지 않은 경우 제한 없음
       if (!projectStartedAt && !projectEndedAt) {
-        console.log("프로젝트 기간 미설정 - 날짜 이동 허용");
         setCurrentDate(newDate);
         return;
       }
@@ -246,12 +229,6 @@ export default function CalendarView({
         );
         const minMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
         const maxMonth = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
-
-        console.log("월 뷰 - 날짜 이동 체크:", {
-          minDate,
-          maxDate,
-          newDate,
-        });
 
         if (checkDate < minMonth || checkDate > maxMonth) {
           showToast("프로젝트 기간을 확인하세요.", "warning");

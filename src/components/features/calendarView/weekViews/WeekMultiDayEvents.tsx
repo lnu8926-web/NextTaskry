@@ -31,82 +31,84 @@ export default function WeekMultiDayEvents({
   const [hoveredTask, setHoveredTask] = useState<string | null>(null);
   const [isHoveringArea, setIsHoveringArea] = useState(false);
 
-  // 주간 날짜 문자열 배열
   const weekDayStrings = useMemo(
     () => weekDays.map((d) => format(d, "yyyy-MM-dd")),
     [weekDays]
   );
 
-  // 기간 일정 또는 종일 일정 필터링
-  const multiDayTasks = useMemo(() => {
-    const weekStartStr = weekDayStrings[0];
-    const weekEndStr = weekDayStrings[6];
+  // ── 태스크 분류 ──────────────────────────────────────────────────────────
+  // 기간 태스크: 여러 날에 걸친 일정 (시간 지정 여부 무관)
+  // 종일 태스크: 단일일이면서 시간 미지정
+  const { spanningTasks, singleDayAllDayByDate } = useMemo(() => {
+    const weekStart = weekDayStrings[0];
+    const weekEnd   = weekDayStrings[6];
 
-    return tasks.filter((task) => {
-      if (!task.started_at || !task.ended_at) return false;
+    const spanning: Task[]                  = [];
+    const byDate: Record<string, Task[]>    = {};
+    weekDayStrings.forEach((d) => { byDate[d] = []; });
 
-      // 날짜 문자열만 추출 (시간대 무시)
-      const taskStartStr = task.started_at.split("T")[0];
-      const taskEndStr = task.ended_at.split("T")[0];
+    tasks.forEach((task) => {
+      if (!task.started_at || !task.ended_at) return;
 
-      // 시간이 지정되고 실제 시간값이 있는 경우 -> 시간 그리드에서 표시
-      const hasActualTime = task.use_time && task.start_time;
+      const taskStart    = task.started_at.split("T")[0];
+      const taskEnd      = task.ended_at.split("T")[0];
+      const hasTime      = task.use_time && task.start_time;
+      const overlapsWeek = taskStart <= weekEnd && taskEnd >= weekStart;
 
-      // 기간 일정 (여러 날) 또는 종일 일정 (시간 미지정)
-      const isMultiDay = taskStartStr !== taskEndStr;
-      const isAllDayEvent = !hasActualTime; // 시간이 없으면 종일 일정으로 처리
+      if (!overlapsWeek) return;
 
-      // 주간 범위와 겹치는지 확인
-      const overlapsWeek =
-        taskStartStr <= weekEndStr && taskEndStr >= weekStartStr;
-
-      return (isMultiDay || isAllDayEvent) && overlapsWeek;
+      if (taskStart !== taskEnd) {
+        // 다중일 → 기간 바
+        spanning.push(task);
+      } else if (!hasTime && byDate[taskStart]) {
+        // 단일일 + 시간 미지정 → 종일 칩
+        byDate[taskStart].push(task);
+      }
     });
+
+    return { spanningTasks: spanning, singleDayAllDayByDate: byDate };
   }, [tasks, weekDayStrings]);
 
-  // 기간 일정 배치 계산
-  const positionedTasks = useMemo(() => {
-    const weekStartStr = weekDayStrings[0];
-    const weekEndStr = weekDayStrings[6];
+  const hasSingleDayAllDay = weekDayStrings.some(
+    (d) => singleDayAllDayByDate[d]?.length > 0
+  );
+
+  // ── 기간 태스크 배치 계산 ────────────────────────────────────────────────
+  const positionedSpanning = useMemo(() => {
+    const weekStart = weekDayStrings[0];
+    const weekEnd   = weekDayStrings[6];
     const rows: MultiDayTask[][] = [];
 
-    const sortedTasks = [...multiDayTasks].sort((a, b) => {
-      const aStartStr = a.started_at!.split("T")[0];
-      const bStartStr = b.started_at!.split("T")[0];
-      if (aStartStr !== bStartStr) {
-        return aStartStr.localeCompare(bStartStr);
-      }
+    const sorted = [...spanningTasks].sort((a, b) => {
+      const aStart = a.started_at!.split("T")[0];
+      const bStart = b.started_at!.split("T")[0];
+      if (aStart !== bStart) return aStart.localeCompare(bStart);
       return b.ended_at!.split("T")[0].localeCompare(a.ended_at!.split("T")[0]);
     });
 
-    sortedTasks.forEach((task) => {
-      const taskStartStr = task.started_at!.split("T")[0];
-      const taskEndStr = task.ended_at!.split("T")[0];
+    sorted.forEach((task) => {
+      const taskStart = task.started_at!.split("T")[0];
+      const taskEnd   = task.ended_at!.split("T")[0];
 
-      // 주간 범위로 클램핑
-      const clampedStartStr =
-        taskStartStr < weekStartStr ? weekStartStr : taskStartStr;
-      const clampedEndStr = taskEndStr > weekEndStr ? weekEndStr : taskEndStr;
+      const clampedStart = taskStart < weekStart ? weekStart : taskStart;
+      const clampedEnd   = taskEnd   > weekEnd   ? weekEnd   : taskEnd;
 
-      // 컬럼 인덱스 찾기
-      const startCol = weekDayStrings.indexOf(clampedStartStr);
-      const endCol = weekDayStrings.indexOf(clampedEndStr);
-
+      const startCol = weekDayStrings.indexOf(clampedStart);
+      const endCol   = weekDayStrings.indexOf(clampedEnd);
       if (startCol === -1 || endCol === -1) return;
 
-      const multiDayTask: MultiDayTask = { ...task, startCol, endCol, row: 0 };
+      const entry: MultiDayTask = { ...task, startCol, endCol, row: 0 };
 
       let rowIndex = 0;
-      let placed = false;
-
+      let placed   = false;
       while (!placed) {
         if (!rows[rowIndex]) rows[rowIndex] = [];
         const hasOverlap = rows[rowIndex].some(
           (t) => !(endCol < t.startCol || startCol > t.endCol)
         );
         if (!hasOverlap) {
-          multiDayTask.row = rowIndex;
-          rows[rowIndex].push(multiDayTask);
+          entry.row = rowIndex;
+          rows[rowIndex].push(entry);
           placed = true;
         } else {
           rowIndex++;
@@ -115,145 +117,170 @@ export default function WeekMultiDayEvents({
     });
 
     return rows.flat();
-  }, [multiDayTasks, weekDayStrings]);
+  }, [spanningTasks, weekDayStrings]);
 
-  const maxRows = useMemo(() => {
-    if (positionedTasks.length === 0) return 0;
-    return Math.max(...positionedTasks.map((t) => t.row)) + 1;
-  }, [positionedTasks]);
-
-  // 기간 일정이 없으면 표시 안함
-  if (multiDayTasks.length === 0) return null;
-
-  const ROW_HEIGHT = 22;
-  const MAX_ROWS = 3;
+  const maxRows     = positionedSpanning.length === 0 ? 0 : Math.max(...positionedSpanning.map((t) => t.row)) + 1;
+  const ROW_HEIGHT  = 22;
+  const MAX_ROWS    = 3;
   const visibleRows = Math.max(Math.min(maxRows, MAX_ROWS), 1);
-  const visibleTasks = positionedTasks.filter((t) => t.row < MAX_ROWS);
-  const hiddenCount = positionedTasks.length - visibleTasks.length;
+  const visibleTasks = positionedSpanning.filter((t) => t.row < MAX_ROWS);
+  const hiddenCount  = positionedSpanning.length - visibleTasks.length;
+
+  // 둘 다 없으면 렌더링하지 않음
+  if (spanningTasks.length === 0 && !hasSingleDayAllDay) return null;
 
   return (
-    <div
-      className="flex border-b border-gray-200 dark:border-gray-700 overflow-visible relative"
-      style={{ height: `${visibleRows * ROW_HEIGHT + 6}px` }}
-      onMouseEnter={() => setIsHoveringArea(true)}
-      onMouseLeave={() => setIsHoveringArea(false)}
-    >
-      {/* 시간 컬럼 공간 */}
-      <div className="w-10 sm:w-16 shrink-0 border-r border-gray-200 dark:border-gray-700 flex items-center justify-end pr-1 sm:pr-2">
-        <span className="text-[9px] sm:text-[10px] text-gray-400 dark:text-gray-500">
-          기간
-        </span>
-      </div>
+    <div>
+      {/* 기간 섹션 — 다중일 태스크 */}
+      {spanningTasks.length > 0 && (
+        <div
+          className="flex border-b border-gray-200 dark:border-gray-700 overflow-visible relative"
+          style={{ height: `${visibleRows * ROW_HEIGHT + 6}px` }}
+          onMouseEnter={() => setIsHoveringArea(true)}
+          onMouseLeave={() => setIsHoveringArea(false)}
+        >
+          <div className="w-10 sm:w-16 shrink-0 border-r border-gray-200 dark:border-gray-700 flex items-center justify-end pr-1 sm:pr-2">
+            <span className="text-[9px] sm:text-[10px] text-gray-400 dark:text-gray-500">
+              기간
+            </span>
+          </div>
 
-      {/* 요일별 컬럼 */}
-      <div className="flex-1 flex relative overflow-hidden">
-        {weekDays.map((_, colIndex) => (
-          <div
-            key={colIndex}
-            className="flex-1 border-r border-gray-100 dark:border-gray-800 last:border-r-0"
-          />
-        ))}
-
-        {/* 기간 일정 바들 */}
-        {visibleTasks.map((task) => {
-          const leftPercent = (task.startCol / 7) * 100;
-          const widthPercent = ((task.endCol - task.startCol + 1) / 7) * 100;
-          const isHovered = hoveredTask === task.id;
-          const overdue = isTaskOverdue(task);
-
-          return (
-            <div
-              key={task.id}
-              className="absolute cursor-pointer px-0.5"
-              style={{
-                left: `${leftPercent}%`,
-                width: `${widthPercent}%`,
-                top: `${task.row * ROW_HEIGHT + 2}px`,
-                height: "18px",
-              }}
-              onClick={() => onSelectEvent(task)}
-              onMouseEnter={() => setHoveredTask(task.id)}
-              onMouseLeave={() => setHoveredTask(null)}
-            >
+          <div className="flex-1 flex relative overflow-hidden">
+            {weekDays.map((_, colIndex) => (
               <div
-                className={`
-                  w-full h-full rounded transition-all flex items-center px-1.5 gap-1
-                  ${getTaskStatusBarStyle(task.status as TaskStatus)}
-                  ${
-                    isHovered
-                      ? "ring-2 ring-offset-1 ring-gray-400 dark:ring-gray-500 brightness-95"
-                      : ""
-                  }
-                `}
-              >
-                <div
-                  className={`w-2 h-2 rounded-full shrink-0 ${getTaskStatusDotColor(
-                    task.status as TaskStatus
-                  )}`}
-                />
-                {overdue && (
-                  <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />
-                )}
-                {task.priority && (
-                  <span
-                    className={`text-[9px] shrink-0 ${getPriorityIconColor(
-                      task.priority
-                    )}`}
-                  >
-                    ▲
-                  </span>
-                )}
-                <span className="text-[10px] sm:text-[11px] truncate font-medium">
-                  {task.title}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+                key={colIndex}
+                className="flex-1 border-r border-gray-100 dark:border-gray-800 last:border-r-0"
+              />
+            ))}
 
-        {/* 숨겨진 일정 수 표시 */}
-        {hiddenCount > 0 && (
-          <div className="absolute right-1 top-1/2 -translate-y-1/2 text-[9px] text-gray-400 dark:text-gray-500">
-            +{hiddenCount}
-          </div>
-        )}
-      </div>
+            {visibleTasks.map((task) => {
+              const leftPercent  = (task.startCol / 7) * 100;
+              const widthPercent = ((task.endCol - task.startCol + 1) / 7) * 100;
+              const isHovered    = hoveredTask === task.id;
+              const overdue      = isTaskOverdue(task);
 
-      {/* 호버 시 전체 기간 일정 요약 팝업 */}
-      {isHoveringArea && multiDayTasks.length > 0 && (
-        <div className="absolute left-10 sm:left-16 top-full mt-1 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 min-w-[220px] max-w-[280px]">
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
-            기간/종일 일정 ({multiDayTasks.length}개)
-          </div>
-          <div className="space-y-1 max-h-[200px] overflow-y-auto">
-            {multiDayTasks.map((task) => {
-              const overdue = isTaskOverdue(task);
               return (
                 <div
                   key={task.id}
-                  className={`p-2 rounded-md text-xs cursor-pointer hover:brightness-95 dark:hover:brightness-110 transition-all ${getTaskStatusBgColor(
-                    task.status as TaskStatus
-                  )}`}
+                  className="absolute cursor-pointer px-0.5"
+                  style={{
+                    left:   `${leftPercent}%`,
+                    width:  `${widthPercent}%`,
+                    top:    `${task.row * ROW_HEIGHT + 2}px`,
+                    height: "18px",
+                  }}
                   onClick={() => onSelectEvent(task)}
+                  onMouseEnter={() => setHoveredTask(task.id)}
+                  onMouseLeave={() => setHoveredTask(null)}
                 >
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={`w-2 h-2 rounded-full shrink-0 ${getTaskStatusDotColor(
-                        task.status as TaskStatus
-                      )}`}
-                    />
-                    {overdue && (
-                      <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />
+                  <div
+                    className={`
+                      w-full h-full rounded transition-all flex items-center px-1.5 gap-1
+                      ${getTaskStatusBarStyle(task.status as TaskStatus)}
+                      ${isHovered ? "ring-2 ring-offset-1 ring-gray-400 dark:ring-gray-500 brightness-95" : ""}
+                    `}
+                  >
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${getTaskStatusDotColor(task.status as TaskStatus)}`} />
+                    {overdue && <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />}
+                    {task.priority && (
+                      <span className={`text-[9px] shrink-0 ${getPriorityIconColor(task.priority)}`}>▲</span>
                     )}
-                    <span className="font-medium truncate text-gray-800 dark:text-gray-200">
+                    <span className="text-[10px] sm:text-[11px] truncate font-medium">
                       {task.title}
                     </span>
                   </div>
-                  {task.started_at && task.ended_at && (
-                    <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ml-3.5">
-                      {task.started_at.split("T")[0]} ~{" "}
-                      {task.ended_at.split("T")[0]}
+                </div>
+              );
+            })}
+
+            {hiddenCount > 0 && (
+              <div className="absolute right-1 top-1/2 -translate-y-1/2 text-[9px] text-gray-400 dark:text-gray-500">
+                +{hiddenCount}
+              </div>
+            )}
+          </div>
+
+          {/* 기간 태스크 호버 팝업 */}
+          {isHoveringArea && spanningTasks.length > 0 && (
+            <div className="absolute left-10 sm:left-16 top-full mt-1 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 min-w-[220px] max-w-[280px]">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
+                기간 일정 ({spanningTasks.length}개)
+              </div>
+              <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                {spanningTasks.map((task) => {
+                  const overdue = isTaskOverdue(task);
+                  return (
+                    <div
+                      key={task.id}
+                      className={`p-2 rounded-md text-xs cursor-pointer hover:brightness-95 dark:hover:brightness-110 transition-all ${getTaskStatusBgColor(task.status as TaskStatus)}`}
+                      onClick={() => onSelectEvent(task)}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${getTaskStatusDotColor(task.status as TaskStatus)}`} />
+                        {overdue && <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />}
+                        <span className="font-medium truncate text-gray-800 dark:text-gray-200">
+                          {task.title}
+                        </span>
+                      </div>
+                      {task.started_at && task.ended_at && (
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ml-3.5">
+                          {task.started_at.split("T")[0]} ~ {task.ended_at.split("T")[0]}
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 종일 섹션 — 단일일 시간 미지정 태스크 */}
+      {hasSingleDayAllDay && (
+        <div className="flex border-b border-gray-200 dark:border-gray-700 bg-blue-50/40 dark:bg-blue-900/10">
+          <div className="w-10 sm:w-16 shrink-0 border-r border-gray-200 dark:border-gray-700 flex items-center justify-end pr-1 sm:pr-2">
+            <span className="text-[9px] sm:text-[10px] font-medium text-blue-500 dark:text-blue-400">
+              종일
+            </span>
+          </div>
+
+          <div className="flex-1 flex">
+            {weekDays.map((day, colIndex) => {
+              const dateKey    = format(day, "yyyy-MM-dd");
+              const dayTasks   = singleDayAllDayByDate[dateKey] || [];
+              const visible    = dayTasks.slice(0, 2);
+              const hiddenMore = dayTasks.length - visible.length;
+
+              return (
+                <div
+                  key={colIndex}
+                  className="flex-1 border-r border-gray-100 dark:border-gray-800 last:border-r-0 p-1 flex flex-col gap-1 min-h-8"
+                >
+                  {visible.map((task) => {
+                    const overdue = isTaskOverdue(task);
+                    return (
+                      <div
+                        key={task.id}
+                        className={`
+                          rounded px-1.5 py-1 cursor-pointer flex items-center gap-1
+                          hover:brightness-95 transition-all
+                          ${getTaskStatusBarStyle(task.status as TaskStatus)}
+                        `}
+                        onClick={() => onSelectEvent(task)}
+                      >
+                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${getTaskStatusDotColor(task.status as TaskStatus)}`} />
+                        {overdue && <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-red-500" />}
+                        <span className="text-[9px] sm:text-[10px] font-medium truncate">
+                          {task.title}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  {hiddenMore > 0 && (
+                    <span className="text-[9px] text-gray-400 dark:text-gray-500 pl-0.5">
+                      +{hiddenMore}
+                    </span>
                   )}
                 </div>
               );

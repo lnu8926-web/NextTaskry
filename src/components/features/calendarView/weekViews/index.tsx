@@ -89,8 +89,8 @@ export default function WeekView({
   // 자동 스크롤 (오전 9시 위치로 - 업무 시작 시간)
   useEffect(() => {
     if (scrollContainerRef.current) {
-      // 7시부터 시작하므로 9시 = 2칸 아래 (2 * 50px = 100px)
-      scrollContainerRef.current.scrollTop = 2 * 50;
+      // 7시부터 시작하므로 9시 = 2칸 아래 (2 * 60px = 120px)
+      scrollContainerRef.current.scrollTop = 2 * 60;
     }
   }, [currentDate]);
 

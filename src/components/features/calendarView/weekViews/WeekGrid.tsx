@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { format, isSameDay } from "date-fns";
-import { Task } from "@/types/kanban";
-import EventCard from "@/components/features/calendarView/weekViews/EventCard";
+import { Task, TaskStatus } from "@/types/kanban";
+import {
+  getTaskStatusBarStyle,
+  getTaskStatusDotColor,
+  isTaskOverdue,
+} from "@/lib/utils/taskUtils";
 
 interface WeekGridProps {
   weekDays: Date[];
@@ -19,23 +23,107 @@ interface WeekGridProps {
   onSelectEvent: (task: Task) => void;
 }
 
-/**
- * 해당 시간대에 표시할 태스크 필터링
- * - use_time이 true이고 start_time이 있으면 해당 시간대에만 표시
- * - 종일/기간 일정은 WeekMultiDayEvents에서 처리
- */
-const getTasksForHour = (tasks: Task[], hour: number): Task[] => {
-  return tasks.filter((task) => {
-    // 시간 지정 태스크만 표시
-    if (task.use_time && task.start_time) {
-      const taskHour = parseInt(task.start_time.split(":")[0], 10);
-      return taskHour === hour;
-    }
-    return false; // 종일/기간 일정은 상단 바에서 표시
-  });
+const getPriorityIcon = (priority: string | undefined) => {
+  switch (priority) {
+    case "high":   return <span className="text-red-500">▲</span>;
+    case "normal": return <span className="text-yellow-500">▲</span>;
+    case "low":    return <span className="text-green-500">▲</span>;
+    default:       return null;
+  }
 };
 
-// 드래그 상태 인터페이스
+const timeToMinutes = (time: string): number => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + (m || 0);
+};
+
+interface PositionedTask extends Task {
+  top: number;
+  height: number;
+  column: number;
+  totalColumns: number;
+}
+
+/**
+ * 단일일 시간 지정 태스크만 위치 계산
+ * 다중일 태스크는 WeekMultiDayEvents에서 처리하므로 제외
+ */
+const getPositionedTasksForDay = (
+  tasks: Task[],
+  hours: number[]
+): PositionedTask[] => {
+  const minHour = hours[0];
+  const maxHour = hours[hours.length - 1] + 1;
+  const totalMinutes = (maxHour - minHour) * 60;
+
+  const timedTasks = tasks.filter((task) => {
+    if (!task.use_time || !task.start_time) return false;
+    if (!task.started_at || !task.ended_at) return true;
+    return task.started_at.split("T")[0] === task.ended_at.split("T")[0];
+  });
+
+  const positioned: PositionedTask[] = timedTasks.map((task) => {
+    const startMin = timeToMinutes(task.start_time!);
+    const endMin   = task.end_time ? timeToMinutes(task.end_time) : startMin + 60;
+    const cStart   = Math.max(startMin, minHour * 60);
+    const cEnd     = Math.min(endMin, maxHour * 60);
+    const top      = ((cStart - minHour * 60) / totalMinutes) * 100;
+    const height   = Math.max(((cEnd - cStart) / totalMinutes) * 100, 1.5);
+    return { ...task, top, height, column: 0, totalColumns: 1 };
+  });
+
+  // 겹침 탐지 및 컬럼 할당
+  const isOverlapping = (a: PositionedTask, b: PositionedTask) =>
+    a.top < b.top + b.height && a.top + a.height > b.top;
+
+  const processed = new Set<string>();
+
+  for (const task of positioned) {
+    if (processed.has(task.id)) continue;
+
+    const group: PositionedTask[] = [task];
+    let added = true;
+    while (added) {
+      added = false;
+      for (const t of positioned) {
+        if (!group.includes(t) && group.some((g) => isOverlapping(g, t))) {
+          group.push(t);
+          added = true;
+        }
+      }
+    }
+
+    const sortedGroup = group.sort(
+      (a, b) => a.top - b.top || a.id.localeCompare(b.id)
+    );
+    const columns: PositionedTask[][] = [];
+
+    for (const t of sortedGroup) {
+      let placed = false;
+      for (let col = 0; col < columns.length; col++) {
+        if (!isOverlapping(columns[col][columns[col].length - 1], t)) {
+          columns[col].push(t);
+          t.column = col;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        t.column = columns.length;
+        columns.push([t]);
+      }
+    }
+
+    const totalCols = columns.length;
+    for (const t of sortedGroup) {
+      t.totalColumns = totalCols;
+      processed.add(t.id);
+    }
+  }
+
+  return positioned;
+};
+
 interface DragState {
   isDragging: boolean;
   startDay: Date | null;
@@ -52,10 +140,7 @@ export default function WeekGrid({
   onSelectSlot,
   onSelectEvent,
 }: WeekGridProps) {
-  // 현재 시간 상태 (1분마다 업데이트)
   const [currentTime, setCurrentTime] = useState(new Date());
-
-  // 드래그 상태
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     startDay: null,
@@ -63,35 +148,35 @@ export default function WeekGrid({
     endDay: null,
     endHour: null,
   });
-
-  // 마우스 버튼 눌림 상태 추적
   const isMouseDownRef = useRef(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000); // 1분마다 업데이트
+    const interval = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // 현재 시간선 위치 계산 (해당 시간 슬롯 내 %)
+  // 날짜별 시간 지정 이벤트 위치 계산
+  const positionedTasksByDay = useMemo(
+    () =>
+      weekDays.map((day) => {
+        const dateKey = format(day, "yyyy-MM-dd");
+        return getPositionedTasksForDay(tasksByDate[dateKey] || [], hours);
+      }),
+    [weekDays, tasksByDate, hours]
+  );
+
+  // 현재 시간선 위치 (셀 내 %)
   const getCurrentTimePosition = (hour: number) => {
-    const now = currentTime;
-    if (now.getHours() !== hour) return null;
-    return (now.getMinutes() / 60) * 100;
+    if (currentTime.getHours() !== hour) return null;
+    return (currentTime.getMinutes() / 60) * 100;
   };
 
-  // 오늘인지 확인
-  const isToday = (day: Date) => isSameDay(day, currentTime);
-
-  // 업무시간인지 확인 (9시~18시)
+  const isToday      = (day: Date) => isSameDay(day, currentTime);
   const isWorkingHour = (hour: number) => hour >= 9 && hour < 18;
 
-  // 드래그 시작
   const handleMouseDown = useCallback(
     (day: Date, hour: number, isOutside: boolean) => {
       if (isOutside) return;
-
       isMouseDownRef.current = true;
       setDragState({
         isDragging: true,
@@ -104,24 +189,16 @@ export default function WeekGrid({
     []
   );
 
-  // 드래그 중
   const handleMouseEnter = useCallback(
     (day: Date, hour: number, isOutside: boolean) => {
       if (!isMouseDownRef.current || isOutside) return;
-
-      setDragState((prev) => ({
-        ...prev,
-        endDay: day,
-        endHour: hour,
-      }));
+      setDragState((prev) => ({ ...prev, endDay: day, endHour: hour }));
     },
     []
   );
 
-  // 드래그 종료
   const handleMouseUp = useCallback(() => {
     if (!isMouseDownRef.current) return;
-
     isMouseDownRef.current = false;
 
     if (
@@ -130,23 +207,20 @@ export default function WeekGrid({
       dragState.endDay &&
       dragState.endHour !== null
     ) {
-      // 시작/종료 정렬 (시작이 끝보다 나중일 수 있음)
-      let startDay = dragState.startDay;
-      let endDay = dragState.endDay;
+      let startDay  = dragState.startDay;
+      let endDay    = dragState.endDay;
       let startHour = dragState.startHour;
-      let endHour = dragState.endHour + 1; // 종료 시간은 다음 시간
+      let endHour   = dragState.endHour + 1;
 
-      // 날짜 정렬
       if (format(startDay, "yyyy-MM-dd") > format(endDay, "yyyy-MM-dd")) {
-        [startDay, endDay] = [endDay, startDay];
-        [startHour, endHour] = [dragState.endHour, dragState.startHour + 1];
+        [startDay, endDay]     = [endDay, startDay];
+        [startHour, endHour]   = [dragState.endHour, dragState.startHour + 1];
       } else if (
         format(startDay, "yyyy-MM-dd") === format(endDay, "yyyy-MM-dd") &&
         startHour > dragState.endHour
       ) {
-        // 같은 날인데 시간이 역순이면
         startHour = dragState.endHour;
-        endHour = dragState.startHour + 1;
+        endHour   = dragState.startHour + 1;
       }
 
       onSelectSlot(startDay, endDay, startHour, endHour);
@@ -161,19 +235,14 @@ export default function WeekGrid({
     });
   }, [dragState, onSelectSlot]);
 
-  // 전역 마우스업 이벤트 (그리드 밖에서 놓았을 때)
   useEffect(() => {
     const handleGlobalMouseUp = () => {
-      if (isMouseDownRef.current) {
-        handleMouseUp();
-      }
+      if (isMouseDownRef.current) handleMouseUp();
     };
-
     window.addEventListener("mouseup", handleGlobalMouseUp);
     return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
   }, [handleMouseUp]);
 
-  // 셀이 드래그 선택 범위 내에 있는지 확인
   const isInDragRange = useCallback(
     (day: Date, hour: number) => {
       if (
@@ -182,47 +251,35 @@ export default function WeekGrid({
         dragState.startHour === null ||
         !dragState.endDay ||
         dragState.endHour === null
-      ) {
-        return false;
-      }
+      ) return false;
 
-      const dayStr = format(day, "yyyy-MM-dd");
+      const dayStr      = format(day, "yyyy-MM-dd");
       const startDayStr = format(dragState.startDay, "yyyy-MM-dd");
-      const endDayStr = format(dragState.endDay, "yyyy-MM-dd");
-
-      // 날짜 범위 정렬
+      const endDayStr   = format(dragState.endDay, "yyyy-MM-dd");
       const [minDayStr, maxDayStr] =
         startDayStr <= endDayStr
           ? [startDayStr, endDayStr]
           : [endDayStr, startDayStr];
-
-      // 시간 범위 정렬
       const [minHour, maxHour] =
         dragState.startHour <= dragState.endHour
           ? [dragState.startHour, dragState.endHour]
           : [dragState.endHour, dragState.startHour];
 
-      // 날짜가 범위 내에 있고, 시간도 범위 내에 있어야 함
       if (dayStr >= minDayStr && dayStr <= maxDayStr) {
-        // 같은 날이면 시간 체크
-        if (minDayStr === maxDayStr) {
-          return hour >= minHour && hour <= maxHour;
-        }
-        // 여러 날이면 모든 시간 포함
         return hour >= minHour && hour <= maxHour;
       }
-
       return false;
     },
     [dragState]
   );
 
   return (
-    <div className="select-none">
+    <div className="select-none relative">
+      {/* 시간대 그리드 (배경 + 드래그 인터랙션) */}
       {hours.map((hour) => (
         <div
           key={hour}
-          className="flex border-b border-gray-100 dark:border-gray-800 last:border-b-0 min-h-[50px] sm:min-h-[60px]"
+          className="flex border-b border-gray-100 dark:border-gray-800 last:border-b-0 h-[60px]"
         >
           {/* 시간 레이블 */}
           <div className="w-10 sm:w-16 shrink-0 p-1 sm:p-2 text-right pr-1 sm:pr-3 border-r border-gray-200 dark:border-gray-700">
@@ -231,13 +288,11 @@ export default function WeekGrid({
             </span>
           </div>
 
-          {/* 요일별 타임 슬롯 */}
           {weekDays.map((day) => {
-            const dateKey = format(day, "yyyy-MM-dd");
-            const dayTasks = tasksByDate[dateKey] || [];
-            const hourTasks = getTasksForHour(dayTasks, hour);
+            const dateKey  = format(day, "yyyy-MM-dd");
             const isOutside = isOutsideProjectRange(day);
             const isSelected = isInDragRange(day, hour);
+            const timePos  = getCurrentTimePosition(hour);
 
             return (
               <div
@@ -262,11 +317,11 @@ export default function WeekGrid({
                 {/* 30분 구분선 */}
                 <div className="absolute left-0 right-0 top-1/2 border-t border-dashed border-gray-200 dark:border-gray-700 pointer-events-none" />
 
-                {/* 현재 시간 표시선 (오늘의 현재 시간대에만 표시) */}
-                {isToday(day) && getCurrentTimePosition(hour) !== null && (
+                {/* 현재 시간 표시선 */}
+                {isToday(day) && timePos !== null && (
                   <div
                     className="absolute left-0 right-0 z-20 pointer-events-none"
-                    style={{ top: `${getCurrentTimePosition(hour)}%` }}
+                    style={{ top: `${timePos}%` }}
                   >
                     <div className="flex items-center">
                       <div className="w-2 h-2 bg-main-500 rounded-full -ml-1" />
@@ -274,16 +329,77 @@ export default function WeekGrid({
                     </div>
                   </div>
                 )}
-
-                {/* 이 시간대의 이벤트 표시 */}
-                {hourTasks.length > 0 && (
-                  <EventCard tasks={hourTasks} onSelectEvent={onSelectEvent} />
-                )}
               </div>
             );
           })}
         </div>
       ))}
+
+      {/* 시간 지정 이벤트 오버레이 — 지속 시간 기반 절대 배치 */}
+      <div className="absolute inset-0 pointer-events-none flex">
+        {/* 시간 레이블 공백 */}
+        <div className="w-10 sm:w-16 shrink-0" />
+
+        {/* 요일별 이벤트 컬럼 */}
+        {weekDays.map((day, dayIndex) => (
+          <div key={dayIndex} className="flex-1 relative">
+            {positionedTasksByDay[dayIndex].map((task) => {
+              const overdue  = isTaskOverdue(task);
+              const colWidth = 100 / task.totalColumns;
+
+              return (
+                <div
+                  key={task.id}
+                  className={`
+                    absolute rounded border cursor-pointer pointer-events-auto
+                    hover:shadow-md hover:brightness-95 transition-all duration-150
+                    ${getTaskStatusBarStyle(task.status as TaskStatus)}
+                  `}
+                  style={{
+                    top:       `${task.top}%`,
+                    height:    `${task.height}%`,
+                    left:      `${task.column * colWidth}%`,
+                    width:     `calc(${colWidth}% - 3px)`,
+                    minHeight: "20px",
+                    zIndex:    10,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectEvent(task);
+                  }}
+                >
+                  <div className="p-1 h-full flex flex-col overflow-hidden">
+                    <div className="flex items-center gap-0.5">
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${getTaskStatusDotColor(
+                          task.status as TaskStatus
+                        )}`}
+                      />
+                      {overdue && (
+                        <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-red-500" />
+                      )}
+                      {task.priority && (
+                        <span className="text-[8px] shrink-0">
+                          {getPriorityIcon(task.priority)}
+                        </span>
+                      )}
+                      <span className="text-[9px] sm:text-[10px] font-medium truncate flex-1">
+                        {task.title}
+                      </span>
+                    </div>
+                    {task.height > 8 && (
+                      <div className="text-[8px] sm:text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">
+                        {task.start_time}
+                        {task.end_time ? `–${task.end_time}` : ""}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
