@@ -36,7 +36,7 @@ async function enrichTaskWithAssignee(taskRaw: Task): Promise<Task> {
 
   const { data: userData } = await supabase
     .from("users")
-    .select("user_id, user_name, email, avatar_url")
+    .select("user_id, user_name, email, profile_image")
     .eq("user_id", taskRaw.assigned_user_id)
     .single();
 
@@ -48,7 +48,7 @@ async function enrichTaskWithAssignee(taskRaw: Task): Promise<Task> {
       user_id: userData.user_id,
       name: userData.user_name,
       email: userData.email,
-      avatar_url: userData.avatar_url,
+      avatar_url: userData.profile_image ?? undefined,
     },
   };
 }

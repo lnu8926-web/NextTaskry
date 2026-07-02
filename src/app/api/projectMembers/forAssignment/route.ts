@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase/server";
 
 // ----------------------------------------------------------------
 // Task 담당자 지정을 위한 프로젝트 맴버 조회 API

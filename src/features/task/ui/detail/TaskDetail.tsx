@@ -148,7 +148,7 @@ export default function TaskDetail({
         try {
           const { data: userData } = await supabase
             .from("users")
-            .select("user_id, user_name, email")
+            .select("user_id, user_name, email, profile_image")
             .eq("user_id", task.assigned_user_id)
             .single();
 
@@ -157,6 +157,7 @@ export default function TaskDetail({
               user_id: userData.user_id,
               name: userData.user_name,
               email: userData.email,
+              avatar_url: userData.profile_image ?? undefined,
             };
 
             // editedTask에 assignee 정보 보강
