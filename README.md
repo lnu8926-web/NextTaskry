@@ -3,7 +3,7 @@
 > **Team DAN_DA_DAN** Project  
 > Next.js 기반의 직관적인 칸반 보드 협업 툴
 
-![Next.js](https://img.shields.io/badge/Next.js-16.0-black?logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?logo=tailwindcss)
@@ -11,13 +11,13 @@
 **Taskry**는 복잡한 절차 없이 누구나 쉽게 업무 흐름을 관리할 수 있는 웹 기반 협업 도구입니다.  
 직관적인 UI와 실시간 동기화를 통해 팀의 생산성을 극대화합니다.
 
-업데이트일: 2026-05-17
+업데이트일: 2026-07-02
 
 ## 📸 Screen Shots
 
-<!-- |                              메인 대시보드                               |                                  칸반보드                                  |                                 캘린더                                  |
+|                              메인 대시보드                               |                                 칸반보드                                  |                                캘린더                                 |
 | :----------------------------------------------------------------------: | :------------------------------------------------------------------------: | :---------------------------------------------------------------------: |
-| <img src="assets/readme/dashboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/kanbanboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/calendar.png" width="300" alt="Main Dashboard"> | -->
+| <img src="assets/readme/dashboard.png" width="300" alt="Main Dashboard"> | <img src="assets/readme/kanbanboard.png" width="300" alt="Kanban Board"> | <img src="assets/readme/calendar.png" width="300" alt="Calendar"> |
 
 ## 💡 주요 기능 (Key Features)
 
@@ -66,16 +66,27 @@
 
   - 사용자 역할 관리, 전체 프로젝트 조회, 공지사항 관리 기능을 제공합니다.
 
+## 👤 담당 역할 (nelee)
+
+- **🗂️ 칸반보드**: CRUD 기능 구현, dnd-kit 기반 드래그 앤 드롭, 필터링/정렬 시스템, 키보드 단축키 훅 추가
+- **📅 캘린더**: 커스텀 캘린더 뷰(월/주/일) 구현, 프로젝트 기간 기반 일정 제한, Supabase Realtime 연동
+- **🔐 인증 구조 개선**: 기존 인증을 NextAuth·Supabase Auth 병행 구조로 전환, API 인증 통합 유틸 및 미들웨어 병렬 세션 체크 구현, GitHub OAuth 추가
+- **🏗️ 아키텍처 리팩토링**: project/notice/task 모듈을 FSD(Feature-Sliced Design) 구조로 전환, public API 경계 정리
+- **📝 프로젝트 메모**: 메모 생성, soft-delete, 상단 고정/작성자 정보/타임스탬프 기능 구현
+- **📖 Storybook**: 환경 구축 및 컴포넌트 전 레이어 스토리 작성, 테마/다크모드 연동
+- **🛡️ 관리자 페이지**: 관리자 프로젝트 페이지 실데이터(Supabase) 연동, API의 관리자 권한 및 프로젝트 소유권 검증 강화
+- **🚀 배포 안정화**: Vercel 빌드 오류 수정, 반응형 레이아웃 안정화, Next.js 보안 업그레이드
+
 ## 🛠️ 기술 스택 (Tech Stack)
 
 |      분류       | 기술                         |    버전    | 비고                              |
 | :-------------: | :--------------------------- | :--------: | :-------------------------------- |
-|  **Framework**  | **Next.js** (App Router)     | `16.0.1`   | React 기반 풀스택 프레임워크      |
+|  **Framework**  | **Next.js** (App Router)     | `16.2.6`   | React 기반 풀스택 프레임워크      |
 |   **Runtime**   | **React**                    | `19.2.0`   | 최신 React 19 사용                |
 |  **Language**   | **TypeScript**               |   `^5`     | 안정적인 타입 시스템              |
 |   **Styling**   | **Tailwind CSS**             |   `^4`     | 유틸리티 퍼스트 CSS               |
 |     **DnD**     | **@dnd-kit**                 | `^6.3.1`   | 드래그 앤 드롭 기능               |
-|  **Auth / DB**  | **Supabase**                 | `^2.81.1`  | Google·GitHub OAuth, PostgreSQL   |
+|  **Auth / DB**  | **Supabase**                 | `^2.105.1` | Google·GitHub OAuth, PostgreSQL   |
 |    **Auth**     | **NextAuth**                 | `^4`       | 세션 관리, Google·GitHub OAuth    |
 |  **Fetching**   | **TanStack Query**           | `^5`       | 서버 상태 관리 및 데이터 페칭     |
 |   **Editor**    | **Lexical**                  | `^0.38.2`  | 리치 텍스트 에디터                |
@@ -425,18 +436,20 @@ firebaseError.js
 // 나쁜 예시
 <div style={{ color: 'red', fontSize: '16px' }}>Hello</div>
 
-// 좋음 예시 (CSS 클래스 사용)
+// 좋은 예시 (CSS 클래스 사용)
 <div className="text-red-16">Hello</div>
 ```
 
-                                                                                                                                                                                            |
+## 👥 팀원 소개 (Team)
+
+|                          프로필                           |    이름    |         역할          | 주요 담당 업무                                                                                                                                                                                               |
 | :------------------------------------------------------: | :--------: | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="https://github.com/username1.png" width="100"> | **이남은** | Frontend<br>Team Lead | • **칸반 보드:** dnd-kit 기반 카드 Drag & Drop 및 상태 동기화<br>• **캘린더:** 월/주/일 단위 일정 시각화 및 Task 필터링 구현<br>• **데이터 연동:** 보드와 캘린더 간 실시간 데이터 반영 로직               |
-| <img src="https://github.com/username2.png" width="100"> | **김민중** |       Frontend        | • **디자인 시스템:** 전체 UI 톤앤매너 정립 및 공통 컴포넌트 설계<br>• **UI 퍼블리싱:** 반응형 레이아웃 구현 및 CSS 스타일링 최적화<br>• **관리자 대시보드:** 관리자 전용 페이지 UI 및 시스템 설정 뷰 개발 |
-| <img src="https://github.com/username3.png" width="100"> | **이원찬** |       Frontend        | • **인증/보안:** JWT 기반 로그인·회원가입 및 프라이빗 라우트 처리<br>• **멤버 관리:** 사용자 권한(Role) 제어 로직 구현<br>• **초대 시스템:** 워크스페이스 팀원 초대 및 멤버 리스트 관리                   |
-| <img src="https://github.com/username5.png" width="100"> | **이현수** |       Frontend        | • **프로젝트 관리:** 워크스페이스 생성·수정·삭제(CRUD) 프로세스<br>• **환경 설정:** 프로젝트별 메타데이터 관리 및 세부 옵션 제어<br>• **목록 관리:** 프로젝트 타입별 필터링 및 시간순 정렬 로직 구현      |
+| <img src="https://github.com/lnu8926-web.png" width="100"> | **이남은** | Frontend<br>Team Lead | • **칸반 보드:** dnd-kit 기반 카드 Drag & Drop 및 상태 동기화<br>• **캘린더:** 월/주/일 단위 일정 시각화 및 Task 필터링 구현<br>• **데이터 연동:** 보드와 캘린더 간 실시간 데이터 반영 로직               |
+| <img src="https://github.com/f1m1nn2r.png" width="100"> | **김민중** |       Frontend        | • **디자인 시스템:** 전체 UI 톤앤매너 정립 및 공통 컴포넌트 설계<br>• **UI 퍼블리싱:** 반응형 레이아웃 구현 및 CSS 스타일링 최적화<br>• **관리자 대시보드:** 관리자 전용 페이지 UI 및 시스템 설정 뷰 개발 |
+| <img src="https://github.com/gxpk2978.png" width="100"> | **이원찬** |       Frontend        | • **인증/보안:** JWT 기반 로그인·회원가입 및 프라이빗 라우트 처리<br>• **멤버 관리:** 사용자 권한(Role) 제어 로직 구현<br>• **초대 시스템:** 워크스페이스 팀원 초대 및 멤버 리스트 관리                   |
+| <img src="https://github.com/leehyso.png" width="100"> | **이현수** |       Frontend        | • **프로젝트 관리:** 워크스페이스 생성·수정·삭제(CRUD) 프로세스<br>• **환경 설정:** 프로젝트별 메타데이터 관리 및 세부 옵션 제어<br>• **목록 관리:** 프로젝트 타입별 필터링 및 시간순 정렬 로직 구현      |
 
 
-🙏 감사합니다
+## 🙏 감사합니다
 
 이 프로젝트에 관심을 가져주셔서 감사합니다!
